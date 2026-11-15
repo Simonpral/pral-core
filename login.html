@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Pral — Log ind eller opret profil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #F4F4F1; --surface: #FFFFFF; --ink: #111318; --muted: #5B5F6B; --line: #D9DAD5; --edge: #111318;
+      --pitch: #111318; --onpitch: #FFFFFF; --card: #FF5A4E; --oncard: #111318; --red: #E0312B; --onred: #FFFFFF; --soft: #EFEFEA;
+      --head: #111318; --headink: #FFFFFF; --panel: #FFE6E2; --panelink: #111318; --paneledge: #111318;
+      --disp: "Archivo Black", "Archivo", system-ui, sans-serif;
+      --body: "Archivo", system-ui, -apple-system, Segoe UI, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0F1014; --surface: #191B21; --ink: #F3F3EF; --muted: #A3A6B0; --line: #2B2E37; --edge: #8E929C;
+        --pitch: #FF6A5E; --onpitch: #111318; --card: #FF6A5E; --oncard: #111318; --red: #FF5A54; --onred: #111318; --soft: #22252D;
+        --head: #15171C; --headink: #FFFFFF; --panel: #2A1B1A; --panelink: #F3F3EF; --paneledge: #FF6A5E;
+        color-scheme: dark;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh;
+      background: var(--bg);
+      background-image: radial-gradient(var(--line) 1px, transparent 1.2px);
+      background-size: 18px 18px;
+      color: var(--ink);
+      font: 500 16px/1.45 var(--body);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      padding: 20px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    [hidden] { display: none !important; }
+    .auth-shell { max-width: 440px; width: 100%; }
+    .brand-hero { text-align: center; margin-bottom: 18px; }
+    .brand-hero h1 { font: 400 52px/.9 var(--disp); letter-spacing: -.02em; margin: 0; }
+    .brand-hero .dot { display: inline-block; width: .24em; height: .24em; border-radius: 50%; background: var(--card); margin-left: .06em; }
+    .brand-hero p { margin: 8px 0 0; font-weight: 700; color: var(--muted); font-size: 15px; }
+
+    .card {
+      background: var(--surface);
+      border: 3px solid var(--edge);
+      border-radius: 16px;
+      box-shadow: 6px 6px 0 var(--edge);
+      padding: 22px 18px;
+    }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .tabs button {
+      border: 2px solid var(--edge);
+      background: var(--soft);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 10px;
+      font: 400 16px/1 var(--disp);
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--edge);
+    }
+    .tabs button[aria-selected="true"] {
+      background: var(--card);
+      color: var(--oncard);
+      transform: translate(2px, 2px);
+      box-shadow: none;
+    }
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block; font-size: 12px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: var(--muted); margin-bottom: 5px;
+    }
+    .field input {
+      width: 100%; padding: 11px 12px;
+      border: 2px solid var(--edge); border-radius: 10px;
+      background: var(--soft); color: var(--ink);
+      font: 700 16px/1.2 var(--body);
+    }
+    .cta {
+      width: 100%; border: 3px solid var(--edge); border-radius: 12px;
+      padding: 13px; background: var(--pitch); color: var(--onpitch);
+      font: 400 18px/1.1 var(--disp); cursor: pointer;
+      box-shadow: 4px 4px 0 var(--edge);
+      transition: transform .1s, box-shadow .1s;
+    }
+    .cta:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--edge); }
+    .cta:disabled { opacity: .6; cursor: default; }
+    .cta.secondary { background: var(--surface); color: var(--ink); margin-top: 10px; font: 800 15px/1.1 var(--body); }
+
+    .banner {
+      background: var(--panel); color: var(--panelink);
+      border: 2.5px solid var(--paneledge); border-radius: 12px;
+      padding: 12px 14px; margin-bottom: 16px;
+      font-size: 14px; font-weight: 700;
+      box-shadow: 3px 3px 0 var(--edge);
+    }
+    .banner.ok { background: #D9F7E6; color: #111318; border-color: #111318; }
+    .banner b { display: block; font: 400 17px/1.2 var(--disp); margin-bottom: 4px; }
+
+    .perks {
+      list-style: none; padding: 0; margin: 18px 0 0;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      font-size: 13px; font-weight: 700; color: var(--muted);
+    }
+    .perks li {
+      background: var(--surface); border: 1.5px solid var(--edge);
+      border-radius: 10px; padding: 8px 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .foot { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 18px; }
+  </style>
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="brand-hero">
+    <h1>Pral<span class="dot"></span></h1>
+    <p>Fodbold-kald, dueller og håneret i klubben</p>
+  </div>
+
+  <!-- Besked-banner (f.eks. ved verificering eller fejl) -->
+  <div id="statusBanner" class="banner" hidden></div>
+
+  <!-- TRIN 1: LOGIN ELLER OPRET PROFIL -->
+  <div class="card" id="authCard">
+    <div class="tabs" role="tablist">
+      <button type="button" id="tabLogin" aria-selected="true">Log ind</button>
+      <button type="button" id="tabSignup" aria-selected="false">Opret profil</button>
+    </div>
+
+    <form id="authForm">
+      <div class="field" id="nameField" hidden>
+        <label for="displayName">Dit kaldenavn i klubben</label>
+        <input id="displayName" type="text" placeholder="F.eks. Mikkel">
+      </div>
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" placeholder="dig@eksempel.dk" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="password">Adgangskode</label>
+        <input id="password" type="password" placeholder="Mindst 6 tegn" minlength="6" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="cta" id="submitBtn">Log ind på Pral</button>
+    </form>
+  </div>
+
+  <!-- TRIN 2: VÆLG ELLER OPRET KLUB (Vises når man er logget ind, men mangler en klub) -->
+  <div class="card" id="clubSetupCard" hidden>
+    <h2 style="margin:0 0 8px;font:400 24px/1.1 var(--disp)">Vælg din klub ⚽</h2>
+    <p style="margin:0 0 16px;font-size:14px;color:var(--muted)">I Pral spiller man altid mod vennerne i en klub. Har du fået en kode, eller starter du dit eget hold?</p>
+
+    <form id="joinClubForm" style="margin-bottom:18px">
+      <div class="field">
+        <label for="inviteCode">Har du en invitationskode?</label>
+        <input id="inviteCode" type="text" placeholder="F.eks. FREDAG" style="text-transform:uppercase" required>
+      </div>
+      <button type="submit" class="cta">Hop ind i klubben</button>
+    </form>
+
+    <hr style="border:0;border-top:2px dashed var(--line);margin:16px 0">
+
+    <form id="createClubForm">
+      <div class="field">
+        <label for="clubName">Eller opret en ny klub</label>
+        <input id="clubName" type="text" placeholder="F.eks. Fredagsholdet" required>
+      </div>
+      <button type="submit" class="cta secondary">Opret ny klub</button>
+    </form>
+
+    <button type="button" class="cta secondary" id="skipToAppBtn" style="border-style:dashed;margin-top:14px">Fortsæt med standardklub (Fredagsholdet)</button>
+  </div>
+
+  <ul class="perks">
+    <li><span>🔥</span><span>1.000 PP fra start</span></li>
+    <li><span>🃏</span><span>Modspil vennerne</span></li>
+    <li><span>📡</span><span>Live-odds under kampen</span></li>
+    <li><span>🏅</span><span>Vind ugens kåringer</span></li>
+  </ul>
+
+  <p class="foot">Pralepoint (PP) er 100 % fiktive og kan aldrig købes eller udbetales.</p>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://jvnbhbnpxdyufmctmarg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bmJoYm5weGR5dWZtY3RtYXJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3NzEzOTgsImV4cCI6MjExMDM0NzM5OH0.XYHYQCt6RHl8fQjYEJniU1z3hzfSBVVz39UlnxZqlsc';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const $ = s => document.querySelector(s);
+let mode = 'login';
+
+function showBanner(title, text, isOk = false) {
+  const b = $('#statusBanner');
+  b.className = 'banner' + (isOk ? ' ok' : '');
+  b.innerHTML = `<b>${title}</b><span>${text}</span>`;
+  b.hidden = false;
+}
+
+// Tjek URL-parametre (f.eks. når Make.com sender brugeren tilbage med ?verified=true)
+const params = new URLSearchParams(window.location.search);
+if (params.get('verified') === 'true') {
+  showBanner('Konto bekræftet! ✅', 'Din e-mail er nu verificeret. Log ind herunder for at gå på banen.', true);
+}
+
+// Skift mellem Login og Opret
+$('#tabLogin').addEventListener('click', () => {
+  mode = 'login';
+  $('#tabLogin').setAttribute('aria-selected', 'true');
+  $('#tabSignup').setAttribute('aria-selected', 'false');
+  $('#nameField').hidden = true;
+  $('#displayName').required = false;
+  $('#submitBtn').textContent = 'Log ind på Pral';
+});
+
+$('#tabSignup').addEventListener('click', () => {
+  mode = 'signup';
+  $('#tabSignup').setAttribute('aria-selected', 'true');
+  $('#tabLogin').setAttribute('aria-selected', 'false');
+  $('#nameField').hidden = false;
+  $('#displayName').required = true;
+  $('#submitBtn').textContent = 'Opret profil (+1.000 PP)';
+});
+
+// Tjek om brugeren allerede er logget ind
+async function checkExistingSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    await routeAuthenticatedUser(session.user);
+  }
+}
+
+async function routeAuthenticatedUser(user) {
+  // Sikr at profil findes i public.profiles
+  try {
+    const { data: prof } = await sb.from('profiles').select('id').eq('id', user.id).maybeSingle();
+    if (!prof) {
+      const name = user.user_metadata?.display_name || user.email.split('@')[0];
+      await sb.from('profiles').insert({ id: user.id, display_name: name, pp: 1000, streak: 0, badges: ['welcome'] });
+    }
+    // Tjek om brugeren allerede er medlem af en klub
+    const { data: member } = await sb.from('club_members').select('club_id').eq('user_id', user.id).limit(1).maybeSingle();
+    if (member?.club_id) {
+      window.location.href = 'index.html';
+      return;
+    }
+    // Ellers vis "Vælg eller opret klub"-kortet
+    $('#authCard').hidden = true;
+    $('#clubSetupCard').hidden = false;
+  } catch (e) {
+    // Hvis tabeller ikke er sat op endnu, gå direkte til index.html
+    window.location.href = 'index.html';
+  }
+}
+
+// Håndter Login / Signup formular
+$('#authForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('#statusBanner').hidden = true;
+  const btn = $('#submitBtn');
+  btn.disabled = true;
+
+  const email = $('#email').value.trim();
+  const password = $('#password').value;
+  const displayName = $('#displayName').value.trim();
+
+  try {
+    if (mode === 'signup') {
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { display_name: displayName },
+          emailRedirectTo: window.location.origin + '/login.html?verified=true'
+        }
+      });
+      if (error) throw error;
+
+      // Hvis Confirm Email er slået til i Supabase, er data.session === null indtil verificering
+      if (!data.session) {
+        showBanner(
+          'Tjek din indbakke! 📬',
+          `Vi har sendt et bekræftelseslink til ${email}. Klik på linket i mailen for at aktivere din profil.`
+        );
+        btn.disabled = false;
+        return;
+      }
+      await routeAuthenticatedUser(data.user);
+    } else {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await routeAuthenticatedUser(data.user);
+    }
+  } catch (err) {
+    let msg = err.message || 'Noget gik galt.';
+    if (msg.includes('Email not confirmed')) {
+      msg = 'Din e-mail afventer stadig bekræftelse. Tjek din indbakke (eller slå Confirm Email fra i Supabase).';
+    } else if (msg.includes('Invalid login credentials')) {
+      msg = 'Forkert e-mail eller adgangskode.';
+    }
+    showBanner('Hov!', msg);
+    btn.disabled = false;
+  }
+});
+
+// Håndter "Hop ind i klubben"
+$('#joinClubForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const code = $('#inviteCode').value.trim().toUpperCase();
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
+  try {
+    const { data: club, error } = await sb.from('clubs').select('*').eq('invite_code', code).single();
+    if (error || !club) throw new Error('Vi fandt ingen klub med koden "' + code + '".');
+    await sb.from('club_members').upsert({ club_id: club.id, user_id: user.id });
+    window.location.href = 'index.html';
+  } catch (err) {
+    showBanner('Kunne ikke finde klub', err.message);
+  }
+});
+
+// Håndter "Opret ny klub"
+$('#createClubForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = $('#clubName').value.trim();
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
+  const code = name.replace(/[^a-zA-Z0-9]/g, '').slice(0, 4).toUpperCase() + Math.floor(10 + Math.random() * 89);
+  try {
+    const { data: club, error } = await sb.from('clubs').insert({
+      name,
+      invite_code: code,
+      created_by: user.id
+    }).select().single();
+    if (error) throw error;
+    await sb.from('club_members').insert({ club_id: club.id, user_id: user.id });
+    window.location.href = 'index.html';
+  } catch (err) {
+    showBanner('Fejl ved oprettelse', err.message);
+  }
+});
+
+$('#skipToAppBtn').addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
+
+checkExistingSession();
+</script>
+</body>
+</html>
