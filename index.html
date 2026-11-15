@@ -249,8 +249,14 @@ const signed = (x) => (x > 0 ? '+' : '') + pp(x);
 const label = (m, i) => (i === 0 ? m.home : i === 2 ? m.away : 'Uafgjort');
 const kickoff = (iso) => new Intl.DateTimeFormat('da-DK', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Copenhagen' }).format(new Date(iso));
 
-const cfg = window.PRAL_CONFIG || {};
-const configured = cfg.url && cfg.key && !cfg.url.includes('DIT-PROJEKT') && !cfg.key.includes('DIN-');
+// Forbindelsen til Supabase (offentlige værdier). config.js kan overskrive dem.
+const PRAL_DEFAULT = {
+  url: 'https://jvnbhbnpxdyufmctmarg.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bmJoYm5weGR5dWZtY3RtYXJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3NzEzOTgsImV4cCI6MjExMDM0NzM5OH0.XYHYQCt6RHl8fQjYEJniU1z3hzfSBVVz39UlnxZqlsc',
+};
+const isSet = (c) => c && c.url && c.key && !c.url.includes('DIT-PROJEKT') && !c.key.includes('DIN-');
+const cfg = isSet(window.PRAL_CONFIG) ? window.PRAL_CONFIG : PRAL_DEFAULT;
+const configured = isSet(cfg);
 const sb = configured && window.supabase ? window.supabase.createClient(cfg.url, cfg.key) : null;
 
 const state = { user: null, profile: null, matches: new Map(), round: null, picks: [], clubs: [], club: null, scope: 'week', view: 'kampe', rt: 'connecting', sheet: null, stake: 100 };
