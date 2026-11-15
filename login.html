@@ -121,7 +121,7 @@
     <p>Fodbold-kald, dueller og håneret i klubben</p>
   </div>
 
-  <!-- Besked-banner (f.eks. ved verificering eller fejl) -->
+  <!-- Besked-banner (ved e-mail-bekræftelse eller fejl) -->
   <div id="statusBanner" class="banner" hidden></div>
 
   <!-- TRIN 1: LOGIN ELLER OPRET PROFIL -->
@@ -148,30 +148,30 @@
     </form>
   </div>
 
-  <!-- TRIN 2: VÆLG ELLER OPRET KLUB (Vises når man er logget ind, men mangler en klub) -->
+  <!-- TRIN 2: VÆLG ELLER OPRET KLUB -->
   <div class="card" id="clubSetupCard" hidden>
     <h2 style="margin:0 0 8px;font:400 24px/1.1 var(--disp)">Vælg din klub ⚽</h2>
-    <p style="margin:0 0 16px;font-size:14px;color:var(--muted)">I Pral spiller man altid mod vennerne i en klub. Har du fået en kode, eller starter du dit eget hold?</p>
+    <p style="margin:0 0 16px;font-size:14px;color:var(--muted)">I Pral spiller man altid mod vennerne i en klub. Fortsæt med Fredagsholdet, eller brug en invitationskode:</p>
 
-    <form id="joinClubForm" style="margin-bottom:18px">
-      <div class="field">
-        <label for="inviteCode">Har du en invitationskode?</label>
-        <input id="inviteCode" type="text" placeholder="F.eks. FREDAG" style="text-transform:uppercase" required>
-      </div>
-      <button type="submit" class="cta">Hop ind i klubben</button>
-    </form>
+    <button type="button" class="cta" id="continueDefaultClubBtn" style="margin-bottom:16px">Gå på banen med Fredagsholdet &rarr;</button>
 
     <hr style="border:0;border-top:2px dashed var(--line);margin:16px 0">
 
+    <form id="joinClubForm" style="margin-bottom:14px">
+      <div class="field">
+        <label for="inviteCode">Har du en invitationskode til en anden klub?</label>
+        <input id="inviteCode" type="text" placeholder="F.eks. LØRDAG99" style="text-transform:uppercase" required>
+      </div>
+      <button type="submit" class="cta secondary">Skift til denne klub</button>
+    </form>
+
     <form id="createClubForm">
       <div class="field">
-        <label for="clubName">Eller opret en ny klub</label>
-        <input id="clubName" type="text" placeholder="F.eks. Fredagsholdet" required>
+        <label for="clubName">Eller opret din egen klub</label>
+        <input id="clubName" type="text" placeholder="Klubbens navn" required>
       </div>
       <button type="submit" class="cta secondary">Opret ny klub</button>
     </form>
-
-    <button type="button" class="cta secondary" id="skipToAppBtn" style="border-style:dashed;margin-top:14px">Fortsæt med standardklub (Fredagsholdet)</button>
   </div>
 
   <ul class="perks">
@@ -187,10 +187,12 @@
 <script>
 const SUPABASE_URL = 'https://jvnbhbnpxdyufmctmarg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bmJoYm5weGR5dWZtY3RtYXJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3NzEzOTgsImV4cCI6MjExMDM0NzM5OH0.XYHYQCt6RHl8fQjYEJniU1z3hzfSBVVz39UlnxZqlsc';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SITE_REDIRECT_URL = 'https://pralcore.vercel.app/login.html?verified=true';
 
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = s => document.querySelector(s);
 let mode = 'login';
+let isRouting = false;
 
 function showBanner(title, text, isOk = false) {
   const b = $('#statusBanner');
@@ -199,10 +201,60 @@ function showBanner(title, text, isOk = false) {
   b.hidden = false;
 }
 
-// Tjek URL-parametre (f.eks. når Make.com sender brugeren tilbage med ?verified=true)
+// 1. Håndter url-parametre og fejl fra e-mail-linket
 const params = new URLSearchParams(window.location.search);
-if (params.get('verified') === 'true') {
-  showBanner('Konto bekræftet! ✅', 'Din e-mail er nu verificeret. Log ind herunder for at gå på banen.', true);
+const hashParams = new URLSearchParams(window.location.hash.substring(1));
+
+if (hashParams.get('error_description')) {
+  showBanner('Linket er udløbet eller ugyldigt', decodeURIComponent(hashParams.get('error_description').replace(/\+/g, ' ')));
+} else if (params.get('verified') === 'true') {
+  showBanner('E-mail bekræftet! ✅', 'Din profil er nu verificeret! Logger dig ind på banen...', true);
+}
+
+// 2. Lyt automatisk på Supabase Auth (griber sessionen fra e-mail-linket)
+sb.auth.onAuthStateChange(async (event, session) => {
+  if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user) {
+    await routeAuthenticatedUser(session.user, params.get('verified') === 'true');
+  }
+});
+
+// 3. Tjek om brugeren allerede har en aktiv session
+async function checkExistingSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    await routeAuthenticatedUser(session.user, params.get('verified') === 'true');
+  }
+}
+
+async function routeAuthenticatedUser(user, justVerified = false) {
+  if (isRouting) return;
+  isRouting = true;
+
+  try {
+    // Sikr at profilen er markeret som verificeret i public.profiles
+    await sb.from('profiles').update({
+      email_verified: true,
+      updated_at: new Date().toISOString()
+    }).eq('id', user.id);
+
+    // Hvis brugeren lige har klikket på e-mail-linket, giv dem mulighed for at vælge klub eller gå direkte ind
+    if (justVerified) {
+      $('#authCard').hidden = true;
+      $('#clubSetupCard').hidden = false;
+      return;
+    }
+
+    // Ved normalt login: tjek om brugeren er i en klub, og send direkte til index.html
+    const { data: member } = await sb.from('club_members').select('club_id').eq('user_id', user.id).limit(1).maybeSingle();
+    if (member?.club_id) {
+      window.location.replace('index.html');
+      return;
+    }
+    $('#authCard').hidden = true;
+    $('#clubSetupCard').hidden = false;
+  } catch (e) {
+    window.location.replace('index.html');
+  }
 }
 
 // Skift mellem Login og Opret
@@ -224,38 +276,7 @@ $('#tabSignup').addEventListener('click', () => {
   $('#submitBtn').textContent = 'Opret profil (+1.000 PP)';
 });
 
-// Tjek om brugeren allerede er logget ind
-async function checkExistingSession() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) {
-    await routeAuthenticatedUser(session.user);
-  }
-}
-
-async function routeAuthenticatedUser(user) {
-  // Sikr at profil findes i public.profiles
-  try {
-    const { data: prof } = await sb.from('profiles').select('id').eq('id', user.id).maybeSingle();
-    if (!prof) {
-      const name = user.user_metadata?.display_name || user.email.split('@')[0];
-      await sb.from('profiles').insert({ id: user.id, display_name: name, pp: 1000, streak: 0, badges: ['welcome'] });
-    }
-    // Tjek om brugeren allerede er medlem af en klub
-    const { data: member } = await sb.from('club_members').select('club_id').eq('user_id', user.id).limit(1).maybeSingle();
-    if (member?.club_id) {
-      window.location.href = 'index.html';
-      return;
-    }
-    // Ellers vis "Vælg eller opret klub"-kortet
-    $('#authCard').hidden = true;
-    $('#clubSetupCard').hidden = false;
-  } catch (e) {
-    // Hvis tabeller ikke er sat op endnu, gå direkte til index.html
-    window.location.href = 'index.html';
-  }
-}
-
-// Håndter Login / Signup formular
+// Login / Signup Formular
 $('#authForm').addEventListener('submit', async e => {
   e.preventDefault();
   $('#statusBanner').hidden = true;
@@ -273,30 +294,31 @@ $('#authForm').addEventListener('submit', async e => {
         password,
         options: {
           data: { display_name: displayName },
-          emailRedirectTo: window.location.origin + '/login.html?verified=true'
+          emailRedirectTo: SITE_REDIRECT_URL
         }
       });
       if (error) throw error;
 
-      // Hvis Confirm Email er slået til i Supabase, er data.session === null indtil verificering
       if (!data.session) {
         showBanner(
-          'Tjek din indbakke! 📬',
-          `Vi har sendt et bekræftelseslink til ${email}. Klik på linket i mailen for at aktivere din profil.`
+          'Tjek din e-mail! 📬',
+          `Vi har sendt et bekræftelseslink til <b>${email}</b>. Klik på knappen i mailen for at aktivere din profil og få dine 1.000 PP.`,
+          true
         );
         btn.disabled = false;
         return;
       }
-      await routeAuthenticatedUser(data.user);
+      await routeAuthenticatedUser(data.user, true);
     } else {
+      isRouting = false;
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      await routeAuthenticatedUser(data.user);
+      await routeAuthenticatedUser(data.user, false);
     }
   } catch (err) {
     let msg = err.message || 'Noget gik galt.';
     if (msg.includes('Email not confirmed')) {
-      msg = 'Din e-mail afventer stadig bekræftelse. Tjek din indbakke (eller slå Confirm Email fra i Supabase).';
+      msg = 'Din e-mail er endnu ikke bekræftet. Klik på linket i den mail, vi har sendt til dig.';
     } else if (msg.includes('Invalid login credentials')) {
       msg = 'Forkert e-mail eller adgangskode.';
     }
@@ -305,7 +327,12 @@ $('#authForm').addEventListener('submit', async e => {
   }
 });
 
-// Håndter "Hop ind i klubben"
+// Gå direkte til index.html med Fredagsholdet
+$('#continueDefaultClubBtn').addEventListener('click', () => {
+  window.location.replace('index.html');
+});
+
+// Skift til en anden klub via invitationskode
 $('#joinClubForm').addEventListener('submit', async e => {
   e.preventDefault();
   const code = $('#inviteCode').value.trim().toUpperCase();
@@ -315,13 +342,13 @@ $('#joinClubForm').addEventListener('submit', async e => {
     const { data: club, error } = await sb.from('clubs').select('*').eq('invite_code', code).single();
     if (error || !club) throw new Error('Vi fandt ingen klub med koden "' + code + '".');
     await sb.from('club_members').upsert({ club_id: club.id, user_id: user.id });
-    window.location.href = 'index.html';
+    window.location.replace('index.html');
   } catch (err) {
     showBanner('Kunne ikke finde klub', err.message);
   }
 });
 
-// Håndter "Opret ny klub"
+// Opret ny klub
 $('#createClubForm').addEventListener('submit', async e => {
   e.preventDefault();
   const name = $('#clubName').value.trim();
@@ -335,15 +362,11 @@ $('#createClubForm').addEventListener('submit', async e => {
       created_by: user.id
     }).select().single();
     if (error) throw error;
-    await sb.from('club_members').insert({ club_id: club.id, user_id: user.id });
-    window.location.href = 'index.html';
+    await sb.from('club_members').insert({ club_id: club.id, user_id: user.id, role: 'admin' });
+    window.location.replace('index.html');
   } catch (err) {
     showBanner('Fejl ved oprettelse', err.message);
   }
-});
-
-$('#skipToAppBtn').addEventListener('click', () => {
-  window.location.href = 'index.html';
 });
 
 checkExistingSession();
