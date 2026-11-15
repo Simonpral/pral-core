@@ -121,7 +121,7 @@
     <p>Fodbold-kald, dueller og håneret i klubben</p>
   </div>
 
-  <!-- Besked-banner (ved e-mail-bekræftelse eller fejl) -->
+  <!-- Besked-banner (ved e-mail-bekræftelse, klub-invitation eller fejl) -->
   <div id="statusBanner" class="banner" hidden></div>
 
   <!-- TRIN 1: LOGIN ELLER OPRET PROFIL -->
@@ -148,29 +148,35 @@
     </form>
   </div>
 
-  <!-- TRIN 2: VÆLG ELLER OPRET KLUB -->
+  <!-- TRIN 2: VÆLG ELLER OPRET KLUB (Når e-mail er bekræftet) -->
   <div class="card" id="clubSetupCard" hidden>
     <h2 style="margin:0 0 8px;font:400 24px/1.1 var(--disp)">Vælg din klub ⚽</h2>
-    <p style="margin:0 0 16px;font-size:14px;color:var(--muted)">I Pral spiller man altid mod vennerne i en klub. Fortsæt med Fredagsholdet, eller brug en invitationskode:</p>
+    <p style="margin:0 0 16px;font-size:14px;color:var(--muted)">Du er automatisk med i <b>Fredagsholdet</b>, men du kan også hoppe ind i en vens klub med kode eller oprette din egen:</p>
 
     <button type="button" class="cta" id="continueDefaultClubBtn" style="margin-bottom:16px">Gå på banen med Fredagsholdet &rarr;</button>
 
     <hr style="border:0;border-top:2px dashed var(--line);margin:16px 0">
 
-    <form id="joinClubForm" style="margin-bottom:14px">
+    <form id="joinClubForm" style="margin-bottom:16px">
       <div class="field">
-        <label for="inviteCode">Har du en invitationskode til en anden klub?</label>
-        <input id="inviteCode" type="text" placeholder="F.eks. LØRDAG99" style="text-transform:uppercase" required>
+        <label for="inviteCode">Har du en invitationskode til en klub?</label>
+        <input id="inviteCode" type="text" placeholder="F.eks. ROSKILDE26" style="text-transform:uppercase" required>
       </div>
-      <button type="submit" class="cta secondary">Skift til denne klub</button>
+      <button type="submit" class="cta secondary">Hop ind i klubben med kode</button>
     </form>
+
+    <hr style="border:0;border-top:2px dashed var(--line);margin:16px 0">
 
     <form id="createClubForm">
       <div class="field">
-        <label for="clubName">Eller opret din egen klub</label>
-        <input id="clubName" type="text" placeholder="Klubbens navn" required>
+        <label for="clubName">Eller opret din egen klub (du bliver Admin 👑)</label>
+        <input id="clubName" type="text" placeholder="F.eks. Lørdagsholdet" required>
       </div>
-      <button type="submit" class="cta secondary">Opret ny klub</button>
+      <div class="field">
+        <label for="clubMotto">Klubbens motto (valgfrit)</label>
+        <input id="clubMotto" type="text" placeholder="F.eks. Taberen giver øl">
+      </div>
+      <button type="submit" class="cta secondary">Opret klub & åbn Klub Admin &rarr;</button>
     </form>
   </div>
 
@@ -201,14 +207,23 @@ function showBanner(title, text, isOk = false) {
   b.hidden = false;
 }
 
-// 1. Håndter url-parametre og fejl fra e-mail-linket
+// 1. Læs URL-parametre (?verified=true og ?join=KODE fra klub.html)
 const params = new URLSearchParams(window.location.search);
 const hashParams = new URLSearchParams(window.location.hash.substring(1));
+
+if (params.get('join')) {
+  const jCode = params.get('join').trim().toUpperCase();
+  localStorage.setItem('pral_pending_join', jCode);
+  $('#inviteCode').value = jCode;
+  showBanner('Klub-invitation klar! 🎟️', `Log ind eller opret profil herunder for at hoppe direkte ind i klubben med koden <b>${jCode}</b>.`, true);
+} else if (localStorage.getItem('pral_pending_join')) {
+  $('#inviteCode').value = localStorage.getItem('pral_pending_join');
+}
 
 if (hashParams.get('error_description')) {
   showBanner('Linket er udløbet eller ugyldigt', decodeURIComponent(hashParams.get('error_description').replace(/\+/g, ' ')));
 } else if (params.get('verified') === 'true') {
-  showBanner('E-mail bekræftet! ✅', 'Din profil er nu verificeret! Logger dig ind på banen...', true);
+  showBanner('E-mail bekræftet! ✅', 'Din profil er verificeret! Vælg din klub herunder eller log direkte ind.', true);
 }
 
 // 2. Lyt automatisk på Supabase Auth (griber sessionen fra e-mail-linket)
@@ -218,7 +233,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-// 3. Tjek om brugeren allerede har en aktiv session
+// 3. Tjek eksisterende session ved side-load
 async function checkExistingSession() {
   const { data: { session } } = await sb.auth.getSession();
   if (session?.user) {
@@ -226,32 +241,62 @@ async function checkExistingSession() {
   }
 }
 
-async function routeAuthenticatedUser(user, justVerified = false) {
+async function routeAuthenticatedUser(user, showClubPicker = false) {
   if (isRouting) return;
   isRouting = true;
 
   try {
-    // Sikr at profilen er markeret som verificeret i public.profiles
-    await sb.from('profiles').update({
-      email_verified: true,
-      updated_at: new Date().toISOString()
-    }).eq('id', user.id);
+    // Sikr at profil findes og er markeret verificeret i public.profiles
+    const { data: prof } = await sb.from('profiles').select('id').eq('id', user.id).maybeSingle();
+    if (!prof) {
+      const displayName = user.user_metadata?.display_name || user.email.split('@')[0];
+      await sb.from('profiles').insert({
+        id: user.id,
+        email: user.email,
+        display_name: displayName,
+        pp: 1000,
+        streak: 0,
+        badges: ['welcome'],
+        email_verified: true
+      });
+    } else {
+      await sb.from('profiles').update({
+        email_verified: true,
+        updated_at: new Date().toISOString()
+      }).eq('id', user.id);
+    }
 
-    // Hvis brugeren lige har klikket på e-mail-linket, giv dem mulighed for at vælge klub eller gå direkte ind
-    if (justVerified) {
+    // Sikr medlemskab af Fredagsholdet som udgangspunkt
+    const { data: defClub } = await sb.from('clubs').select('*').eq('invite_code', 'FREDAG').maybeSingle();
+    if (defClub) {
+      await sb.from('club_members').upsert({ club_id: defClub.id, user_id: user.id }, { onConflict: 'club_id,user_id', ignoreDuplicates: true });
+      if (!localStorage.getItem('pral_active_club_id')) {
+        localStorage.setItem('pral_active_club_id', defClub.id);
+      }
+    }
+
+    // Hvis brugeren kom via et ?join=KODE link, tilmeld dem klubben automatisk!
+    const pendingCode = localStorage.getItem('pral_pending_join');
+    if (pendingCode) {
+      const { data: invitedClub } = await sb.from('clubs').select('*').eq('invite_code', pendingCode).maybeSingle();
+      localStorage.removeItem('pral_pending_join');
+      if (invitedClub) {
+        await sb.from('club_members').upsert({ club_id: invitedClub.id, user_id: user.id, role: 'member' });
+        localStorage.setItem('pral_active_club_id', invitedClub.id);
+        window.location.replace('klub.html');
+        return;
+      }
+    }
+
+    // Hvis brugeren lige har klikket på bekræftelseslinket i mailen -> Vis klub-vælgeren
+    if (showClubPicker) {
       $('#authCard').hidden = true;
       $('#clubSetupCard').hidden = false;
       return;
     }
 
-    // Ved normalt login: tjek om brugeren er i en klub, og send direkte til index.html
-    const { data: member } = await sb.from('club_members').select('club_id').eq('user_id', user.id).limit(1).maybeSingle();
-    if (member?.club_id) {
-      window.location.replace('index.html');
-      return;
-    }
-    $('#authCard').hidden = true;
-    $('#clubSetupCard').hidden = false;
+    // Ellers send direkte ind til hovedsiden index.html
+    window.location.replace('index.html');
   } catch (e) {
     window.location.replace('index.html');
   }
@@ -302,23 +347,24 @@ $('#authForm').addEventListener('submit', async e => {
       if (!data.session) {
         showBanner(
           'Tjek din e-mail! 📬',
-          `Vi har sendt et bekræftelseslink til <b>${email}</b>. Klik på knappen i mailen for at aktivere din profil og få dine 1.000 PP.`,
+          `Vi har sendt en bekræftelsesmail til <b>${email}</b>. Klik på knappen i mailen for at aktivere din profil og vælge klub.`,
           true
         );
         btn.disabled = false;
         return;
       }
+      isRouting = false;
       await routeAuthenticatedUser(data.user, true);
     } else {
       isRouting = false;
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      await routeAuthenticatedUser(data.user, false);
+      await routeAuthenticatedUser(data.user, params.get('verified') === 'true');
     }
   } catch (err) {
     let msg = err.message || 'Noget gik galt.';
     if (msg.includes('Email not confirmed')) {
-      msg = 'Din e-mail er endnu ikke bekræftet. Klik på linket i den mail, vi har sendt til dig.';
+      msg = 'Din e-mail er endnu ikke bekræftet. Klik på knappen i den mail, vi har sendt til dig.';
     } else if (msg.includes('Invalid login credentials')) {
       msg = 'Forkert e-mail eller adgangskode.';
     }
@@ -327,12 +373,12 @@ $('#authForm').addEventListener('submit', async e => {
   }
 });
 
-// Gå direkte til index.html med Fredagsholdet
+// Fortsæt direkte med Fredagsholdet
 $('#continueDefaultClubBtn').addEventListener('click', () => {
   window.location.replace('index.html');
 });
 
-// Skift til en anden klub via invitationskode
+// Hop ind i en anden klub med kode
 $('#joinClubForm').addEventListener('submit', async e => {
   e.preventDefault();
   const code = $('#inviteCode').value.trim().toUpperCase();
@@ -341,29 +387,34 @@ $('#joinClubForm').addEventListener('submit', async e => {
   try {
     const { data: club, error } = await sb.from('clubs').select('*').eq('invite_code', code).single();
     if (error || !club) throw new Error('Vi fandt ingen klub med koden "' + code + '".');
-    await sb.from('club_members').upsert({ club_id: club.id, user_id: user.id });
-    window.location.replace('index.html');
+    await sb.from('club_members').upsert({ club_id: club.id, user_id: user.id, role: 'member' });
+    localStorage.setItem('pral_active_club_id', club.id);
+    window.location.replace('klub.html');
   } catch (err) {
     showBanner('Kunne ikke finde klub', err.message);
   }
 });
 
-// Opret ny klub
+// Opret ny klub (Sender brugeren direkte til klubadmin.html for deres nye klub)
 $('#createClubForm').addEventListener('submit', async e => {
   e.preventDefault();
   const name = $('#clubName').value.trim();
+  const motto = $('#clubMotto').value.trim() || 'Spil om håneretten!';
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return;
-  const code = name.replace(/[^a-zA-Z0-9]/g, '').slice(0, 4).toUpperCase() + Math.floor(10 + Math.random() * 89);
+  const code = name.replace(/[^a-zA-Z0-9]/g, '').slice(0, 5).toUpperCase() + Math.floor(10 + Math.random() * 89);
   try {
     const { data: club, error } = await sb.from('clubs').insert({
       name,
+      motto,
       invite_code: code,
-      created_by: user.id
+      created_by: user.id,
+      current_round: 1
     }).select().single();
     if (error) throw error;
     await sb.from('club_members').insert({ club_id: club.id, user_id: user.id, role: 'admin' });
-    window.location.replace('index.html');
+    localStorage.setItem('pral_active_club_id', club.id);
+    window.location.replace(`klubadmin.html?club=${club.id}`);
   } catch (err) {
     showBanner('Fejl ved oprettelse', err.message);
   }
