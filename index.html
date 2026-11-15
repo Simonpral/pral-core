@@ -156,7 +156,7 @@ nav.tabs button[aria-current=page]{background:var(--accent);color:var(--onaccent
   <!-- Opsætning mangler -->
   <section id="v-setup" hidden>
     <div class="card"><h3>Forbind til Supabase</h3>
-      <p>Udfyld <b>config.js</b> med jeres Project URL og publishable key fra Supabase (Project Settings → API Keys). Brug aldrig secret key i appen.</p></div>
+      <p>Kunne ikke forbinde til Supabase. Tjek SUPABASE_URL og SUPABASE_KEY øverst i scriptet i index.html (Project Settings → API Keys). Brug aldrig secret key i appen.</p></div>
   </section>
 
   <!-- Log ind -->
@@ -235,7 +235,6 @@ nav.tabs button[aria-current=page]{background:var(--accent);color:var(--onaccent
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 // ===================== Opsætning =====================
@@ -249,15 +248,10 @@ const signed = (x) => (x > 0 ? '+' : '') + pp(x);
 const label = (m, i) => (i === 0 ? m.home : i === 2 ? m.away : 'Uafgjort');
 const kickoff = (iso) => new Intl.DateTimeFormat('da-DK', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Copenhagen' }).format(new Date(iso));
 
-// Forbindelsen til Supabase (offentlige værdier). config.js kan overskrive dem.
-const PRAL_DEFAULT = {
-  url: 'https://jvnbhbnpxdyufmctmarg.supabase.co',
-  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bmJoYm5weGR5dWZtY3RtYXJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3NzEzOTgsImV4cCI6MjExMDM0NzM5OH0.XYHYQCt6RHl8fQjYEJniU1z3hzfSBVVz39UlnxZqlsc',
-};
-const isSet = (c) => c && c.url && c.key && !c.url.includes('DIT-PROJEKT') && !c.key.includes('DIN-');
-const cfg = isSet(window.PRAL_CONFIG) ? window.PRAL_CONFIG : PRAL_DEFAULT;
-const configured = isSet(cfg);
-const sb = configured && window.supabase ? window.supabase.createClient(cfg.url, cfg.key) : null;
+// Forbindelsen til Supabase. Begge værdier er offentlige. Brug ALDRIG secret key her.
+const SUPABASE_URL = 'https://jvnbhbnpxdyufmctmarg.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bmJoYm5weGR5dWZtY3RtYXJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3NzEzOTgsImV4cCI6MjExMDM0NzM5OH0.XYHYQCt6RHl8fQjYEJniU1z3hzfSBVVz39UlnxZqlsc';
+const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 const state = { user: null, profile: null, matches: new Map(), round: null, picks: [], clubs: [], club: null, scope: 'week', view: 'kampe', rt: 'connecting', sheet: null, stake: 100 };
 
