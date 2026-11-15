@@ -147,7 +147,7 @@
       padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
     }
     nav .in { max-width: 560px; margin: 0 auto; display: flex; gap: 6px; }
-    nav button {
+    nav button, nav a {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -155,6 +155,7 @@
       gap: 3px;
       background: none;
       color: inherit;
+      text-decoration: none;
       border: 2px solid transparent;
       border-radius: 12px;
       padding: 5px 4px 4px;
@@ -165,8 +166,8 @@
       opacity: .72;
       transition: transform .1s;
     }
-    nav button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-    nav button:active { transform: scale(.94); }
+    nav button svg, nav a svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    nav button:active, nav a:active { transform: scale(.94); }
     nav button[aria-selected="true"] { background: var(--tabon); color: var(--tabonink); border-color: var(--edge); opacity: 1; }
 
     /* Main Content */
@@ -187,6 +188,18 @@
     .nm { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
     #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 30; }
     .note { font-size: 13px; color: var(--muted); text-align: center; margin: 28px 0 0; }
+
+    /* Quick Club Switcher Pills */
+    .club-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; scrollbar-width: none; }
+    .club-bar::-webkit-scrollbar { display: none; }
+    .club-pill {
+      flex: none; border: 2px solid var(--edge); background: var(--surface); color: var(--ink);
+      border-radius: 99px; padding: 5px 12px; font-weight: 800; font-size: 12.5px;
+      cursor: pointer; box-shadow: 2px 2px 0 var(--edge); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .club-pill[aria-pressed="true"] { background: var(--pitch); color: var(--onpitch); transform: translate(2px, 2px); box-shadow: none; }
+    .club-pill.accent { background: var(--card); color: var(--oncard); }
 
     /* Matches */
     .match { background: var(--surface); border: 1.5px solid var(--edge); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
@@ -270,33 +283,13 @@
       cursor: pointer;
       box-shadow: 4px 4px 0 var(--edge);
       transition: transform .1s, box-shadow .1s;
+      text-decoration: none;
+      display: block;
+      text-align: center;
     }
     .cta:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--edge); }
     .cta.ghost { background: var(--surface); color: var(--ink); margin-top: 8px; font-family: var(--body); font-weight: 800; font-size: 15px; }
     .cta:disabled { background: var(--soft); color: var(--muted); border-color: var(--line); opacity: 1; cursor: default; box-shadow: none; }
-
-    /* Club & Panels */
-    .yellow {
-      background: var(--panel);
-      color: var(--panelink);
-      border: 3px solid var(--paneledge);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 18px;
-      position: relative;
-      box-shadow: 6px 6px 0 var(--edge);
-    }
-    .yellow h2 { margin: 0 0 12px; font: 400 24px/1.05 var(--disp); color: var(--panelhead); }
-    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .pair > div { background: var(--panelbox); border: 2px solid var(--panelboxedge); border-radius: 10px; padding: 10px; }
-    .pair .k { font-size: 12.5px; font-weight: 700; line-height: 1.25; }
-    .pair .who { font-weight: 800; font-size: 17px; margin: 6px 0 4px; }
-    .pair .big { font: 900 34px/1 "Archivo", system-ui, sans-serif; color: var(--bignum); }
-    .pair .s { font-size: 12.5px; font-weight: 600; }
-    .award { background: var(--panelbox); border: 1.5px solid var(--panelboxedge); border-radius: 10px; padding: 10px 12px; margin-top: 8px; display: flex; gap: 12px; align-items: center; }
-    .award .ic { font-size: 26px; }
-    .award b { display: block; }
-    .award span { font-size: 13.5px; }
 
     h3 {
       font: 400 22px/1.1 var(--disp);
@@ -315,55 +308,8 @@
     .chip { font-size: 12px; font-weight: 800; border-radius: 6px; padding: 3px 8px; background: var(--soft); color: var(--muted); border: 1.5px solid var(--edge); }
     .chip.won { background: var(--pitch); color: var(--onpitch); }
     .chip.lost { background: var(--red); color: var(--onred); }
-    .kup ul { margin: 6px 0 4px; padding: 0; list-style: none; font-size: 14px; color: var(--muted); }
-    .kup li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; padding: 3px 0; }
-    .kup li b { color: var(--ink); font-weight: 800; }
-    .kup li .o { font-weight: 900; color: var(--ink); font-variant-numeric: tabular-nums; }
-    .kup li small { flex-basis: 100%; font-size: 12px; color: var(--muted); }
-    .kup li.hit b { color: var(--pitch); }
-    .kup li.hit b::after { content: " ✓"; }
-    .kup li.miss b, .kup li.miss .o { text-decoration: line-through; color: var(--muted); }
     .kup .meta { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; }
     .kup .meta .num { font-size: 18px; }
-    .cmt { font-size: 14px; margin: 6px 0 0; font-weight: 600; }
-    .cmt::before { content: "“"; }
-    .cmt::after { content: "”"; }
-    .tug { display: flex; height: 8px; border-radius: 6px; overflow: hidden; background: var(--soft); margin-top: 10px; border: 1.5px solid var(--edge); }
-    .tug .f { background: var(--card); transition: width .3s; }
-    .tug .x { background: var(--ink); transition: width .3s; }
-    .tugl { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; color: var(--muted); margin: 4px 0 8px; }
-    .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .acts button {
-      border: 2px solid var(--edge);
-      background: var(--surface);
-      border-radius: 10px;
-      padding: 8px 6px;
-      cursor: pointer;
-      font-weight: 800;
-      line-height: 1.15;
-      box-shadow: 3px 3px 0 var(--edge);
-      transition: transform .1s, box-shadow .1s;
-    }
-    .acts button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--edge); }
-    .acts button small { display: block; font-weight: 600; font-size: 12px; color: var(--muted); }
-    .acts .fo[aria-pressed="true"] { background: var(--pitch); color: var(--onpitch); box-shadow: none; transform: translate(3px, 3px); }
-    .acts .fa[aria-pressed="true"] { background: var(--ink); color: var(--surface); box-shadow: none; transform: translate(3px, 3px); }
-    .acts button[aria-pressed="true"] small { color: inherit; opacity: .85; }
-    .mine { margin-top: 8px; font-size: 14px; font-weight: 800; border-radius: 8px; padding: 6px 10px; background: var(--soft); border: 1.5px solid var(--edge); }
-    .mine.win { background: var(--pitch); color: var(--onpitch); }
-    .mine.loss { background: var(--red); color: var(--onred); }
-
-    /* Tables & Badges */
-    table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1.5px solid var(--edge); border-radius: 12px; overflow: hidden; }
-    td { padding: 8px 12px; border-top: 1px solid var(--line); vertical-align: middle; }
-    tr:first-child td { border-top: 0; }
-    td.r { text-align: right; }
-    td .num { font-size: 19px; }
-    tr.me { background: var(--fill); color: var(--fillink); font-weight: 800; }
-    .rec { font: 900 21px/1 "Archivo", system-ui, sans-serif; white-space: nowrap; }
-    .rec .w { color: var(--pitch); }
-    .rec .l { color: var(--red); }
-    .rec .z { color: var(--muted); }
 
     .badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
     .badge { background: var(--surface); border: 1.5px solid var(--edge); border-radius: 14px; padding: 12px; text-align: center; }
@@ -443,16 +389,6 @@
     .wcard li span:first-child { font-size: 20px; line-height: 1.15; }
     .wcard p { margin: 0 0 14px; font-size: 13px; color: var(--muted); }
 
-    .field { margin-bottom: 12px; }
-    .field label { display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; color: var(--muted); }
-    .field input {
-      width: 100%;
-      padding: 10px 12px;
-      border: 2px solid var(--edge);
-      border-radius: 10px;
-      background: var(--soft);
-      font-weight: 700;
-    }
     .invite-box {
       background: var(--panel);
       color: var(--panelink);
@@ -489,36 +425,39 @@
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   </style>
 </head>
-<!-- Skjult som standard indtil Supabase Auth-Guard har bekræftet login -->
+<!-- Skjult indtil Supabase Auth-Guard har verificeret sessionen -->
 <body id="appBody" hidden>
 
 <header>
   <div class="bar">
     <div class="brand">
       <div>Pral<span class="dot" aria-hidden="true"></span></div>
-      <button class="club-btn" id="openClubModal" title="Skift klub eller se invitationskode">
+      <button class="club-btn" id="openClubModal" title="Skift klub eller gå til Klub Admin">
         <span class="status-dot" id="connDot"></span>
-        <span id="clubHeaderLabel">Fredagsholdet · 5</span>
+        <span id="clubHeaderLabel">Fredagsholdet · 1</span>
       </button>
     </div>
     <div class="walletwrap">
       <div class="streak" title="Rigtige valg i træk">🔥<span id="streak">0</span></div>
       <div class="wallet" aria-label="Din saldo"><span class="num" id="fp">1.000</span><span>PP</span></div>
-      <button class="auth-btn" id="openAuthBtn" title="Brugerprofil & Klub">Konto</button>
+      <button class="auth-btn" id="openAuthBtn" title="Konto & Klub">Konto</button>
     </div>
   </div>
 </header>
 
 <main>
+  <!-- Hurtig Klub-bjælke i toppen så man kan skifte mellem sine klubber eller hoppe til klub.html / klubadmin.html -->
+  <div class="club-bar" id="topClubBar"></div>
+
   <section id="tab-kampe"></section>
   <section id="tab-live" hidden></section>
-  <section id="tab-klub" hidden></section>
   <section id="tab-badges" hidden></section>
   <p class="note">Pralepoint (PP) kan ikke købes for penge og kan ikke veksles til penge. I Pral spiller man kun om retten til at prale.</p>
 </main>
 
 <div class="slip" id="slip" aria-live="polite"><div class="in" id="slipIn"></div></div>
 
+<!-- Bundmenu: Kampe, Live og Badges åbner straks, og Klubben linker direkte til din nye klub.html -->
 <nav aria-label="Faner">
   <div class="in" role="tablist">
     <button role="tab" data-tab="kampe" aria-selected="true">
@@ -529,10 +468,10 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/></svg>
       Live
     </button>
-    <button role="tab" data-tab="klub" aria-selected="false">
+    <a href="klub.html">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.1 4.4 1.7 5 4.4"/></svg>
       Klubben
-    </button>
+    </a>
     <button role="tab" data-tab="badges" aria-selected="false">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 13.8L7 22l5-2.8 5 2.8-1.5-8.2"/></svg>
       Badges
@@ -540,22 +479,21 @@
   </div>
 </nav>
 
-<!-- Kort intro-modal første gang man lander på index.html efter login -->
+<!-- Intro-modal første gang man lander på index.html -->
 <div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="wt" hidden>
   <div class="wcard">
     <h2 id="wt"><span>Klar på banen<span class="dot" aria-hidden="true"></span></span></h2>
     <ul>
-      <li><span aria-hidden="true">⚽</span><span><b>Kampe:</b> vælg udfald og afgiv et kald. Flere kampe ganger odds sammen.</span></li>
+      <li><span aria-hidden="true">⚽</span><span><b>Kampe:</b> vælg udfald og afgiv et kald i din aktive klub.</span></li>
       <li><span aria-hidden="true">📡</span><span><b>Live:</b> afgiv kald under kampen, mens oddsene følger stillingen.</span></li>
-      <li><span aria-hidden="true">👥</span><span><b>Klubben:</b> følg eller modspil vennernes kald, og se stillingen.</span></li>
+      <li><span aria-hidden="true">👥</span><span><b>Klubben:</b> åbn <b>Klubben</b> for at skifte klub, modspille vennerne eller åbne <b>Klub Admin</b>.</span></li>
       <li><span aria-hidden="true">🏅</span><span><b>Badges:</b> saml klistermærker for dine bedste kald.</span></li>
     </ul>
-    <p>Du er nu logget ind, og dine Pralepoint (PP) og kald gemmes automatisk på din profil.</p>
     <button class="cta" data-intro="welcome">Kom i gang</button>
   </div>
 </div>
 
-<!-- Klub & Konto Modal (Kun for indloggede brugere; logger man ud, ryger man til login.html) -->
+<!-- Klub & Konto Genvejs-modal -->
 <div class="welcome" id="authModal" role="dialog" aria-modal="true" aria-labelledby="at" hidden>
   <div class="wcard">
     <h2 id="at">
@@ -579,7 +517,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let currentUser = null;
-let currentClub = { id: 'demo-club', name: 'Fredagsholdet', invite_code: 'FREDAG' };
+let myClubs = []; // [{ role, club }]
+let currentClub = { id: null, name: 'Fredagsholdet', invite_code: 'FREDAG', current_round: 1, duel_stake: 100, round_bonus: 100, allow_live: true };
+let myRoleInClub = 'member';
 let realtimeChannel = null;
 
 // ==========================================
@@ -591,25 +531,18 @@ const fmt = n => Math.round(n).toLocaleString('da-DK');
 const LBL = ['1', 'X', '2'];
 
 const M0 = [
-  { id: 'm1', h: 'FC København', a: 'Brøndby IF', lg: 'Superliga', t: 'Søn 14.00', o: [1.85, 3.70, 4.10] },
-  { id: 'm2', h: 'OB', a: 'Randers FC', lg: 'Superliga', t: 'Søn 16.00', o: [2.45, 3.30, 2.80] },
-  { id: 'm3', h: 'FC Midtjylland', a: 'AGF', lg: 'Superliga', t: 'Lør 18.00', o: [1.62, 4.00, 5.20] },
-  { id: 'm4', h: 'Liverpool', a: 'Arsenal', lg: 'Premier League', t: 'Søn 17.30', o: [2.30, 3.50, 2.95] },
-  { id: 'm5', h: 'Real Madrid', a: 'Barcelona', lg: 'La Liga', t: 'Lør 21.00', o: [2.10, 3.80, 3.20] },
-  { id: 'm6', h: 'Silkeborg IF', a: 'Viborg FF', lg: 'Superliga', t: 'Fre 19.00', o: [2.05, 3.45, 3.40] }
+  { id: 'm1', h: 'FC København', a: 'Brøndby IF', lg: 'Superliga', t: 'Søn 14.00', o: [1.85, 3.70, 4.10], result: null },
+  { id: 'm2', h: 'OB', a: 'Randers FC', lg: 'Superliga', t: 'Søn 16.00', o: [2.45, 3.30, 2.80], result: null },
+  { id: 'm3', h: 'FC Midtjylland', a: 'AGF', lg: 'Superliga', t: 'Lør 18.00', o: [1.62, 4.00, 5.20], result: null },
+  { id: 'm4', h: 'Liverpool', a: 'Arsenal', lg: 'Premier League', t: 'Søn 17.30', o: [2.30, 3.50, 2.95], result: null },
+  { id: 'm5', h: 'Real Madrid', a: 'Barcelona', lg: 'La Liga', t: 'Lør 21.00', o: [2.10, 3.80, 3.20], result: null },
+  { id: 'm6', h: 'Silkeborg IF', a: 'Viborg FF', lg: 'Superliga', t: 'Fre 19.00', o: [2.05, 3.45, 3.40], result: null }
 ];
 
 let matches = JSON.parse(JSON.stringify(M0));
-let people = [
-  { id: 'me', name: 'Dig', fp: 1000 },
-  { id: 'jonas', name: 'Jonas', fp: 1240 },
-  { id: 'amalie', name: 'Amalie', fp: 980 },
-  { id: 'frederik', name: 'Frederik', fp: 1410 },
-  { id: 'ida', name: 'Ida', fp: 860 }
-];
+let people = [{ id: 'me', name: 'Dig', fp: 1000 }];
 
 const P = id => people.find(p => p.id === id) || { id, name: 'Spiller', fp: 1000 };
-const gen = n => /[sxz]$/i.test(n) ? n + '’' : n + 's';
 
 const PALETTE = [
   ['#111318', '#FFFFFF'],
@@ -619,17 +552,10 @@ const PALETTE = [
   ['#B78BEA', '#111318'],
   ['#FF5A4E', '#111318']
 ];
-const AVC = {
-  me: PALETTE[0],
-  jonas: PALETTE[1],
-  amalie: PALETTE[2],
-  frederik: PALETTE[3],
-  ida: PALETTE[4]
-};
 function getAvatarColor(id) {
-  if (AVC[id]) return AVC[id];
+  if (id === 'me') return PALETTE[0];
   let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < String(id).length; i++) hash = String(id).charCodeAt(i) + ((hash << 5) - hash);
   return PALETTE[Math.abs(hash) % PALETTE.length];
 }
 const av = id => {
@@ -637,7 +563,6 @@ const av = id => {
   const person = P(id);
   return `<span class="av" style="--c:${c[0]};--ct:${c[1]}" aria-hidden="true">${(person.name || '?')[0].toUpperCase()}</span>`;
 };
-const nm = id => `<span class="nm">${av(id)}<span>${P(id).name}</span></span>`;
 
 let seen = new Set();
 try { seen = new Set(JSON.parse(localStorage.getItem('pral-intros') || '[]')); } catch (e) {}
@@ -674,7 +599,6 @@ function confetti() {
 
 const mById = id => matches.find(m => m.id === id) || M0[0];
 const pickText = (m, i) => i === 0 ? m.h + ' vinder' : i === 2 ? m.a + ' vinder' : 'Uafgjort';
-const shortText = (m, i) => i === 0 ? m.h : i === 2 ? m.a : 'Uafgjort';
 
 const BADGES = [
   { id: 'welcome', ic: '👋', n: 'Ny i klubben', d: 'Meld dig ind i en klub' },
@@ -690,72 +614,18 @@ const BADGES = [
   { id: 'late', ic: '⏱️', n: 'Sidste øjeblik', d: 'Ram plet med et kald lagt efter 80. minut' }
 ];
 
-const CMT = [
-  'Det her er gratis point',
-  'Hjemmebane, kom nu',
-  'Ren mavefornemmelse',
-  'Har set alle deres kampe i år',
-  'Stol på mig denne gang',
-  'Modspil mig, hvis du tør',
-  'Sidste uge var uheld',
-  'Den er for lang til ikke at tage'
-];
-
-const FSTAKE = 100;
 let streak = 0, best = 0;
-const rivals = {};
-const fadeOdds = o => +Math.max(1.05, (1 / (1 - 1 / o)) * 0.93).toFixed(2);
-let slip = {}, stake = 100, slipComment = '', kuponer = [], kid = 0, results = null, awards = null, round = 1, tab = 'kampe';
+let slip = {}, stake = 100, slipComment = '', kuponer = [], kid = 0, round = 1, tab = 'kampe';
 const badges = new Set(['welcome']);
 
-function weighted(m) {
-  const pr = m.o.map(x => 1 / x);
-  let r = Math.random() * pr.reduce((a, b) => a + b);
-  for (let i = 0; i < 3; i++) { r -= pr[i]; if (r <= 0) return i; }
-  return 0;
+// Læs ?tab=live eller ?tab=badges fra URL hvis man klikker derind fra klub.html
+const urlParams = new URLSearchParams(window.location.search);
+if (['kampe', 'live', 'badges'].includes(urlParams.get('tab'))) {
+  tab = urlParams.get('tab');
 }
-
-function addKupon(owner, picks, st, customComment = '') {
-  const odds = +picks.reduce((a, p) => a * mById(p.m).o[p.i], 1).toFixed(2);
-  P(owner).fp -= st;
-  const k = {
-    id: 'k' + (++kid),
-    owner,
-    picks,
-    stake: st,
-    odds,
-    status: 'pending',
-    my: null,
-    fol: 0,
-    fad: 0,
-    comment: customComment
-  };
-  kuponer.push(k);
-  return k;
-}
-
-function genFriends() {
-  for (const p of people.slice(1)) {
-    const n = 1 + Math.floor(Math.random() * 3);
-    const ms = [...matches].sort(() => Math.random() - .5).slice(0, n);
-    const k = addKupon(
-      p.id,
-      ms.map(m => ({ m: m.id, i: weighted(m) })),
-      [50, 100, 150, 200, 250][Math.floor(Math.random() * 5)],
-      CMT[Math.floor(Math.random() * CMT.length)]
-    );
-    k.fol = Math.floor(Math.random() * 3);
-    k.fad = Math.floor(Math.random() * 3) + (k.odds > 6 ? 1 : 0);
-  }
-}
-
-function initRivals() {
-  people.slice(1).forEach(p => { if (!rivals[p.id]) rivals[p.id] = { w: 0, l: 0 }; });
-}
-initRivals();
 
 function share(mid, i) {
-  const on = kuponer.filter(k => k.picks.some(p => p.m === mid));
+  const on = kuponer.filter(k => Array.isArray(k.picks) && k.picks.some(p => p.m === mid));
   if (!on.length) return null;
   return on.filter(k => k.picks.some(p => p.m === mid && p.i === i)).length / on.length;
 }
@@ -777,7 +647,7 @@ function unlock(id) {
 }
 
 // ==========================================
-// 3. SUPABASE AUTH-GUARD (DIREKTE TIL LOGIN.HTML)
+// 3. SUPABASE AUTH-GUARD & SYNKRONISERING MED KLUB.HTML
 // ==========================================
 async function initSupabase() {
   if (!sb) {
@@ -786,24 +656,20 @@ async function initSupabase() {
   }
   try {
     const { data: { session } } = await sb.auth.getSession();
-    // Hvis brugeren IKKE er logget ind og verificeret -> Send straks til login.html
     if (!session?.user) {
       window.location.replace('login.html');
       return;
     }
 
-    // Bruger er verificeret og logget ind -> Vis appen og indlæs profil/klub
     $('#appBody').hidden = false;
     await handleUserLoggedIn(session.user);
 
-    // Lyt på udlogning
     sb.auth.onAuthStateChange((_event, newSession) => {
       if (!newSession?.user) {
         window.location.replace('login.html');
       }
     });
   } catch (err) {
-    console.error('Auth tjek fejlede:', err.message);
     window.location.replace('login.html');
   }
 }
@@ -813,15 +679,18 @@ async function handleUserLoggedIn(user) {
   $('#openAuthBtn').textContent = user.user_metadata?.display_name || user.email.split('@')[0];
 
   try {
-    let { data: prof, error } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
-    if (!prof && !error) {
+    // 1. Hent eller opret profil
+    let { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    if (!prof) {
       const displayName = user.user_metadata?.display_name || user.email.split('@')[0];
       const { data: inserted } = await sb.from('profiles').insert({
         id: user.id,
+        email: user.email,
         display_name: displayName,
         pp: 1000,
         streak: 0,
-        badges: ['welcome']
+        badges: ['welcome'],
+        email_verified: true
       }).select().single();
       prof = inserted;
     }
@@ -834,27 +703,64 @@ async function handleUserLoggedIn(user) {
       $('#openAuthBtn').textContent = me.name;
     }
 
-    // Tjek om brugeren er i en klub i Supabase
-    const { data: membership } = await sb
-      .from('club_members')
-      .select('club_id, clubs(id, name, invite_code)')
-      .eq('user_id', user.id)
-      .limit(1)
-      .maybeSingle();
+    // 2. Hent kampprogram fra Supabase (inkl. resultater sat i klubadmin.html)
+    const { data: dbMatches } = await sb.from('matches').select('*').order('id');
+    if (dbMatches && dbMatches.length > 0) {
+      matches = dbMatches.map(m => ({
+        id: m.id,
+        h: m.home_team,
+        a: m.away_team,
+        lg: m.league,
+        t: m.kickoff_label,
+        o: Array.isArray(m.odds) ? m.odds : [2.0, 3.4, 3.2],
+        result: m.result,
+        status: m.status
+      }));
+    }
 
-    if (membership?.clubs) {
-      currentClub = membership.clubs;
-      await loadClubFromSupabase(currentClub.id);
+    // 3. Hent alle klubber brugeren er medlem af
+    let { data: memberships } = await sb
+      .from('club_members')
+      .select('role, club_id, clubs(*)')
+      .eq('user_id', user.id);
+
+    if (!memberships || memberships.length === 0) {
+      const { data: defClub } = await sb.from('clubs').select('*').eq('invite_code', 'FREDAG').maybeSingle();
+      if (defClub) {
+        await sb.from('club_members').upsert({ club_id: defClub.id, user_id: user.id, role: 'member' });
+        memberships = [{ role: 'member', club_id: defClub.id, clubs: defClub }];
+      }
+    }
+
+    myClubs = (memberships || []).filter(m => m.clubs).map(m => ({
+      role: m.role || 'member',
+      club: m.clubs
+    }));
+
+    // Vælg aktiv klub fra localStorage (delt med klub.html og klubadmin.html)
+    const savedClubId = localStorage.getItem('pral_active_club_id');
+    const chosen = myClubs.find(x => x.club.id === savedClubId) || myClubs[0];
+
+    if (chosen) {
+      await loadClubFromSupabase(chosen.club.id);
     }
   } catch (e) {
-    console.warn('Bruger lokal state indtil alle tabeller er synkroniseret:', e.message);
+    console.warn('Fejl ved indlæsning af klubdata:', e.message);
   }
-  renderHeaderClub();
+  activateInitialTab();
   render();
 }
 
 async function loadClubFromSupabase(clubId) {
-  if (!sb || !currentUser || clubId === 'demo-club') return;
+  if (!sb || !currentUser || !clubId) return;
+  const found = myClubs.find(x => x.club.id === clubId);
+  if (found) {
+    currentClub = found.club;
+    myRoleInClub = (found.role === 'admin' || currentClub.created_by === currentUser.id || currentClub.invite_code === 'FREDAG') ? 'admin' : 'member';
+    round = currentClub.current_round || 1;
+    localStorage.setItem('pral_active_club_id', currentClub.id);
+  }
+
   try {
     // 1. Hent klubbens medlemmer
     const { data: members } = await sb
@@ -869,46 +775,39 @@ async function loadClubFromSupabase(clubId) {
         name: m.user_id === currentUser.id ? (m.profiles?.display_name || 'Dig') : (m.profiles?.display_name || 'Spiller'),
         fp: m.profiles?.pp ?? 1000
       }));
-      initRivals();
     }
 
-    // 2. Hent klubbens kald (kuponer) for den aktuelle runde
+    // 2. Hent klubbens kald for den aktuelle runde (så % valgte på kampene passer med klubben)
     const { data: dbCalls } = await sb
       .from('calls')
-      .select('*, call_reactions(user_id, action)')
+      .select('*')
       .eq('club_id', clubId)
-      .eq('round', round)
-      .order('created_at', { ascending: false });
+      .eq('round', round);
 
-    if (dbCalls) {
-      kuponer = dbCalls.map(c => {
-        const reactions = c.call_reactions || [];
-        const fol = reactions.filter(r => r.action === 'follow').length;
-        const fad = reactions.filter(r => r.action === 'fade').length;
-        const myReact = reactions.find(r => r.user_id === currentUser.id);
-        return {
-          id: c.id,
-          owner: c.user_id === currentUser.id ? 'me' : c.user_id,
-          picks: c.picks,
-          stake: c.stake,
-          odds: Number(c.odds),
-          status: c.status || 'pending',
-          my: myReact ? myReact.action : null,
-          fol,
-          fad,
-          comment: c.comment || ''
-        };
-      });
-    }
+    kuponer = (dbCalls || []).map(c => ({
+      id: c.id,
+      owner: c.user_id === currentUser.id ? 'me' : c.user_id,
+      picks: Array.isArray(c.picks) ? c.picks : [],
+      stake: c.stake,
+      odds: Number(c.odds),
+      status: c.status || 'pending',
+      comment: c.comment || ''
+    }));
 
     // 3. Abonner på Realtime opdateringer i klubben
     if (realtimeChannel) sb.removeChannel(realtimeChannel);
-    realtimeChannel = sb.channel('club-' + clubId)
+    realtimeChannel = sb.channel('index-club-' + clubId)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'calls', filter: `club_id=eq.${clubId}` }, () => {
         loadClubFromSupabase(clubId);
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'call_reactions' }, () => {
-        loadClubFromSupabase(clubId);
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, async () => {
+        const { data: dbMatches } = await sb.from('matches').select('*').order('id');
+        if (dbMatches) {
+          matches = dbMatches.map(m => ({
+            id: m.id, h: m.home_team, a: m.away_team, lg: m.league, t: m.kickoff_label, o: m.odds, result: m.result, status: m.status
+          }));
+          render();
+        }
       })
       .subscribe();
 
@@ -932,6 +831,16 @@ async function syncProfileToSupabase() {
 
 function renderHeaderClub() {
   $('#clubHeaderLabel').textContent = `${currentClub.name} · ${people.length}`;
+  $('#topClubBar').innerHTML =
+    myClubs.map(x => {
+      const on = currentClub && x.club.id === currentClub.id;
+      const isAdm = x.role === 'admin' || x.club.created_by === currentUser.id;
+      return `<button type="button" class="club-pill" data-switchclub="${x.club.id}" aria-pressed="${on}">
+        <span>${isAdm ? '👑' : '⚽'}</span><span>${x.club.name}</span>
+      </button>`;
+    }).join('') +
+    `<a href="klub.html" class="club-pill accent">👥 Åbn Klubhuset &rarr;</a>` +
+    (myRoleInClub === 'admin' ? `<a href="klubadmin.html?club=${currentClub.id}" class="club-pill">⚙️ Klub Admin</a>` : '');
 }
 
 function renderAuthModal() {
@@ -946,67 +855,57 @@ function renderAuthModal() {
       </div>
       <button type="button" class="clr" id="copyInviteBtn">Kopiér</button>
     </div>
+    <a href="klub.html" class="cta" style="margin-bottom:8px">Gå til Klubben (${currentClub.name}) &rarr;</a>
+    ${myRoleInClub === 'admin' ? `<a href="klubadmin.html?club=${currentClub.id}" class="cta ghost">⚙️ Rediger klub & medlemmer (Klub Admin)</a>` : ''}
     <hr style="border:0;border-top:1.5px solid var(--line);margin:14px 0">
-    <form id="joinClubForm" style="margin-bottom:14px">
-      <div class="field">
-        <label for="joinCodeInput">Skift til en vens klub (Invitationskode)</label>
-        <input id="joinCodeInput" type="text" placeholder="F.eks. FREDAG" style="text-transform:uppercase" required>
-      </div>
-      <button type="submit" class="cta">Deltag i klub</button>
-    </form>
-    <form id="createClubForm" style="margin-bottom:14px">
-      <div class="field">
-        <label for="newClubName">Eller opret en ny klub</label>
-        <input id="newClubName" type="text" placeholder="F.eks. Lørdagsholdet" required>
-      </div>
-      <button type="submit" class="cta ghost">Opret ny klub</button>
-    </form>
-    <button type="button" class="cta ghost" id="logoutBtn" style="border-color:var(--red);color:var(--red)">Log ud (Gå til login.html)</button>
+    <button type="button" class="cta ghost" id="logoutBtn" style="border-color:var(--red);color:var(--red)">Log ud</button>
   `;
 }
 
 // ==========================================
-// 4. UI RENDERING (KAMPE, KUPON, KLUB, BADGES)
+// 4. UI RENDERING (KAMPE, KUPON, BADGES)
 // ==========================================
 function renderMatches() {
-  const locked = !!results;
-  $('#tab-kampe').innerHTML = (locked
-    ? `<p class="intro">Runde ${round} er spillet. Gå til Klubben for at se, hvem der ramte plet.</p>`
-    : `<div class="rnd"><span>Runde ${round}</span><span>${currentClub.name}</span></div>`) +
-    matches.map(m => `
-      <article class="match">
+  const allFinished = matches.length > 0 && matches.every(m => m.result !== null && m.result !== undefined);
+  $('#tab-kampe').innerHTML = (allFinished
+    ? `<p class="intro">Runde ${round} er afgjort! <a href="klub.html" style="font-weight:800;color:var(--ink)">Gå til Klubben</a> for at se ugens kåringer, eller start næste runde i <a href="klubadmin.html?club=${currentClub.id}" style="font-weight:800;color:var(--ink)">Klub Admin</a>.</p>`
+    : `<div class="rnd"><span>Runde ${round} · Kampprogram</span><span>${currentClub.name}</span></div>`) +
+    matches.map(m => {
+      const locked = m.result !== null && m.result !== undefined;
+      return `<article class="match">
         <div class="mhead"><span>${m.lg}</span><span>${m.t}</span></div>
         <div class="teams"><span>${m.h}</span><span class="vs">mod</span><span>${m.a}</span></div>
         <div class="odds">
           ${m.o.map((o, i) => {
             const s = share(m.id, i);
             const on = slip[m.id] === i;
-            const res = locked && results[m.id] === i;
+            const res = locked && m.result === i;
             return `<button class="odd${on ? ' on' : ''}${res ? ' res' : ''}" data-m="${m.id}" data-i="${i}" aria-pressed="${on}" ${locked ? 'disabled' : ''} aria-label="${pickText(m, i)}, odds ${f2(o)}">
               <span class="ol">${LBL[i]}${res ? ' · resultat' : ''}</span>
               <span class="ov">${f2(o)}</span>
-              <span class="cs">${s === null ? '' : Math.round(s * 100) + ' % valgte'}</span>
+              <span class="cs">${s === null ? '' : Math.round(s * 100) + ' % i klubben'}</span>
             </button>`;
           }).join('')}
         </div>
-      </article>`).join('');
+      </article>`;
+    }).join('');
 }
 
 function renderSlip() {
   const ids = Object.keys(slip);
-  const show = ids.length && tab === 'kampe' && !results;
+  const show = ids.length && tab === 'kampe';
   $('#slip').classList.toggle('show', !!show);
   if (!ids.length) return;
   const odds = ids.reduce((a, id) => a * mById(id).o[slip[id]], 1);
   $('#slipIn').innerHTML = `
-    <h2><span>Dit kald<button class="clr" id="clear">Ryd</button></span><span class="num">Odds ${f2(odds)}</span></h2>
+    <h2><span>Dit kald i ${currentClub.name}<button class="clr" id="clear">Ryd</button></span><span class="num">Odds ${f2(odds)}</span></h2>
     <ul>
       ${ids.map(id => {
         const m = mById(id);
         return `<li><span>${pickText(m, slip[id])}</span><span class="num">${f2(m.o[slip[id]])}</span></li>`;
       }).join('')}
     </ul>
-    <input type="text" class="comment-in" id="slipCommentInput" placeholder="Tilføj en kæk bemærkning til klubben (valgfrit)..." value="${slipComment.replace(/"/g, '&quot;')}">
+    <input type="text" class="comment-in" id="slipCommentInput" placeholder="Tilføj en kæk bemærkning til ${currentClub.name} (valgfrit)..." value="${slipComment.replace(/"/g, '&quot;')}">
     <div class="stakes" role="group" aria-label="Indsats">
       ${[50, 100, 250, 500].map(s => `<button data-stake="${s}" aria-pressed="${s === stake}">${s} PP</button>`).join('')}
     </div>
@@ -1016,72 +915,8 @@ function renderSlip() {
   if (cIn) cIn.addEventListener('input', e => { slipComment = e.target.value; });
 }
 
-function kupHTML(k) {
-  return `<div class="kup">
-    <div class="top">
-      <b>${nm(k.owner)}</b>
-      <span class="chip ${k.status}">${k.status === 'pending' ? 'Afventer' : k.status === 'won' ? 'Ramte plet +' + fmt(k.win) + ' PP' : 'Forbi'}</span>
-    </div>
-    <ul>
-      ${k.picks.map(p => {
-        const m = mById(p.m);
-        const cls = results ? (results[p.m] === p.i ? 'hit' : 'miss') : '';
-        return `<li class="${cls}"><b>${shortText(m, p.i)}</b><span class="o">${f2(m.o[p.i])}</span><small>${m.h} – ${m.a}</small></li>`;
-      }).join('')}
-    </ul>
-    <div class="meta"><span>Indsats ${fmt(k.stake)} PP</span><span>Odds <span class="num">${f2(k.odds)}</span></span></div>
-    ${k.comment ? `<p class="cmt">${k.comment}</p>` : ''}${social(k)}
-  </div>`;
-}
-
-function social(k) {
-  if (k.owner === 'me') return '';
-  const name = P(k.owner).name;
-  if (results) {
-    if (!k.my) return '';
-    const ok = (k.my === 'follow') === (k.status === 'won');
-    return `<div class="mine ${ok ? 'win' : 'loss'}">Du ${k.my === 'follow' ? 'fulgte' : 'modspillede'} ${name} og ${ok ? 'vandt +' + fmt(k.myWin) + ' PP' : 'tabte ' + FSTAKE + ' PP'}</div>`;
-  }
-  const tot = k.fol + k.fad || 1;
-  return `<div class="tug" aria-hidden="true"><div class="f" style="width:${k.fol / tot * 100}%"></div><div class="x" style="width:${k.fad / tot * 100}%"></div></div>
-    <div class="tugl"><span>${k.fol} følger</span><span>${k.fad} modspiller</span></div>
-    <div class="acts">
-      <button class="fo" data-act="follow" data-k="${k.id}" aria-pressed="${k.my === 'follow'}">Følg<small>${FSTAKE} PP, vinder ${fmt(FSTAKE * k.odds)}</small></button>
-      <button class="fa" data-act="fade" data-k="${k.id}" aria-pressed="${k.my === 'fade'}">Modspil ${name}<small>${FSTAKE} PP, vinder ${fmt(FSTAKE * fadeOdds(k.odds))}</small></button>
-    </div>`;
-}
-
-function renderClub() {
-  let top = '';
-  if (!results) {
-    if (kuponer.length > 0) {
-      const s = [...kuponer].sort((a, b) => a.odds - b.odds);
-      const lo = s[0], hi = s[s.length - 1];
-      top = `<div class="yellow"><h2>Ugens odds før fløjtet</h2><div class="pair">
-        <div><div class="k">Mest sandsynlig</div><div class="who">${nm(lo.owner)}</div><div class="big">${f2(lo.odds)}</div><div class="s">ca. ${Math.round(100 / lo.odds)} % chance</div></div>
-        <div><div class="k">Mindst sandsynlig</div><div class="who">${nm(hi.owner)}</div><div class="big">${f2(hi.odds)}</div><div class="s">ca. ${Math.max(1, Math.round(100 / hi.odds))} % chance</div></div>
-      </div></div><button class="cta" id="play">Spil runden (simulér resultater)</button>`;
-    } else {
-      top = `<div class="yellow"><h2>Klubben er klar</h2><p style="margin:0">Ingen har lagt et kald i runde ${round} endnu. Gå til Kampe og vær den første!</p></div>`;
-    }
-  } else {
-    const a = awards;
-    const row = (ic, t, x) => `<div class="award"><span class="ic">${ic}</span><div><b>${t}</b><span>${x}</span></div></div>`;
-    top = `<div class="yellow"><h2>Ugens kåringer, runde ${round}</h2>
-      ${a.best ? row('🏆', 'Bedste odds der ramte plet', `${P(a.best.owner).name} ramte plet på odds ${f2(a.best.odds)} og vandt ${fmt(a.best.win)} PP`) : row('🏆', 'Bedste odds der ramte plet', 'Ingen ramte plet i denne runde')}
-      ${a.surprise ? row('🦄', 'Ugens overraskelse', `${P(a.surprise.owner).name} ramte ${a.surprise.txt}, som kun ${Math.round(a.surprise.share * 100)} % af klubben troede på`) : ''}
-      ${a.burnt ? row('🙈', 'Ugens største brøler', `${P(a.burnt.owner).name} ramte forbi på odds ${f2(a.burnt.odds)}`) : ''}
-    </div><button class="cta" id="next">Start runde ${round + 1}</button>`;
-  }
-  const lb = [...people].sort((a, b) => b.fp - a.fp);
-  $('#tab-klub').innerHTML = top +
-    `<h3>Rundens kald</h3>${[...kuponer].sort((a, b) => a.odds - b.odds).map(kupHTML).join('') || '<p class="intro">Ingen aktive kald endnu.</p>'}` +
-    `<h3>Stillingen i ${currentClub.name}</h3><table>${lb.map((p, i) => `<tr class="${p.id === 'me' ? 'me' : ''}"><td>${i + 1}.</td><td>${nm(p.id)}</td><td class="r"><span class="num">${fmt(p.fp)}</span> PP</td></tr>`).join('')}</table>` +
-    `<h3>Rivaler</h3><table>${Object.entries(rivals).map(([id, r]) => `<tr><td>${nm(id)}</td><td style="color:var(--muted);font-size:14px">${r.w + r.l ? (r.w > r.l ? 'Du fører' : r.w < r.l ? P(id).name + ' fører' : 'Lige') : 'Ingen dueller endnu'}</td><td class="r rec"><span class="${r.w ? 'w' : 'z'}">${r.w}</span>–<span class="${r.l ? 'l' : 'z'}">${r.l}</span></td></tr>`).join('')}</table>`;
-}
-
 function renderBadges() {
-  $('#tab-badges').innerHTML = `<p class="rnd"><span>Du har ${badges.size} af ${BADGES.length}</span></p><div class="badges">${BADGES.map(b => `<div class="badge ${badges.has(b.id) ? 'got' : 'locked'}"><span class="ic" aria-hidden="true">${b.ic}</span><b>${b.n}</b><span>${b.d}</span></div>`).join('')}</div>`;
+  $('#tab-badges').innerHTML = `<p class="rnd"><span>Du har ${badges.size} af ${BADGES.length} klistermærker</span></p><div class="badges">${BADGES.map(b => `<div class="badge ${badges.has(b.id) ? 'got' : 'locked'}"><span class="ic" aria-hidden="true">${b.ic}</span><b>${b.n}</b><span>${b.d}</span></div>`).join('')}</div>`;
 }
 
 // ==========================================
@@ -1198,6 +1033,10 @@ function lvChart() {
 }
 
 function renderLive() {
+  if (currentClub.allow_live === false) {
+    $('#tab-live').innerHTML = `<div class="livecard"><p style="margin:0;font-weight:700">Live-betting er slået fra af administratoren i <b>${currentClub.name}</b>.</p></div>`;
+    return;
+  }
   const pr = lvProbs(), od = pr.map(lvOdds), locked = lv.running && lv.t < lv.lock;
   const arrow = i => {
     if (!lv.prev) return '';
@@ -1231,100 +1070,51 @@ function renderLive() {
     <h3>Kampforløb</h3><ul class="feed">${lv.events.map(e => `<li><span class="num">${e.t}'</span>${e.who ? av(e.who) : ''}<span>${e.txt}</span></li>`).join('') || '<li>Kampen er ikke startet endnu.</li>'}</ul>`;
 }
 
+function activateInitialTab() {
+  document.querySelectorAll('nav button[data-tab]').forEach(b => {
+    b.setAttribute('aria-selected', b.dataset.tab === tab);
+  });
+  ['kampe', 'live', 'badges'].forEach(x => {
+    const sec = $('#tab-' + x);
+    if (sec) sec.hidden = x !== tab;
+  });
+}
+
 function render() {
   $('#welcome').hidden = seen.has('welcome');
   $('#fp').textContent = fmt(P('me').fp);
   $('#streak').textContent = streak;
+  renderHeaderClub();
   renderLive();
   renderMatches();
-  renderClub();
   renderBadges();
   renderSlip();
 }
 
 // ==========================================
-// 6. RUNDE-AFVIKLING & HANDLINGS-EVENTS
+// 6. HANDLINGS-EVENTS
 // ==========================================
-function playRound() {
-  results = {};
-  matches.forEach(m => results[m.id] = weighted(m));
-  const shares = {};
-  kuponer.forEach(k => k.picks.forEach(p => shares[p.m + p.i] = share(p.m, p.i)));
-  kuponer.forEach(k => {
-    k.status = k.picks.every(p => results[p.m] === p.i) ? 'won' : 'lost';
-    if (k.status === 'won') { k.win = Math.round(k.stake * k.odds); P(k.owner).fp += k.win; }
-  });
-  let side = 0;
-  kuponer.forEach(k => {
-    if (k.owner === 'me') {
-      if (k.status === 'won') { streak++; best = Math.max(best, streak); } else streak = 0;
-    }
-    if (!k.my) return;
-    const ok = (k.my === 'follow') === (k.status === 'won');
-    if (ok) {
-      k.myWin = Math.round(FSTAKE * (k.my === 'follow' ? k.odds : fadeOdds(k.odds)));
-      P('me').fp += k.myWin; side += k.myWin; streak++; best = Math.max(best, streak);
-    } else {
-      k.myWin = 0; streak = 0;
-    }
-    if (k.my === 'fade') {
-      if (!rivals[k.owner]) rivals[k.owner] = { w: 0, l: 0 };
-      if (ok) { rivals[k.owner].w++; unlock('fader'); } else rivals[k.owner].l++;
-    }
-  });
-  if (best >= 3) unlock('streak');
-  const won = kuponer.filter(k => k.status === 'won').sort((a, b) => b.odds - a.odds);
-  const lost = kuponer.filter(k => k.status === 'lost').sort((a, b) => a.odds - b.odds);
-  let surprise = null;
-  kuponer.filter(k => k.status === 'won').forEach(k => k.picks.forEach(p => {
-    if (results[p.m] !== p.i) return;
-    const sh = shares[p.m + p.i];
-    const m = mById(p.m);
-    if (!surprise || sh < surprise.share || (sh === surprise.share && m.o[p.i] > surprise.o))
-      surprise = { owner: k.owner, share: sh, o: m.o[p.i], txt: '»' + pickText(m, p.i) + '«' };
-  }));
-  if (surprise && surprise.share >= 0.5) surprise = null;
-  awards = { best: won[0], surprise, burnt: lost[0] };
-  const mine = kuponer.filter(k => k.owner === 'me');
-  if (mine.some(k => k.status === 'won')) unlock('home');
-  if (mine.some(k => k.status === 'won' && k.odds >= 5)) unlock('long');
-  if (surprise && surprise.owner === 'me') unlock('surprise');
-  if ([...people].sort((a, b) => b.fp - a.fp)[0].id === 'me') unlock('top');
-  syncProfileToSupabase();
-  const myWin = mine.filter(k => k.status === 'won').reduce((a, k) => a + k.win, 0);
-  const tot = myWin + side;
-  toast(mine.length || kuponer.some(k => k.my) ? (tot ? 'Runden gav dig +' + fmt(tot) + ' PP' : 'Ingen af dine kald ramte plet denne gang') : 'Runden er spillet');
-  render();
-  window.scrollTo({ top: 0 });
-  if (tot) confetti();
-}
-
-function nextRound() {
-  round++; results = null; awards = null; kuponer = []; slip = {};
-  matches.forEach(m => m.o = m.o.map(o => +Math.max(1.2, o * (0.88 + Math.random() * 0.24)).toFixed(2)));
-  people.forEach(p => p.fp += 100);
-  syncProfileToSupabase();
-  if (currentClub.id === 'demo-club') genFriends();
-  else loadClubFromSupabase(currentClub.id);
-  render();
-  toast('Ny runde. Alle har fået 100 PP i rundebonus.');
-}
-
 document.addEventListener('click', async e => {
   const t = e.target.closest('button');
   if (!t) return;
 
-  // Faneblade
+  // Skift mellem dine klubber i top-bjælken
+  if (t.dataset.switchclub) {
+    await loadClubFromSupabase(t.dataset.switchclub);
+    toast('Aktiv klub: ' + currentClub.name);
+    return;
+  }
+
+  // Faneblade (Kampe, Live, Badges)
   if (t.dataset.tab) {
     tab = t.dataset.tab;
-    document.querySelectorAll('nav button').forEach(b => b.setAttribute('aria-selected', b === t));
-    ['kampe', 'live', 'klub', 'badges'].forEach(x => $('#tab-' + x).hidden = x !== tab);
+    activateInitialTab();
     renderSlip();
     window.scrollTo({ top: 0 });
     return;
   }
 
-  // Velkomst & Klub/Konto Modals
+  // Velkomst & Konto Modals
   if (t.dataset.intro) {
     seen.add(t.dataset.intro);
     try { localStorage.setItem('pral-intros', JSON.stringify([...seen])); } catch (e) {}
@@ -1369,115 +1159,50 @@ document.addEventListener('click', async e => {
   if (t.dataset.stake) { stake = +t.dataset.stake; renderSlip(); return; }
   if (t.id === 'clear') { slip = {}; slipComment = ''; renderMatches(); renderSlip(); return; }
 
-  // Afgiv Kald (Gemmer både lokalt og i Supabase)
+  // Afgiv Kald (Gemmer direkte i den aktive klub i Supabase, så det straks ses på klub.html)
   if (t.id === 'place') {
     if (P('me').fp < stake) { toast('Du har ikke nok PP. Vælg en mindre indsats.'); return; }
     const picks = Object.keys(slip).map(m => ({ m, i: slip[m] }));
-    const k = addKupon('me', picks, stake, slipComment.trim());
+    const odds = +picks.reduce((a, p) => a * mById(p.m).o[p.i], 1).toFixed(2);
+    const commentText = slipComment.trim();
+
+    P('me').fp -= stake;
     unlock('first');
     if (picks.length >= 3) unlock('combo');
+
     slip = {};
     slipComment = '';
-    toast('Kald afgivet. Det kan ses under Klubben.');
     render();
 
-    if (sb && currentUser && currentClub.id !== 'demo-club') {
+    if (sb && currentUser && currentClub.id) {
       try {
         await sb.from('calls').insert({
           club_id: currentClub.id,
           user_id: currentUser.id,
           round: round,
-          picks: k.picks,
-          stake: k.stake,
-          odds: k.odds,
-          comment: k.comment,
+          picks: picks,
+          stake: stake,
+          odds: odds,
+          comment: commentText,
           status: 'pending'
         });
+        await sb.from('pp_transactions').insert({
+          user_id: currentUser.id,
+          amount: -stake,
+          reason: 'call_placed'
+        });
         await syncProfileToSupabase();
+        await loadClubFromSupabase(currentClub.id);
+        toast(`Kald afgivet i ${currentClub.name}! Se det under Klubben ⚽`);
       } catch (err) {
-        console.warn('Kald gemt lokalt (Supabase tabel afventer):', err.message);
+        toast('Fejl ved gem til Supabase: ' + err.message);
       }
     }
     return;
   }
-
-  // Følg eller Modspil (Fade) vennernes kald
-  if (t.dataset.act) {
-    const k = kuponer.find(x => String(x.id) === String(t.dataset.k));
-    if (!k) return;
-    const act = t.dataset.act;
-    const me = P('me');
-    if (k.my === act) {
-      k.my = null; me.fp += FSTAKE; act === 'follow' ? k.fol-- : k.fad--;
-    } else {
-      if (!k.my && me.fp < FSTAKE) { toast('Du har ikke nok PP til det.'); return; }
-      if (k.my) { k.my === 'follow' ? k.fol-- : k.fad--; } else me.fp -= FSTAKE;
-      k.my = act; act === 'follow' ? k.fol++ : k.fad++;
-      toast(act === 'follow' ? 'Du følger ' + gen(P(k.owner).name) + ' kald' : 'Duel startet mod ' + P(k.owner).name);
-    }
-    render();
-    if (sb && currentUser && currentClub.id !== 'demo-club') {
-      try {
-        if (!k.my) {
-          await sb.from('call_reactions').delete().eq('call_id', k.id).eq('user_id', currentUser.id);
-        } else {
-          await sb.from('call_reactions').upsert({ call_id: k.id, user_id: currentUser.id, action: k.my });
-        }
-        await syncProfileToSupabase();
-      } catch (e) {}
-    }
-    return;
-  }
-
-  if (t.id === 'play') { playRound(); return; }
-  if (t.id === 'next') { nextRound(); return; }
 });
 
-// Formular-håndtering for skift/opret Klub inde i index.html
-document.addEventListener('submit', async e => {
-  if (e.target.id === 'createClubForm') {
-    e.preventDefault();
-    const name = $('#newClubName').value.trim();
-    if (!name || !sb || !currentUser) return;
-    const code = name.replace(/[^a-zA-Z0-9]/g, '').slice(0, 4).toUpperCase() + Math.floor(10 + Math.random() * 89);
-    try {
-      const { data: club, error } = await sb.from('clubs').insert({
-        name,
-        invite_code: code,
-        created_by: currentUser.id
-      }).select().single();
-      if (error) throw error;
-      await sb.from('club_members').insert({ club_id: club.id, user_id: currentUser.id });
-      currentClub = club;
-      await loadClubFromSupabase(club.id);
-      renderAuthModal();
-      toast('Klubben "' + name + '" er oprettet!');
-    } catch (err) {
-      toast('Kunne ikke oprette klub (har du kørt SQL-scriptet i Supabase?)');
-    }
-  }
-
-  if (e.target.id === 'joinClubForm') {
-    e.preventDefault();
-    const code = $('#joinCodeInput').value.trim().toUpperCase();
-    if (!code || !sb || !currentUser) return;
-    try {
-      const { data: club, error } = await sb.from('clubs').select('*').eq('invite_code', code).single();
-      if (error || !club) throw new Error('Klubkode ikke fundet');
-      await sb.from('club_members').upsert({ club_id: club.id, user_id: currentUser.id });
-      currentClub = club;
-      await loadClubFromSupabase(club.id);
-      renderAuthModal();
-      toast('Du er nu med i ' + club.name + '!');
-    } catch (err) {
-      toast(err.message || 'Kunne ikke deltage i klub');
-    }
-  }
-});
-
-// Klargør simuleringsdata og kør Auth-Guard mod login.html
 newLive();
-genFriends();
 initSupabase();
 </script>
 </body>
