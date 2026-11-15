@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Pral — Klubben</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #F4F4F1; --surface: #FFFFFF; --ink: #111318; --muted: #5B5F6B; --line: #D9DAD5; --edge: #111318;
+      --pitch: #111318; --onpitch: #FFFFFF; --card: #FF5A4E; --oncard: #111318; --red: #E0312B; --onred: #FFFFFF; --soft: #EFEFEA;
+      --head: #111318; --headink: #FFFFFF; --tab: #24272F; --tabink: #FFFFFF; --tabedge: #3A3E48; --tabon: #FF5A4E; --tabonink: #111318;
+      --panel: #FFE6E2; --panelink: #111318; --panelhead: #111318; --paneledge: #111318; --panelbox: #FFFFFF; --panelboxedge: #111318;
+      --bignum: #111318; --fill: #FF5A4E; --fillink: #111318; --filledge: #111318;
+      --wallet: #FF5A4E; --walletink: #111318; --hover: #FFE3DF; --hbg: #111318; --hink: #FFFFFF;
+      --disp: "Archivo Black", "Archivo", system-ui, sans-serif;
+      --body: "Archivo", system-ui, -apple-system, Segoe UI, sans-serif;
+      --navh: 68px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0F1014; --surface: #191B21; --ink: #F3F3EF; --muted: #A3A6B0; --line: #2B2E37; --edge: #8E929C;
+        --pitch: #FF6A5E; --onpitch: #111318; --card: #FF6A5E; --oncard: #111318; --red: #FF5A54; --onred: #111318; --soft: #22252D;
+        --head: #15171C; --headink: #FFFFFF; --tab: #22252D; --tabink: #F3F3EF; --tabedge: #3A3E48; --tabon: #FF6A5E; --tabonink: #111318;
+        --panel: #2A1B1A; --panelink: #F3F3EF; --panelhead: #FF8A80; --paneledge: #FF6A5E; --panelbox: #191B21; --panelboxedge: #3A3E48;
+        --bignum: #F3F3EF; --fill: #FF6A5E; --fillink: #111318; --filledge: #FF6A5E;
+        --wallet: #FF6A5E; --walletink: #111318; --hover: #3A2523; --hbg: #22252D; --hink: #F3F3EF;
+        color-scheme: dark;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      background-image: radial-gradient(var(--line) 1px, transparent 1.2px);
+      background-size: 18px 18px;
+      color: var(--ink);
+      font: 500 16px/1.45 var(--body);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; color: inherit; }
+    [hidden] { display: none !important; }
+    .num { font-family: "Archivo", system-ui, sans-serif; font-weight: 900; font-variant-numeric: tabular-nums; }
+
+    /* Header */
+    header { position: sticky; top: 0; z-index: 5; background: var(--head); color: var(--headink); border-bottom: 3px solid var(--edge); }
+    .bar { max-width: 560px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { font: 400 34px/.95 var(--disp); letter-spacing: -.02em; text-decoration: none; color: inherit; }
+    .brand .dot { display: inline-block; width: .26em; height: .26em; border-radius: 50%; background: var(--card); margin-left: .07em; }
+    .brand small { display: block; font: 600 13px/1.3 var(--body); letter-spacing: 0; margin-top: 4px; opacity: .75; }
+    .walletwrap { display: flex; gap: 8px; align-items: center; }
+    .wallet { display: flex; align-items: baseline; gap: 4px; background: var(--wallet); color: var(--walletink); border-radius: 8px; padding: 6px 12px; transform: rotate(-2deg); box-shadow: 3px 3px 0 var(--edge); }
+    .wallet .num { font-size: 22px; line-height: 1; }
+    .wallet span:last-child { font-size: 12px; font-weight: 800; }
+    .streak { display: flex; align-items: baseline; gap: 3px; border: 2px solid var(--tabedge); background: var(--tab); color: var(--tabink); border-radius: 8px; padding: 5px 8px; font: 400 18px/1 var(--disp); }
+
+    main { max-width: 560px; margin: 0 auto; padding: 16px 16px calc(var(--navh) + 40px); }
+
+    /* Club Switcher Bar */
+    .club-switcher {
+      display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px;
+      margin-bottom: 12px; scrollbar-width: none; align-items: center;
+    }
+    .club-switcher::-webkit-scrollbar { display: none; }
+    .club-pill {
+      flex: none; display: inline-flex; align-items: center; gap: 6px;
+      border: 2px solid var(--edge); background: var(--surface); color: var(--ink);
+      border-radius: 99px; padding: 7px 14px; font-weight: 800; font-size: 13.5px;
+      cursor: pointer; box-shadow: 2px 2px 0 var(--edge); transition: transform .1s, box-shadow .1s;
+    }
+    .club-pill[aria-pressed="true"] {
+      background: var(--pitch); color: var(--onpitch);
+      transform: translate(2px, 2px); box-shadow: none;
+    }
+    .club-pill.add {
+      background: var(--card); color: var(--oncard);
+    }
+
+    /* Club Identity Banner */
+    .club-hero {
+      background: var(--surface); border: 2.5px solid var(--edge); border-radius: 14px;
+      padding: 14px; margin-bottom: 16px; box-shadow: 4px 4px 0 var(--edge);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .club-hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .club-hero h1 { margin: 0; font: 400 24px/1.05 var(--disp); }
+    .club-hero p { margin: 3px 0 0; font-size: 13.5px; color: var(--muted); font-weight: 600; }
+    .admin-link {
+      flex: none; display: inline-flex; align-items: center; gap: 5px;
+      background: var(--card); color: var(--oncard); border: 2px solid var(--edge);
+      border-radius: 8px; padding: 6px 10px; font: 800 12.5px/1 var(--body);
+      text-decoration: none; box-shadow: 2px 2px 0 var(--edge);
+    }
+    .invite-strip {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      background: var(--soft); border: 1.5px dashed var(--edge); border-radius: 10px;
+      padding: 8px 12px; font-size: 13px;
+    }
+    .invite-strip code { font: 900 16px/1 var(--disp); letter-spacing: .06em; color: var(--ink); }
+    .invite-actions { display: flex; gap: 6px; }
+    .mini-btn {
+      border: 1.5px solid var(--edge); background: var(--surface); color: var(--ink);
+      border-radius: 6px; padding: 4px 9px; font: 800 12px/1 var(--body); cursor: pointer;
+    }
+    .rules-strip {
+      display: flex; gap: 8px; flex-wrap: wrap; font-size: 11.5px; font-weight: 800; color: var(--muted);
+    }
+    .rules-strip span {
+      background: var(--soft); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px;
+    }
+
+    /* Avatars & Names */
+    .av {
+      flex: none; display: inline-grid; place-items: center;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--c); color: var(--ct); border: 2px solid var(--edge);
+      font: 900 14px/1 "Archivo", system-ui, sans-serif;
+    }
+    .nm { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+
+    /* Highlight Yellow Panel */
+    .yellow {
+      background: var(--panel); color: var(--panelink);
+      border: 3px solid var(--paneledge); border-radius: 14px;
+      padding: 16px; margin-bottom: 18px; position: relative;
+      box-shadow: 6px 6px 0 var(--edge);
+    }
+    .yellow h2 { margin: 0 0 12px; font: 400 22px/1.05 var(--disp); color: var(--panelhead); }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pair > div { background: var(--panelbox); border: 2px solid var(--panelboxedge); border-radius: 10px; padding: 10px; }
+    .pair .k { font-size: 12px; font-weight: 700; line-height: 1.25; }
+    .pair .who { font-weight: 800; font-size: 16px; margin: 6px 0 4px; }
+    .pair .big { font: 900 32px/1 "Archivo", system-ui, sans-serif; color: var(--bignum); }
+    .pair .s { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .award { background: var(--panelbox); border: 1.5px solid var(--panelboxedge); border-radius: 10px; padding: 10px 12px; margin-top: 8px; display: flex; gap: 12px; align-items: center; }
+    .award .ic { font-size: 26px; }
+    .award b { display: block; }
+    .award span { font-size: 13.5px; }
+
+    h3 {
+      font: 400 21px/1.1 var(--disp); margin: 26px 0 10px;
+      display: inline-block; background: var(--hbg); color: var(--hink);
+      border: 1.5px solid var(--edge); padding: 4px 10px; border-radius: 6px;
+      transform: rotate(-1deg);
+    }
+
+    /* Kuponer / Calls */
+    .kup { background: var(--surface); border: 1.5px solid var(--edge); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+    .kup .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .kup .top b { font: 400 16px/1.1 var(--disp); }
+    .chip { font-size: 12px; font-weight: 800; border-radius: 6px; padding: 3px 8px; background: var(--soft); color: var(--muted); border: 1.5px solid var(--edge); }
+    .chip.won { background: var(--pitch); color: var(--onpitch); }
+    .chip.lost { background: var(--red); color: var(--onred); }
+    .kup ul { margin: 8px 0 6px; padding: 0; list-style: none; font-size: 14px; color: var(--muted); }
+    .kup li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; padding: 3px 0; }
+    .kup li b { color: var(--ink); font-weight: 800; }
+    .kup li .o { font-weight: 900; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .kup li small { flex-basis: 100%; font-size: 12px; color: var(--muted); }
+    .kup li.hit b { color: var(--pitch); }
+    .kup li.hit b::after { content: " ✓"; }
+    .kup li.miss b, .kup li.miss .o { text-decoration: line-through; color: var(--muted); }
+    .kup .meta { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; border-top: 1px solid var(--line); padding-top: 6px; }
+    .kup .meta .num { font-size: 18px; }
+    .cmt { font-size: 14px; margin: 6px 0 0; font-weight: 700; background: var(--soft); padding: 6px 10px; border-radius: 8px; }
+    .cmt::before { content: "“"; }
+    .cmt::after { content: "”"; }
+    .tug { display: flex; height: 8px; border-radius: 6px; overflow: hidden; background: var(--soft); margin-top: 10px; border: 1.5px solid var(--edge); }
+    .tug .f { background: var(--card); transition: width .3s; }
+    .tug .x { background: var(--ink); transition: width .3s; }
+    .tugl { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--muted); margin: 4px 0 8px; }
+    .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .acts button {
+      border: 2px solid var(--edge); background: var(--surface); border-radius: 10px;
+      padding: 8px 6px; cursor: pointer; font-weight: 800; line-height: 1.15;
+      box-shadow: 3px 3px 0 var(--edge); transition: transform .1s, box-shadow .1s;
+    }
+    .acts button small { display: block; font-weight: 600; font-size: 11.5px; color: var(--muted); }
+    .acts .fo[aria-pressed="true"] { background: var(--pitch); color: var(--onpitch); box-shadow: none; transform: translate(3px, 3px); }
+    .acts .fa[aria-pressed="true"] { background: var(--ink); color: var(--surface); box-shadow: none; transform: translate(3px, 3px); }
+    .acts button[aria-pressed="true"] small { color: inherit; opacity: .85; }
+    .mine { margin-top: 8px; font-size: 13.5px; font-weight: 800; border-radius: 8px; padding: 6px 10px; background: var(--soft); border: 1.5px solid var(--edge); }
+    .mine.win { background: var(--pitch); color: var(--onpitch); }
+    .mine.loss { background: var(--red); color: var(--onred); }
+
+    /* Tables */
+    table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1.5px solid var(--edge); border-radius: 12px; overflow: hidden; }
+    td { padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: middle; }
+    tr:first-child td { border-top: 0; }
+    td.r { text-align: right; }
+    td .num { font-size: 18px; }
+    tr.me { background: var(--fill); color: var(--fillink); font-weight: 800; }
+    .role-tag { font-size: 10.5px; font-weight: 800; background: var(--soft); color: var(--muted); padding: 2px 6px; border-radius: 4px; margin-left: 6px; border: 1px solid var(--line); }
+    tr.me .role-tag { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+    .rec { font: 900 20px/1 "Archivo", system-ui, sans-serif; white-space: nowrap; }
+    .rec .w { color: var(--pitch); } .rec .l { color: var(--red); } .rec .z { color: var(--muted); }
+
+    .cta {
+      width: 100%; border: 3px solid var(--edge); border-radius: 12px; padding: 12px;
+      background: var(--pitch); color: var(--onpitch); font: 400 17px/1.1 var(--disp);
+      cursor: pointer; box-shadow: 4px 4px 0 var(--edge);
+    }
+    .cta.ghost { background: var(--surface); color: var(--ink); margin-top: 8px; font-family: var(--body); font-weight: 800; font-size: 15px; }
+
+    /* Modal for Join / Create Club */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 40; background: rgba(17, 19, 24, .65);
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-card {
+      background: var(--surface); color: var(--ink); border: 3px solid var(--edge);
+      border-radius: 16px; box-shadow: 6px 6px 0 var(--card); padding: 20px;
+      max-width: 440px; width: 100%; max-height: 90vh; overflow-y: auto;
+    }
+    .modal-card h2 { margin: 0 0 12px; font: 400 24px/1 var(--disp); display: flex; justify-content: space-between; align-items: center; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; color: var(--muted); }
+    .field input { width: 100%; padding: 10px 12px; border: 2px solid var(--edge); border-radius: 10px; background: var(--soft); font-weight: 700; }
+
+    /* Bottom Nav */
+    nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 7; background: var(--head); color: var(--headink); border-top: 3px solid var(--edge); padding: 6px 8px; }
+    nav .in { max-width: 560px; margin: 0 auto; display: flex; gap: 4px; }
+    nav a {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      color: inherit; text-decoration: none; border: 2px solid transparent;
+      border-radius: 12px; padding: 5px 2px 4px; font-weight: 800; font-size: 11.5px;
+      line-height: 1; opacity: .72;
+    }
+    nav a svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    nav a[aria-current="page"] { background: var(--tabon); color: var(--tabonink); border-color: var(--edge); opacity: 1; }
+
+    .toast {
+      position: fixed; left: 50%; bottom: calc(var(--navh) + 12px);
+      transform: translate(-50%, 12px); opacity: 0; visibility: hidden;
+      background: var(--fill); color: var(--fillink); border: 3px solid var(--filledge);
+      box-shadow: 4px 4px 0 var(--edge); padding: 10px 16px; border-radius: 12px;
+      font-weight: 800; z-index: 50; transition: .25s ease; text-align: center;
+    }
+    .toast.show { transform: translate(-50%, 0) rotate(-1deg); opacity: 1; visibility: visible; }
+  </style>
+</head>
+<body id="appBody" hidden>
+
+<header>
+  <div class="bar">
+    <a href="index.html" class="brand">
+      Pral<span class="dot" aria-hidden="true"></span>
+      <small id="headerSub">Indlæser klub...</small>
+    </a>
+    <div class="walletwrap">
+      <div class="streak" title="Rigtige valg i træk">🔥<span id="streak">0</span></div>
+      <div class="wallet" aria-label="Din saldo"><span class="num" id="fp">1.000</span><span>PP</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Horisontal Klub-skifter (Alle klubber brugeren er med i + Opret/Join) -->
+  <div class="club-switcher" id="clubSwitcher" role=" region" aria-label="Dine klubber"></div>
+
+  <!-- Aktiv Klub-kort med invitationskode og genvej til klubadmin.html -->
+  <section class="club-hero" id="clubHero"></section>
+
+  <!-- Ugens Odds før fløjtet / Ugens Kåringer -->
+  <section id="clubHighlight"></section>
+
+  <!-- Rundens Kald (med Følg & Modspil) -->
+  <h3>Rundens kald</h3>
+  <div id="callsList"></div>
+
+  <!-- Stillingen i Klubben -->
+  <h3 id="standingsTitle">Stillingen</h3>
+  <div id="standingsTable"></div>
+
+  <!-- 1v1 Rivaler / Dueller -->
+  <h3>Rivaler (Modspil-dueller)</h3>
+  <div id="rivalsTable"></div>
+</main>
+
+<!-- Modal: Hop ind i en klub (med kode) eller Opret ny klub -->
+<div class="modal-backdrop" id="clubModal" hidden>
+  <div class="modal-card">
+    <h2>
+      <span>Skift eller opret klub</span>
+      <button type="button" class="mini-btn" id="closeClubModal">Luk</button>
+    </h2>
+
+    <form id="joinClubForm" style="margin-bottom:18px">
+      <div class="field">
+        <label for="joinCodeInput">Har du en invitationskode fra en ven?</label>
+        <input id="joinCodeInput" type="text" placeholder="F.eks. FREDAG" style="text-transform:uppercase" required>
+      </div>
+      <button type="submit" class="cta">Hop ind i klubben</button>
+    </form>
+
+    <hr style="border:0;border-top:2px dashed var(--line);margin:16px 0">
+
+    <form id="createClubForm">
+      <div class="field">
+        <label for="newClubName">Opret din egen klub (du bliver Admin 👑)</label>
+        <input id="newClubName" type="text" placeholder="F.eks. Drengene fra Roskilde" required>
+      </div>
+      <div class="field">
+        <label for="newClubMotto">Klub-motto / Undertitel (valgfrit)</label>
+        <input id="newClubMotto" type="text" placeholder="F.eks. Taberen giver fredagsøl">
+      </div>
+      <div class="field">
+        <label for="newClubCode">Vælg jeres egen invitationskode (valgfrit)</label>
+        <input id="newClubCode" type="text" placeholder="F.eks. ROSKILDE26" style="text-transform:uppercase">
+      </div>
+      <button type="submit" class="cta ghost">Opret klub & åbn Klub Admin &rarr;</button>
+    </form>
+  </div>
+</div>
+
+<!-- Bundnavigation -->
+<nav aria-label="Hovednavigation">
+  <div class="in">
+    <a href="index.html">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l4.3 3.1-1.6 5h-5.4l-1.6-5z"/></svg>
+      Kampe
+    </a>
+    <a href="live.html">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/></svg>
+      Live
+    </a>
+    <a href="klub.html" aria-current="page">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.1 4.4 1.7 5 4.4"/></svg>
+      Klubben
+    </a>
+    <a href="mine-kald.html">
+      <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+      Mine Kald
+    </a>
+    <a href="badges.html">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M8.5 13.8L7 22l5-2.8 5 2.8-1.5-8.2"/></svg>
+      Badges
+    </a>
+  </div>
+</nav>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const SUPABASE_URL = 'https://jvnbhbnpxdyufmctmarg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bmJoYm5weGR5dWZtY3RtYXJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3NzEzOTgsImV4cCI6MjExMDM0NzM5OH0.XYHYQCt6RHl8fQjYEJniU1z3hzfSBVVz39UlnxZqlsc';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const $ = s => document.querySelector(s);
+const f2 = x => Number(x).toFixed(2).replace('.', ',');
+const fmt = n => Math.round(n).toLocaleString('da-DK');
+const gen = n => /[sxz]$/i.test(n) ? n + '’' : n + 's';
+const fadeOdds = o => +Math.max(1.05, (1 / (1 - 1 / o)) * 0.93).toFixed(2);
+
+const PALETTE = [
+  ['#111318', '#FFFFFF'], ['#5B8DEF', '#111318'], ['#F2B84B', '#111318'],
+  ['#4CB98A', '#111318'], ['#B78BEA', '#111318'], ['#FF5A4E', '#111318']
+];
+
+const FALLBACK_MATCHES = [
+  { id: 'm1', h: 'FC København', a: 'Brøndby IF', lg: 'Superliga', t: 'Søn 14.00', o: [1.85, 3.70, 4.10] },
+  { id: 'm2', h: 'OB', a: 'Randers FC', lg: 'Superliga', t: 'Søn 16.00', o: [2.45, 3.30, 2.80] },
+  { id: 'm3', h: 'FC Midtjylland', a: 'AGF', lg: 'Superliga', t: 'Lør 18.00', o: [1.62, 4.00, 5.20] },
+  { id: 'm4', h: 'Liverpool', a: 'Arsenal', lg: 'Premier League', t: 'Søn 17.30', o: [2.30, 3.50, 2.95] },
+  { id: 'm5', h: 'Real Madrid', a: 'Barcelona', lg: 'La Liga', t: 'Lør 21.00', o: [2.10, 3.80, 3.20] },
+  { id: 'm6', h: 'Silkeborg IF', a: 'Viborg FF', lg: 'Superliga', t: 'Fre 19.00', o: [2.05, 3.45, 3.40] }
+];
+
+let currentUser = null;
+let myProfile = { id: '', display_name: 'Dig', pp: 1000, streak: 0 };
+let myClubs = []; // [{ role, club: {...} }]
+let activeClub = null;
+let myRoleInActiveClub = 'member';
+let members = []; // [{ id, name, pp, streak, role }]
+let matches = [...FALLBACK_MATCHES];
+let calls = [];
+let awards = null;
+let realtimeChannel = null;
+
+function toast(t) {
+  const el = $('#toast');
+  el.textContent = t;
+  el.classList.add('show');
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function getAvatarColor(id) {
+  let hash = 0;
+  const s = String(id || 'me');
+  for (let i = 0; i < s.length; i++) hash = s.charCodeAt(i) + ((hash << 5) - hash);
+  return PALETTE[Math.abs(hash) % PALETTE.length];
+}
+
+function P(uid) {
+  return members.find(m => m.id === uid) || { id: uid, name: 'Spiller', pp: 1000, role: 'member' };
+}
+
+function av(uid) {
+  const c = uid === currentUser?.id ? PALETTE[0] : getAvatarColor(uid);
+  const p = P(uid);
+  return `<span class="av" style="--c:${c[0]};--ct:${c[1]}" aria-hidden="true">${(p.name || '?')[0].toUpperCase()}</span>`;
+}
+
+function nm(uid) {
+  const p = P(uid);
+  return `<span class="nm">${av(uid)}<span>${p.name}</span></span>`;
+}
+
+const mById = id => matches.find(m => m.id === id) || FALLBACK_MATCHES[0];
+const shortText = (m, i) => i === 0 ? m.h : i === 2 ? m.a : 'Uafgjort';
+const pickText = (m, i) => i === 0 ? m.h + ' vinder' : i === 2 ? m.a + ' vinder' : 'Uafgjort';
+
+// ==========================================
+// 1. BOOT & SUPABASE AUTH-GUARD
+// ==========================================
+async function boot() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.user) {
+    window.location.replace('login.html');
+    return;
+  }
+  currentUser = session.user;
+  $('#appBody').hidden = false;
+
+  await loadUserAndClubs();
+}
+
+async function loadUserAndClubs() {
+  // 1. Hent egen profil
+  const { data: prof } = await sb.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+  if (prof) {
+    myProfile = prof;
+    $('#fp').textContent = fmt(prof.pp);
+    $('#streak').textContent = prof.streak || 0;
+  }
+
+  // 2. Hent kampe fra databasen
+  const { data: dbMatches } = await sb.from('matches').select('*');
+  if (dbMatches && dbMatches.length > 0) {
+    matches = dbMatches.map(m => ({
+      id: m.id, h: m.home_team, a: m.away_team, lg: m.league, t: m.kickoff_label, o: m.odds, result: m.result, status: m.status
+    }));
+  }
+
+  // 3. Hent alle klubber brugeren er medlem af
+  let { data: memberships } = await sb
+    .from('club_members')
+    .select('role, club_id, clubs(*)')
+    .eq('user_id', currentUser.id);
+
+  // Hvis brugeren endnu ikke er i Fredagsholdet, tilmeld automatisk
+  if (!memberships || memberships.length === 0) {
+    const { data: defClub } = await sb.from('clubs').select('*').eq('invite_code', 'FREDAG').maybeSingle();
+    if (defClub) {
+      await sb.from('club_members').upsert({ club_id: defClub.id, user_id: currentUser.id, role: 'member' });
+      memberships = [{ role: 'member', club_id: defClub.id, clubs: defClub }];
+    }
+  }
+
+  myClubs = (memberships || []).filter(m => m.clubs).map(m => ({
+    role: m.role || 'member',
+    club: m.clubs
+  }));
+
+  // Vælg aktiv klub (fra localStorage eller første klub i listen)
+  const savedClubId = localStorage.getItem('pral_active_club_id');
+  const found = myClubs.find(x => x.club.id === savedClubId) || myClubs[0];
+
+  if (found) {
+    await selectClub(found.club.id);
+  } else {
+    renderClubSwitcher();
+  }
+}
+
+async function selectClub(clubId) {
+  const entry = myClubs.find(x => x.club.id === clubId);
+  if (!entry) return;
+
+  activeClub = entry.club;
+  myRoleInActiveClub = (entry.role === 'admin' || activeClub.created_by === currentUser.id) ? 'admin' : 'member';
+  localStorage.setItem('pral_active_club_id', activeClub.id);
+
+  const round = activeClub.current_round || 1;
+
+  // 1. Hent klubbens medlemmer
+  const { data: memRows } = await sb
+    .from('club_members')
+    .select('role, user_id, profiles(id, display_name, pp, streak)')
+    .eq('club_id', activeClub.id);
+
+  members = (memRows || []).map(r => ({
+    id: r.user_id,
+    name: r.profiles?.display_name || 'Spiller',
+    pp: r.profiles?.pp ?? 1000,
+    streak: r.profiles?.streak ?? 0,
+    role: (r.role === 'admin' || activeClub.created_by === r.user_id) ? 'admin' : 'member'
+  }));
+
+  // 2. Hent klubbens kald (kuponer) og reaktioner (Følg / Modspil)
+  const { data: dbCalls } = await sb
+    .from('calls')
+    .select('*, call_reactions(user_id, action, status, payout)')
+    .eq('club_id', activeClub.id)
+    .eq('round', round)
+    .order('created_at', { ascending: false });
+
+  calls = (dbCalls || []).map(c => {
+    const reacts = c.call_reactions || [];
+    const myReact = reacts.find(r => r.user_id === currentUser.id);
+    return {
+      id: c.id,
+      owner: c.user_id,
+      picks: Array.isArray(c.picks) ? c.picks : [],
+      stake: c.stake,
+      odds: Number(c.odds),
+      payout: c.payout || Math.round(c.stake * Number(c.odds)),
+      status: c.status || 'pending',
+      comment: c.comment || '',
+      fol: reacts.filter(r => r.action === 'follow').length,
+      fad: reacts.filter(r => r.action === 'fade').length,
+      my: myReact ? myReact.action : null,
+       reactions: reacts
+    };
+  });
+
+  // 3. Hent evt. kåringer for runden
+  const { data: aw } = await sb
+    .from('round_awards')
+    .select('*')
+    .eq('club_id', activeClub.id)
+    .eq('round', round)
+    .maybeSingle();
+  awards = aw || null;
+
+  // 4. Realtime abonnement på den aktive klub
+  if (realtimeChannel) sb.removeChannel(realtimeChannel);
+  realtimeChannel = sb.channel('club-page-' + activeClub.id)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'calls', filter: `club_id=eq.${activeClub.id}` }, () => selectClub(activeClub.id))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'call_reactions' }, () => selectClub(activeClub.id))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'club_members', filter: `club_id=eq.${activeClub.id}` }, () => selectClub(activeClub.id))
+    .subscribe();
+
+  renderAll();
+}
+
+// ==========================================
+// 2. RENDERING AF KLUB.HTML
+// ==========================================
+function renderAll() {
+  $('#headerSub').textContent = `${activeClub.name} · ${members.length} medlemmer`;
+  renderClubSwitcher();
+  renderClubHero();
+  renderHighlight();
+  renderCalls();
+  renderStandings();
+  renderRivals();
+}
+
+function renderClubSwitcher() {
+  $('#clubSwitcher').innerHTML =
+    myClubs.map(x => {
+      const isSelected = activeClub && x.club.id === activeClub.id;
+      const isOwner = x.role === 'admin' || x.club.created_by === currentUser.id;
+      return `<button type="button" class="club-pill" data-switchclub="${x.club.id}" aria-pressed="${isSelected}">
+        <span>${isOwner ? '👑' : '⚽'}</span>
+        <span>${x.club.name}</span>
+      </button>`;
+    }).join('') +
+    `<button type="button" class="club-pill add" id="openClubModalBtn">+ Ny / Kode</button>`;
+}
+
+function renderClubHero() {
+  if (!activeClub) return;
+  const duelStake = activeClub.duel_stake || 100;
+  const roundBonus = activeClub.round_bonus || 100;
+  const motto = activeClub.motto || 'Spil om håneretten med klubben!';
+  const isAdmin = myRoleInActiveClub === 'admin' || activeClub.invite_code === 'FREDAG';
+
+  $('#clubHero').innerHTML = `
+    <div class="club-hero-top">
+      <div>
+        <h1>${activeClub.name}</h1>
+        <p>${motto}</p>
+      </div>
+      ${isAdmin ? `<a href="klubadmin.html?club=${activeClub.id}" class="admin-link">⚙️ Klub Admin</a>` : ''}
+    </div>
+    <div class="invite-strip">
+      <div>
+        <span style="color:var(--muted);font-weight:700">Klub-kode: </span>
+        <code>${activeClub.invite_code}</code>
+      </div>
+      <div class="invite-actions">
+        <button type="button" class="mini-btn" id="copyCodeBtn">Kopiér kode</button>
+        <button type="button" class="mini-btn" id="shareLinkBtn">Del link</button>
+      </div>
+    </div>
+    <div class="rules-strip">
+      <span>📅 Runde ${activeClub.current_round || 1}</span>
+      <span>👥 ${members.length} spillere</span>
+      <span>🎁 Rundebonus: ${roundBonus} PP</span>
+      <span>🃏 Duel-indsats: ${duelStake} PP</span>
+      ${activeClub.bodekasse ? `<span>🍺 Bødekasse: ${fmt(activeClub.bodekasse)} PP</span>` : ''}
+    </div>
+  `;
+}
+
+function renderHighlight() {
+  const el = $('#clubHighlight');
+  const round = activeClub?.current_round || 1;
+
+  if (awards) {
+    const row = (ic, t, x) => `<div class="award"><span class="ic">${ic}</span><div><b>${t}</b><span>${x}</span></div></div>`;
+    el.innerHTML = `<div class="yellow">
+      <h2>Ugens kåringer · Runde ${round}</h2>
+      ${awards.best_user_id ? row('🏆', 'Bedste odds der ramte plet', `${P(awards.best_user_id).name} ramte odds ${f2(awards.best_odds)} (+${fmt(awards.best_win)} PP)`) : row('🏆', 'Bedste odds', 'Ingen ramte plet i denne runde')}
+      ${awards.surprise_user_id ? row('🦄', 'Ugens overraskelse', `${P(awards.surprise_user_id).name} ramte ${awards.surprise_text}`) : ''}
+      ${awards.burnt_user_id ? row('🙈', 'Ugens største brøler', `${P(awards.burnt_user_id).name} brændte på odds ${f2(awards.burnt_odds)}`) : ''}
+    </div>`;
+    return;
+  }
+
+  if (calls.length === 0) {
+    el.innerHTML = `<div class="yellow">
+      <h2>Banen er kridtet op til Runde ${round}</h2>
+      <p style="margin:0 0 12px;font-size:14.5px">Ingen i <b>${activeClub.name}</b> har lagt et kald i denne runde endnu. Vær den første til at lægge pres på klubben!</p>
+      <a href="index.html" class="cta" style="display:block;text-align:center;text-decoration:none">Gå til Kampe & læg et kald &rarr;</a>
+    </div>`;
+    return;
+  }
+
+  const sorted = [...calls].sort((a, b) => a.odds - b.odds);
+  const lo = sorted[0], hi = sorted[sorted.length - 1];
+  el.innerHTML = `<div class="yellow">
+    <h2>Ugens odds før fløjtet</h2>
+    <div class="pair">
+      <div>
+        <div class="k">Mest sandsynlig</div>
+        <div class="who">${nm(lo.owner)}</div>
+        <div class="big">${f2(lo.odds)}</div>
+        <div class="s">ca. ${Math.round(100 / lo.odds)} % chance</div>
+      </div>
+      <div>
+        <div class="k">Mindst sandsynlig</div>
+        <div class="who">${nm(hi.owner)}</div>
+        <div class="big">${f2(hi.odds)}</div>
+        <div class="s">ca. ${Math.max(1, Math.round(100 / hi.odds))} % chance</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCalls() {
+  const box = $('#callsList');
+  if (!calls.length) {
+    box.innerHTML = `<p style="color:var(--muted);font-size:14.5px">Ingen kald lagt i runde ${activeClub?.current_round || 1} endnu.</p>`;
+    return;
+  }
+  const duelStake = activeClub?.duel_stake || 100;
+
+  box.innerHTML = calls.map(k => {
+    const isMe = k.owner === currentUser.id;
+    const ownerName = P(k.owner).name;
+    const tot = k.fol + k.fad || 1;
+
+    let socialHTML = '';
+    if (!isMe && activeClub?.allow_fades !== false) {
+      if (k.status !== 'pending') {
+        if (k.my) {
+          const ok = (k.my === 'follow') === (k.status === 'won');
+          const winAmt = Math.round(duelStake * (k.my === 'follow' ? k.odds : fadeOdds(k.odds)));
+          socialHTML = `<div class="mine ${ok ? 'win' : 'loss'}">Du ${k.my === 'follow' ? 'fulgte' : 'modspillede'} ${ownerName} og ${ok ? 'vandt +' + fmt(winAmt) + ' PP' : 'tabte ' + duelStake + ' PP'}</div>`;
+        }
+      } else {
+        socialHTML = `
+          <div class="tug" aria-hidden="true">
+            <div class="f" style="width:${(k.fol / tot) * 100}%"></div>
+            <div class="x" style="width:${(k.fad / tot) * 100}%"></div>
+          </div>
+          <div class="tugl"><span>${k.fol} følger</span><span>${k.fad} modspiller</span></div>
+          <div class="acts">
+            <button type="button" class="fo" data-act="follow" data-k="${k.id}" aria-pressed="${k.my === 'follow'}">
+              Følg ${ownerName}<small>${duelStake} PP · Vinder ${fmt(duelStake * k.odds)} PP</small>
+            </button>
+            <button type="button" class="fa" data-act="fade" data-k="${k.id}" aria-pressed="${k.my === 'fade'}">
+              Modspil ${ownerName}<small>${duelStake} PP · Vinder ${fmt(duelStake * fadeOdds(k.odds))} PP</small>
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    return `<article class="kup">
+      <div class="top">
+        <b>${nm(k.owner)}</b>
+        <span class="chip ${k.status}">${k.status === 'pending' ? 'Afventer' : k.status === 'won' ? 'Ramte plet +' + fmt(k.payout) + ' PP' : 'Forbi'}</span>
+      </div>
+      <ul>
+        ${k.picks.map(p => {
+          const m = mById(p.m);
+          const hasRes = m.result !== null && m.result !== undefined;
+          const cls = hasRes ? (m.result === p.i ? 'hit' : 'miss') : '';
+          return `<li class="${cls}"><b>${shortText(m, p.i)}</b><span class="o">${f2(m.o[p.i])}</span><small>${m.h} – ${m.a}</small></li>`;
+        }).join('')}
+      </ul>
+      <div class="meta">
+        <span>Indsats ${fmt(k.stake)} PP</span>
+        <span>Odds <span class="num">${f2(k.odds)}</span></span>
+      </div>
+      ${k.comment ? `<p class="cmt">${k.comment}</p>` : ''}
+      ${socialHTML}
+    </article>`;
+  }).join('');
+}
+
+function renderStandings() {
+  $('#standingsTitle').textContent = `Stillingen i ${activeClub.name}`;
+  const lb = [...members].sort((a, b) => b.pp - a.pp);
+  const medals = ['🥇', '🥈', '🥉'];
+
+  $('#standingsTable').innerHTML = `<table>
+    ${lb.map((p, i) => `
+      <tr class="${p.id === currentUser.id ? 'me' : ''}">
+        <td style="width:38px;font-weight:900">${medals[i] || (i + 1) + '.'}</td>
+        <td>
+          ${nm(p.id)}
+          ${p.role === 'admin' ? '<span class="role-tag">👑 Admin</span>' : ''}
+          ${p.streak >= 2 ? `<span class="role-tag">🔥 ${p.streak}</span>` : ''}
+        </td>
+        <td class="r"><span class="num">${fmt(p.pp)}</span> PP</td>
+      </tr>
+    `).join('')}
+  </table>`;
+}
+
+function renderRivals() {
+  const others = members.filter(m => m.id !== currentUser.id);
+  if (!others.length) {
+    $('#rivalsTable').innerHTML = `<p style="color:var(--muted);font-size:14px">Invitér vennerne ind i <b>${activeClub.name}</b> med koden <b>${activeClub.invite_code}</b> for at starte 1v1-dueller!</p>`;
+    return;
+  }
+
+  // Beregn 1v1 modspil-statistik mellem mig og hvert klubmedlem
+  const rows = others.map(other => {
+    let w = 0, l = 0;
+    calls.forEach(c => {
+      if (c.owner === other.id && c.my === 'fade' && c.status !== 'pending') {
+        if (c.status === 'lost') w++; else l++;
+      }
+      if (c.owner === currentUser.id && c.status !== 'pending') {
+        const theirFade = (c.reactions || []).find(r => r.user_id === other.id && r.action === 'fade');
+        if (theirFade) {
+          if (c.status === 'won') w++; else l++;
+        }
+      }
+    });
+    return { other, w, l };
+  });
+
+  $('#rivalsTable').innerHTML = `<table>
+    ${rows.map(({ other, w, l }) => `
+      <tr>
+        <td>${nm(other.id)}</td>
+        <td style="color:var(--muted);font-size:13.5px;font-weight:700">
+          ${w + l ? (w > l ? 'Du har håneretten' : w < l ? other.name + ' fører' : 'Helt lige') : 'Ingen afgjorte dueller endnu'}
+        </td>
+        <td class="r rec"><span class="${w ? 'w' : 'z'}">${w}</span>–<span class="${l ? 'l' : 'z'}">${l}</span></td>
+      </tr>
+    `).join('')}
+  </table>`;
+}
+
+// ==========================================
+// 3. INTERAKTIONER (SKIFT KLUB, DUEL, OPRET KLUB)
+// ==========================================
+document.addEventListener('click', async e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+
+  // Skift mellem klubber i top-baren
+  if (btn.dataset.switchclub) {
+    await selectClub(btn.dataset.switchclub);
+    toast('Skiftede til ' + activeClub.name);
+    return;
+  }
+
+  // Åbn / Luk Klub-modal
+  if (btn.id === 'openClubModalBtn') {
+    $('#clubModal').hidden = false;
+    return;
+  }
+  if (btn.id === 'closeClubModal') {
+    $('#clubModal').hidden = true;
+    return;
+  }
+
+  // Kopiér kode & Del invite-link
+  if (btn.id === 'copyCodeBtn') {
+    navigator.clipboard?.writeText(activeClub.invite_code);
+    toast(`Koden "${activeClub.invite_code}" er kopieret!`);
+    return;
+  }
+  if (btn.id === 'shareLinkBtn') {
+    const url = `https://pralcore.vercel.app/login.html?join=${encodeURIComponent(activeClub.invite_code)}`;
+    if (navigator.share) {
+      navigator.share({ title: `Hop ind i ${activeClub.name} på Pral`, text: `Brug koden ${activeClub.invite_code} til at spille med os i ${activeClub.name}!`, url });
+    } else {
+      navigator.clipboard?.writeText(url);
+      toast('Invitationslink kopieret til udklipsholder!');
+    }
+    return;
+  }
+
+  // Følg eller Modspil (Fade) en vens kald
+  if (btn.dataset.act) {
+    const callId = btn.dataset.k;
+    const act = btn.dataset.act;
+    const k = calls.find(c => String(c.id) === String(callId));
+    if (!k) return;
+
+    const duelStake = activeClub?.duel_stake || 100;
+    const ownerName = P(k.owner).name;
+
+    if (k.my === act) {
+      // Fortryd valg og refunder indsats
+      k.my = null;
+      myProfile.pp += duelStake;
+      await sb.from('call_reactions').delete().eq('call_id', k.id).eq('user_id', currentUser.id);
+      await sb.from('profiles').update({ pp: myProfile.pp }).eq('id', currentUser.id);
+      toast('Valg annulleret (+' + duelStake + ' PP retur)');
+    } else {
+      if (!k.my && myProfile.pp < duelStake) {
+        toast('Du mangler PP til denne duel!');
+        return;
+      }
+      if (!k.my) myProfile.pp -= duelStake;
+      k.my = act;
+      await sb.from('call_reactions').upsert({
+        call_id: k.id,
+        user_id: currentUser.id,
+        action: act,
+        stake: duelStake,
+        status: 'pending'
+      });
+      await sb.from('profiles').update({ pp: myProfile.pp }).eq('id', currentUser.id);
+      toast(act === 'follow' ? `Du følger ${gen(ownerName)} kald!` : `Duel startet mod ${ownerName}! 🃏`);
+    }
+    $('#fp').textContent = fmt(myProfile.pp);
+    await selectClub(activeClub.id);
+  }
+});
+
+// Formular: Hop ind i en eksisterende klub med kode
+$('#joinClubForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const code = $('#joinCodeInput').value.trim().toUpperCase();
+  if (!code) return;
+
+  try {
+    const { data: club, error } = await sb.from('clubs').select('*').eq('invite_code', code).maybeSingle();
+    if (error || !club) throw new Error(`Ingen klub fundet med koden "${code}"`);
+
+    await sb.from('club_members').upsert({
+      club_id: club.id,
+      user_id: currentUser.id,
+      role: 'member'
+    });
+
+    $('#clubModal').hidden = true;
+    $('#joinCodeInput').value = '';
+    localStorage.setItem('pral_active_club_id', club.id);
+    await loadUserAndClubs();
+    toast(`Velkommen i ${club.name}! ⚽`);
+  } catch (err) {
+    toast(err.message || 'Kunne ikke tilmelde klub');
+  }
+});
+
+// Formular: Opret ny klub (og bliv Admin)
+$('#createClubForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = $('#newClubName').value.trim();
+  const motto = $('#newClubMotto').value.trim() || 'Spil om håneretten!';
+  let code = $('#newClubCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!code) {
+    code = name.replace(/[^a-zA-Z0-9]/g, '').slice(0, 5).toUpperCase() + Math.floor(10 + Math.random() * 89);
+  }
+
+  try {
+    const { data: club, error } = await sb.from('clubs').insert({
+      name,
+      motto,
+      invite_code: code,
+      created_by: currentUser.id,
+      current_round: 1
+    }).select().single();
+
+    if (error) throw error;
+
+    await sb.from('club_members').insert({
+      club_id: club.id,
+      user_id: currentUser.id,
+      role: 'admin'
+    });
+
+    localStorage.setItem('pral_active_club_id', club.id);
+    toast(`Klubben "${name}" er oprettet!`);
+    // Send direkte til klubadmin.html så ejeren kan tilpasse sin nye klub
+    window.location.href = `klubadmin.html?club=${club.id}`;
+  } catch (err) {
+    toast('Fejl: Invitationskoden bruges måske allerede.');
+  }
+});
+
+boot();
+</script>
+</body>
+</html>
