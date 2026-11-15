@@ -100,7 +100,6 @@
       background: #4CB98A;
       display: inline-block;
     }
-    .club-btn .status-dot.demo { background: #F2B84B; }
     @media (max-width: 359px) { .brand { font-size: 30px; } }
     .walletwrap { display: flex; gap: 8px; align-items: center; }
     .wallet {
@@ -413,7 +412,7 @@
     .feed li:first-child { border-top: 0; }
     .feed .num { min-width: 30px; }
 
-    /* Modals (Welcome & Supabase Auth/Club) */
+    /* Modals */
     .welcome {
       position: fixed;
       inset: 0;
@@ -444,7 +443,6 @@
     .wcard li span:first-child { font-size: 20px; line-height: 1.15; }
     .wcard p { margin: 0 0 14px; font-size: 13px; color: var(--muted); }
 
-    /* Auth Form Styling */
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; color: var(--muted); }
     .field input {
@@ -455,16 +453,6 @@
       background: var(--soft);
       font-weight: 700;
     }
-    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-    .auth-tabs button {
-      border: 2px solid var(--edge);
-      background: var(--soft);
-      padding: 8px;
-      border-radius: 8px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .auth-tabs button[aria-selected="true"] { background: var(--card); color: var(--oncard); box-shadow: 2px 2px 0 var(--edge); }
     .invite-box {
       background: var(--panel);
       color: var(--panelink);
@@ -501,21 +489,22 @@
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   </style>
 </head>
-<body>
+<!-- Skjult som standard indtil Supabase Auth-Guard har bekræftet login -->
+<body id="appBody" hidden>
 
 <header>
   <div class="bar">
     <div class="brand">
       <div>Pral<span class="dot" aria-hidden="true"></span></div>
-      <button class="club-btn" id="openClubModal" title="Skift klub eller log ind">
-        <span class="status-dot demo" id="connDot"></span>
+      <button class="club-btn" id="openClubModal" title="Skift klub eller se invitationskode">
+        <span class="status-dot" id="connDot"></span>
         <span id="clubHeaderLabel">Fredagsholdet · 5</span>
       </button>
     </div>
     <div class="walletwrap">
       <div class="streak" title="Rigtige valg i træk">🔥<span id="streak">0</span></div>
       <div class="wallet" aria-label="Din saldo"><span class="num" id="fp">1.000</span><span>PP</span></div>
-      <button class="auth-btn" id="openAuthBtn" title="Brugerprofil">Konto</button>
+      <button class="auth-btn" id="openAuthBtn" title="Brugerprofil & Klub">Konto</button>
     </div>
   </div>
 </header>
@@ -551,23 +540,22 @@
   </div>
 </nav>
 
-<!-- Velkomst-modal -->
+<!-- Kort intro-modal første gang man lander på index.html efter login -->
 <div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="wt" hidden>
   <div class="wcard">
-    <h2 id="wt"><span>Velkommen til Pral<span class="dot" aria-hidden="true"></span></span></h2>
+    <h2 id="wt"><span>Klar på banen<span class="dot" aria-hidden="true"></span></span></h2>
     <ul>
       <li><span aria-hidden="true">⚽</span><span><b>Kampe:</b> vælg udfald og afgiv et kald. Flere kampe ganger odds sammen.</span></li>
       <li><span aria-hidden="true">📡</span><span><b>Live:</b> afgiv kald under kampen, mens oddsene følger stillingen.</span></li>
       <li><span aria-hidden="true">👥</span><span><b>Klubben:</b> følg eller modspil vennernes kald, og se stillingen.</span></li>
       <li><span aria-hidden="true">🏅</span><span><b>Badges:</b> saml klistermærker for dine bedste kald.</span></li>
     </ul>
-    <p>Du spiller om pralepoint (PP), ikke penge. Log ind for at gemme dine kald i skyen med klubben, eller prøv direkte i demo-tilstand.</p>
-    <button class="cta" id="welcomeAuthBtn">Log ind / Opret profil</button>
-    <button class="cta ghost" data-intro="welcome">Prøv i Demo-tilstand</button>
+    <p>Du er nu logget ind, og dine Pralepoint (PP) og kald gemmes automatisk på din profil.</p>
+    <button class="cta" data-intro="welcome">Kom i gang</button>
   </div>
 </div>
 
-<!-- Supabase Konto & Klub Modal -->
+<!-- Klub & Konto Modal (Kun for indloggede brugere; logger man ud, ryger man til login.html) -->
 <div class="welcome" id="authModal" role="dialog" aria-modal="true" aria-labelledby="at" hidden>
   <div class="wcard">
     <h2 id="at">
@@ -592,7 +580,6 @@ const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE
 
 let currentUser = null;
 let currentClub = { id: 'demo-club', name: 'Fredagsholdet', invite_code: 'FREDAG' };
-let authMode = 'login'; // 'login' | 'signup'
 let realtimeChannel = null;
 
 // ==========================================
@@ -790,36 +777,41 @@ function unlock(id) {
 }
 
 // ==========================================
-// 3. SUPABASE AUTH, KLUB & DATABASE SYNC
+// 3. SUPABASE AUTH-GUARD (DIREKTE TIL LOGIN.HTML)
 // ==========================================
 async function initSupabase() {
-  if (!sb) return;
+  if (!sb) {
+    window.location.replace('login.html');
+    return;
+  }
   try {
     const { data: { session } } = await sb.auth.getSession();
-    if (session?.user) {
-      await handleUserLoggedIn(session.user);
+    // Hvis brugeren IKKE er logget ind og verificeret -> Send straks til login.html
+    if (!session?.user) {
+      window.location.replace('login.html');
+      return;
     }
-    sb.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        await handleUserLoggedIn(session.user);
-      } else {
-        currentUser = null;
-        $('#connDot').classList.add('demo');
-        $('#openAuthBtn').textContent = 'Log ind';
-        renderHeaderClub();
+
+    // Bruger er verificeret og logget ind -> Vis appen og indlæs profil/klub
+    $('#appBody').hidden = false;
+    await handleUserLoggedIn(session.user);
+
+    // Lyt på udlogning
+    sb.auth.onAuthStateChange((_event, newSession) => {
+      if (!newSession?.user) {
+        window.location.replace('login.html');
       }
     });
   } catch (err) {
-    console.warn('Supabase session tjek fejlede (kører videre i lokal tilstand):', err.message);
+    console.error('Auth tjek fejlede:', err.message);
+    window.location.replace('login.html');
   }
 }
 
 async function handleUserLoggedIn(user) {
   currentUser = user;
-  $('#connDot').classList.remove('demo');
   $('#openAuthBtn').textContent = user.user_metadata?.display_name || user.email.split('@')[0];
 
-  // Hent eller opret profil i Supabase
   try {
     let { data: prof, error } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
     if (!prof && !error) {
@@ -839,9 +831,10 @@ async function handleUserLoggedIn(user) {
       me.fp = prof.pp ?? 1000;
       streak = prof.streak ?? 0;
       if (Array.isArray(prof.badges)) prof.badges.forEach(b => badges.add(b));
+      $('#openAuthBtn').textContent = me.name;
     }
 
-    // Tjek om brugeren er i en klub
+    // Tjek om brugeren er i en klub i Supabase
     const { data: membership } = await sb
       .from('club_members')
       .select('club_id, clubs(id, name, invite_code)')
@@ -854,7 +847,7 @@ async function handleUserLoggedIn(user) {
       await loadClubFromSupabase(currentClub.id);
     }
   } catch (e) {
-    console.warn('Supabase tabeller ikke oprettet endnu — bruger lokal state indtil SQL er kørt:', e.message);
+    console.warn('Bruger lokal state indtil alle tabeller er synkroniseret:', e.message);
   }
   renderHeaderClub();
   render();
@@ -873,7 +866,7 @@ async function loadClubFromSupabase(clubId) {
       people = members.map(m => ({
         id: m.user_id === currentUser.id ? 'me' : m.user_id,
         real_id: m.user_id,
-        name: m.user_id === currentUser.id ? (m.profiles?.display_name + ' (Dig)') : (m.profiles?.display_name || 'Spiller'),
+        name: m.user_id === currentUser.id ? (m.profiles?.display_name || 'Dig') : (m.profiles?.display_name || 'Spiller'),
         fp: m.profiles?.pp ?? 1000
       }));
       initRivals();
@@ -887,7 +880,7 @@ async function loadClubFromSupabase(clubId) {
       .eq('round', round)
       .order('created_at', { ascending: false });
 
-    if (dbCalls && dbCalls.length > 0) {
+    if (dbCalls) {
       kuponer = dbCalls.map(c => {
         const reactions = c.call_reactions || [];
         const fol = reactions.filter(r => r.action === 'follow').length;
@@ -943,59 +936,33 @@ function renderHeaderClub() {
 
 function renderAuthModal() {
   const box = $('#authContent');
-  if (!currentUser) {
-    box.innerHTML = `
-      <div class="auth-tabs" role="tablist">
-        <button type="button" data-authmode="login" aria-selected="${authMode === 'login'}">Log ind</button>
-        <button type="button" data-authmode="signup" aria-selected="${authMode === 'signup'}">Opret profil</button>
+  if (!currentUser) return;
+  box.innerHTML = `
+    <p>Logget ind som <b>${P('me').name}</b> (${currentUser.email})</p>
+    <div class="invite-box">
+      <div>
+        <small style="display:block;font-weight:700">Aktiv klub: ${currentClub.name}</small>
+        <span>Invitationskode: <code>${currentClub.invite_code}</code></span>
       </div>
-      <form id="authForm">
-        ${authMode === 'signup' ? `
-          <div class="field">
-            <label for="authName">Dit kaldenavn i klubben</label>
-            <input id="authName" type="text" placeholder="F.eks. Mikkel" required>
-          </div>
-        ` : ''}
-        <div class="field">
-          <label for="authEmail">E-mail</label>
-          <input id="authEmail" type="email" placeholder="dig@eksempel.dk" required>
-        </div>
-        <div class="field">
-          <label for="authPass">Adgangskode</label>
-          <input id="authPass" type="password" placeholder="Mindst 6 tegn" minlength="6" required>
-        </div>
-        <button type="submit" class="cta">${authMode === 'login' ? 'Log ind på Pral' : 'Opret profil (+1.000 PP)'}</button>
-      </form>
-      <p style="margin-top:12px;text-align:center">Forbundet til Supabase: <b>jvnbhbnpxdyufmctmarg</b></p>
-    `;
-  } else {
-    box.innerHTML = `
-      <p>Logget ind som <b>${P('me').name}</b> (${currentUser.email})</p>
-      <div class="invite-box">
-        <div>
-          <small style="display:block;font-weight:700">Aktiv klub: ${currentClub.name}</small>
-          <span>Invitationskode: <code>${currentClub.invite_code}</code></span>
-        </div>
-        <button type="button" class="clr" id="copyInviteBtn">Kopiér</button>
+      <button type="button" class="clr" id="copyInviteBtn">Kopiér</button>
+    </div>
+    <hr style="border:0;border-top:1.5px solid var(--line);margin:14px 0">
+    <form id="joinClubForm" style="margin-bottom:14px">
+      <div class="field">
+        <label for="joinCodeInput">Skift til en vens klub (Invitationskode)</label>
+        <input id="joinCodeInput" type="text" placeholder="F.eks. FREDAG" style="text-transform:uppercase" required>
       </div>
-      <hr style="border:0;border-top:1.5px solid var(--line);margin:14px 0">
-      <form id="joinClubForm" style="margin-bottom:14px">
-        <div class="field">
-          <label for="joinCodeInput">Hop ind i en vens klub (Invitationskode)</label>
-          <input id="joinCodeInput" type="text" placeholder="F.eks. FREDAG" style="text-transform:uppercase" required>
-        </div>
-        <button type="submit" class="cta">Deltag i klub</button>
-      </form>
-      <form id="createClubForm" style="margin-bottom:14px">
-        <div class="field">
-          <label for="newClubName">Eller opret en ny klub</label>
-          <input id="newClubName" type="text" placeholder="F.eks. Lørdagsholdet" required>
-        </div>
-        <button type="submit" class="cta ghost">Opret ny klub</button>
-      </form>
-      <button type="button" class="cta ghost" id="logoutBtn" style="border-color:var(--red);color:var(--red)">Log ud</button>
-    `;
-  }
+      <button type="submit" class="cta">Deltag i klub</button>
+    </form>
+    <form id="createClubForm" style="margin-bottom:14px">
+      <div class="field">
+        <label for="newClubName">Eller opret en ny klub</label>
+        <input id="newClubName" type="text" placeholder="F.eks. Lørdagsholdet" required>
+      </div>
+      <button type="submit" class="cta ghost">Opret ny klub</button>
+    </form>
+    <button type="button" class="cta ghost" id="logoutBtn" style="border-color:var(--red);color:var(--red)">Log ud (Gå til login.html)</button>
+  `;
 }
 
 // ==========================================
@@ -1265,7 +1232,7 @@ function renderLive() {
 }
 
 function render() {
-  $('#welcome').hidden = seen.has('welcome') || !!currentUser;
+  $('#welcome').hidden = seen.has('welcome');
   $('#fp').textContent = fmt(P('me').fp);
   $('#streak').textContent = streak;
   renderLive();
@@ -1357,28 +1324,20 @@ document.addEventListener('click', async e => {
     return;
   }
 
-  // Velkomst & Auth Modals
+  // Velkomst & Klub/Konto Modals
   if (t.dataset.intro) {
     seen.add(t.dataset.intro);
     try { localStorage.setItem('pral-intros', JSON.stringify([...seen])); } catch (e) {}
     render();
     return;
   }
-  if (t.id === 'welcomeAuthBtn' || t.id === 'openAuthBtn' || t.id === 'openClubModal') {
-    seen.add('welcome');
-    try { localStorage.setItem('pral-intros', JSON.stringify([...seen])); } catch (e) {}
-    $('#welcome').hidden = true;
+  if (t.id === 'openAuthBtn' || t.id === 'openClubModal') {
     renderAuthModal();
     $('#authModal').hidden = false;
     return;
   }
   if (t.id === 'closeAuthModal') {
     $('#authModal').hidden = true;
-    return;
-  }
-  if (t.dataset.authmode) {
-    authMode = t.dataset.authmode;
-    renderAuthModal();
     return;
   }
   if (t.id === 'copyInviteBtn') {
@@ -1388,8 +1347,7 @@ document.addEventListener('click', async e => {
   }
   if (t.id === 'logoutBtn') {
     if (sb) await sb.auth.signOut();
-    $('#authModal').hidden = true;
-    toast('Du er logget ud.');
+    window.location.replace('login.html');
     return;
   }
 
@@ -1475,35 +1433,8 @@ document.addEventListener('click', async e => {
   if (t.id === 'next') { nextRound(); return; }
 });
 
-// Formular-håndtering for Login / Signup / Klub
+// Formular-håndtering for skift/opret Klub inde i index.html
 document.addEventListener('submit', async e => {
-  if (e.target.id === 'authForm') {
-    e.preventDefault();
-    if (!sb) return;
-    const email = $('#authEmail').value.trim();
-    const password = $('#authPass').value;
-    try {
-      if (authMode === 'signup') {
-        const displayName = $('#authName').value.trim();
-        const { error } = await sb.auth.signUp({
-          email,
-          password,
-          options: { data: { display_name: displayName } }
-        });
-        if (error) throw error;
-        toast('Profil oprettet! Velkommen i klubben.');
-        $('#authModal').hidden = true;
-      } else {
-        const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast('Velkommen tilbage!');
-        $('#authModal').hidden = true;
-      }
-    } catch (err) {
-      toast('Fejl: ' + (err.message || 'Kunne ikke logge ind'));
-    }
-  }
-
   if (e.target.id === 'createClubForm') {
     e.preventDefault();
     const name = $('#newClubName').value.trim();
@@ -1544,11 +1475,9 @@ document.addEventListener('submit', async e => {
   }
 });
 
-// Start applikationen
+// Klargør simuleringsdata og kør Auth-Guard mod login.html
 newLive();
 genFriends();
-renderHeaderClub();
-render();
 initSupabase();
 </script>
 </body>
