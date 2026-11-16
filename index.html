@@ -1,1209 +1,1085 @@
 <!doctype html>
 <html lang="da">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Pral — Spil om håneretten med klubben</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <!-- Supabase JS SDK v2 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #F4F4F1; --surface: #FFFFFF; --ink: #111318; --muted: #5B5F6B; --line: #D9DAD5; --edge: #111318;
-      --pitch: #111318; --onpitch: #FFFFFF; --card: #FF5A4E; --oncard: #111318; --red: #E0312B; --onred: #FFFFFF; --soft: #EFEFEA;
-      --head: #111318; --headink: #FFFFFF; --tab: #24272F; --tabink: #FFFFFF; --tabedge: #3A3E48; --tabon: #FF5A4E; --tabonink: #111318;
-      --panel: #FFE6E2; --panelink: #111318; --panelhead: #111318; --paneledge: #111318; --panelbox: #FFFFFF; --panelboxedge: #111318;
-      --bignum: #111318; --fill: #FF5A4E; --fillink: #111318; --filledge: #111318;
-      --wallet: #FF5A4E; --walletink: #111318; --scorebg: #111318; --hover: #FFE3DF; --hbg: #111318; --hink: #FFFFFF; --t1: #111318; --t2: #E0312B;
-      --disp: "Archivo Black", "Archivo", system-ui, sans-serif;
-      --body: "Archivo", system-ui, -apple-system, Segoe UI, sans-serif;
-      --navh: 66px;
-      box-sizing: border-box;
-      padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-    }
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        --bg: #0F1014; --surface: #191B21; --ink: #F3F3EF; --muted: #A3A6B0; --line: #2B2E37; --edge: #8E929C;
-        --pitch: #FF6A5E; --onpitch: #111318; --card: #FF6A5E; --oncard: #111318; --red: #FF5A54; --onred: #111318; --soft: #22252D;
-        --head: #15171C; --headink: #FFFFFF; --tab: #22252D; --tabink: #F3F3EF; --tabedge: #3A3E48; --tabon: #FF6A5E; --tabonink: #111318;
-        --panel: #2A1B1A; --panelink: #F3F3EF; --panelhead: #FF8A80; --paneledge: #FF6A5E; --panelbox: #191B21; --panelboxedge: #3A3E48;
-        --bignum: #F3F3EF; --fill: #FF6A5E; --fillink: #111318; --filledge: #FF6A5E;
-        --wallet: #FF6A5E; --walletink: #111318; --scorebg: #0B0C0F; --hover: #3A2523; --hbg: #22252D; --hink: #F3F3EF; --t1: #F3F3EF; --t2: #FF6A5E;
-        color-scheme: dark;
-      }
-    }
-    html { scroll-padding-top: env(safe-area-inset-top, 0px); }
-    *, *::before, *::after { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      background-image: radial-gradient(var(--line) 1px, transparent 1.2px);
-      background-size: 18px 18px;
-      color: var(--ink);
-      font: 500 16px/1.45 var(--body);
-      -webkit-font-smoothing: antialiased;
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0 0 auto;
-      height: env(safe-area-inset-top, 0px);
-      z-index: 10;
-      background: var(--head);
-    }
-    button, input { font: inherit; color: inherit; }
-    :focus-visible { outline: 3px solid var(--pitch); outline-offset: 3px; }
-    [hidden]:not([hidden=until-found i]) { display: none !important; }
-    .num { font-family: "Archivo", system-ui, sans-serif; font-weight: 900; font-variant-numeric: tabular-nums; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111318">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pral">
+<title>Pral</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F4F1;--surface:#FFFFFF;--ink:#111318;--muted:#5B5F6B;--line:#D9DAD5;--edge:#111318;
+  --accent:#FF5A4E;--onaccent:#111318;--tint:#FFE6E2;--soft:#EFEFEA;--good:#1E8E4E;--ongood:#FFFFFF;--bad:#E0312B;--onbad:#FFFFFF;
+  --head:#111318;--headink:#FFFFFF;--tab:#24272F;--tabink:#FFFFFF;--t1:#111318;--t2:#E0312B;
+  --disp:"Archivo Black","Archivo",system-ui,sans-serif;--body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --navh:66px;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1014;--surface:#191B21;--ink:#F3F3EF;--muted:#A3A6B0;--line:#2B2E37;--edge:#8E929C;
+  --accent:#FF6A5E;--onaccent:#111318;--tint:#2A1B1A;--soft:#22252D;--good:#4CC38A;--ongood:#0F1014;--bad:#FF5A54;--onbad:#111318;
+  --head:#15171C;--headink:#FFFFFF;--tab:#22252D;--tabink:#F3F3EF;--t1:#F3F3EF;--t2:#FF6A5E;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1014;--surface:#191B21;--ink:#F3F3EF;--muted:#A3A6B0;--line:#2B2E37;--edge:#8E929C;
+  --accent:#FF6A5E;--onaccent:#111318;--tint:#2A1B1A;--soft:#22252D;--good:#4CC38A;--ongood:#0F1014;--bad:#FF5A54;--onbad:#111318;
+  --head:#15171C;--headink:#FFFFFF;--tab:#22252D;--tabink:#F3F3EF;--t1:#F3F3EF;--t2:#FF6A5E;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);background-image:radial-gradient(var(--line) 1px,transparent 1.2px);background-size:18px 18px;color:var(--ink);font:500 16px/1.45 var(--body);-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom,0px) + 16px)}
+body.slipopen{padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom,0px) + 300px)}
+[hidden]{display:none!important}
+button,input{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-    /* Header */
-    header {
-      position: sticky;
-      top: env(safe-area-inset-top, 0px);
-      z-index: 5;
-      background: var(--head);
-      color: var(--headink);
-      border-bottom: 3px solid var(--edge);
-    }
-    .bar {
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .brand { font: 400 34px/.95 var(--disp); letter-spacing: -.02em; }
-    .brand .dot { display: inline-block; width: .26em; height: .26em; border-radius: 50%; background: var(--card); margin-left: .07em; }
-    .club-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: var(--tab);
-      color: var(--tabink);
-      border: 1.5px solid var(--tabedge);
-      border-radius: 6px;
-      padding: 2px 8px;
-      font: 700 12px/1.3 var(--body);
-      margin-top: 5px;
-      cursor: pointer;
-    }
-    .club-btn:hover { border-color: var(--card); }
-    .club-btn .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #4CB98A;
-      display: inline-block;
-    }
-    @media (max-width: 359px) { .brand { font-size: 30px; } }
-    .walletwrap { display: flex; gap: 8px; align-items: center; }
-    .wallet {
-      display: flex;
-      align-items: baseline;
-      gap: 4px;
-      background: var(--wallet);
-      color: var(--walletink);
-      border-radius: 8px;
-      padding: 6px 12px;
-      transform: rotate(-2deg);
-      box-shadow: 3px 3px 0 var(--edge);
-    }
-    .wallet .num { font-size: 22px; line-height: 1; }
-    .wallet span:last-child { font-size: 12px; font-weight: 800; }
-    .streak {
-      display: flex;
-      align-items: baseline;
-      gap: 3px;
-      border: 2px solid var(--tabedge);
-      background: var(--tab);
-      color: var(--tabink);
-      border-radius: 8px;
-      padding: 5px 8px;
-      font: 400 18px/1 var(--disp);
-    }
-    .auth-btn {
-      border: 2px solid var(--tabedge);
-      background: var(--tab);
-      color: var(--tabink);
-      border-radius: 8px;
-      padding: 6px 10px;
-      font: 800 12px/1 var(--body);
-      cursor: pointer;
-    }
+/* Top */
+header{position:sticky;top:0;z-index:5;background:var(--head);color:var(--headink);padding-top:env(safe-area-inset-top,0px)}
+.bar{max-width:560px;margin:0 auto;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brand{font:400 32px/.95 var(--disp);letter-spacing:-.02em}
+.brand small{display:block;font:700 11px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin-top:3px}
+.hright{display:flex;align-items:center;gap:10px}
+.wallet{display:flex;flex-direction:column;align-items:center;background:var(--accent);color:var(--onaccent);border:0;border-radius:8px;padding:4px 12px;transform:rotate(-2deg);box-shadow:3px 3px 0 #000;min-width:96px;cursor:pointer}
+.wallet b{font:400 20px/1 var(--disp)}
+.wallet small{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.me-btn{border:2px solid #3A3E48;background:var(--tab);color:var(--tabink);border-radius:50%;width:40px;height:40px;font-weight:900;cursor:pointer}
 
-    /* Navigation */
-    nav {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      z-index: 7;
-      background: var(--head);
-      color: var(--headink);
-      border-top: 3px solid var(--edge);
-      padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
-    }
-    nav .in { max-width: 560px; margin: 0 auto; display: flex; gap: 6px; }
-    nav button, nav a {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      background: none;
-      color: inherit;
-      text-decoration: none;
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 5px 4px 4px;
-      font-weight: 800;
-      font-size: 12px;
-      line-height: 1;
-      cursor: pointer;
-      opacity: .72;
-      transition: transform .1s;
-    }
-    nav button svg, nav a svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-    nav button:active, nav a:active { transform: scale(.94); }
-    nav button[aria-selected="true"] { background: var(--tabon); color: var(--tabonink); border-color: var(--edge); opacity: 1; }
+main{max-width:560px;margin:0 auto;padding:12px 16px}
+h2{font:400 22px/1.1 var(--disp);margin:22px 0 10px;letter-spacing:-.01em}
+h2:first-child{margin-top:8px}
+h3{font:400 18px/1.15 var(--disp);margin:22px 0 10px}
+.muted{color:var(--muted)}
+.intro{color:var(--muted);margin:0 0 12px;font-size:15px}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted);margin:4px 0 6px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+.dot.ok{background:var(--good);animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.dot.ok,.ld,.blive.on::before{animation:none}}
 
-    /* Main Content */
-    main { max-width: 560px; margin: 0 auto; padding: 18px 16px calc(var(--navh) + 230px + env(safe-area-inset-bottom, 0px)); }
-    .intro { color: var(--muted); margin: 0 0 14px; font-size: 15px; }
-    .rnd { font: 400 15px/1 var(--disp); margin: 0 0 12px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
-    .av {
-      flex: none;
-      display: inline-grid;
-      place-items: center;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--c);
-      color: var(--ct);
-      border: 2px solid var(--edge);
-      font: 900 15px/1 "Archivo", system-ui, sans-serif;
-    }
-    .nm { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
-    #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 30; }
-    .note { font-size: 13px; color: var(--muted); text-align: center; margin: 28px 0 0; }
+/* Avatarer */
+.av{flex:none;display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--c);color:var(--ct);border:2px solid var(--edge);font:900 13px/1 var(--body)}
+.av.s{width:22px;height:22px;font-size:10px;border-width:1.5px;margin-left:-6px}
+.av.s:first-child{margin-left:0}
+.nm{display:inline-flex;align-items:center;gap:8px}
 
-    /* Quick Club Switcher Pills */
-    .club-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; scrollbar-width: none; }
-    .club-bar::-webkit-scrollbar { display: none; }
-    .club-pill {
-      flex: none; border: 2px solid var(--edge); background: var(--surface); color: var(--ink);
-      border-radius: 99px; padding: 5px 12px; font-weight: 800; font-size: 12.5px;
-      cursor: pointer; box-shadow: 2px 2px 0 var(--edge); text-decoration: none;
-      display: inline-flex; align-items: center; gap: 5px;
-    }
-    .club-pill[aria-pressed="true"] { background: var(--pitch); color: var(--onpitch); transform: translate(2px, 2px); box-shadow: none; }
-    .club-pill.accent { background: var(--card); color: var(--oncard); }
+/* Kampkort */
+.budget{background:var(--surface);border:1.5px solid var(--edge);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px;color:var(--muted);font-weight:600}
+.budget b{color:var(--ink);font:400 20px/1 var(--disp);margin-right:4px}
+.banner{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;background:var(--tint);border:2px solid var(--edge);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-weight:800;cursor:pointer;text-align:left}
+.match{background:var(--surface);border:1.5px solid var(--edge);border-radius:14px;padding:14px;margin-bottom:12px}
+.mhead{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.end{background:var(--soft);border:1.5px solid var(--edge);border-radius:6px;padding:1px 7px;color:var(--ink)}
+.teams{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center;font-weight:800;margin:10px 0 12px;line-height:1.2}
+.teams b{font:400 30px/1 var(--disp);white-space:nowrap}
+.teams .kt{font-size:22px;background:var(--soft);border:1.5px solid var(--edge);border-radius:8px;padding:6px 8px}
+.odds{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.odd{background:var(--soft);border:2px solid var(--edge);border-radius:10px;padding:8px 4px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1.05;box-shadow:3px 3px 0 var(--edge);transition:transform .1s,box-shadow .1s;min-height:62px;width:100%}
+.odd:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 var(--edge)}
+.odd:disabled{opacity:.45;cursor:default;box-shadow:none}
+.odd.on{background:var(--accent);color:var(--onaccent)}
+.odd.on .ol,.odd.on .cs{color:var(--onaccent)}
+.odd .ol{font-size:12px;font-weight:800;color:var(--muted)}
+.odd .ov{font:400 23px/1.1 var(--disp)}
+.odd .cs{font-size:11px;font-weight:600;color:var(--muted)}
+.up{color:var(--good)}.down{color:var(--bad)}
+.lock,.lockbar{background:var(--tint);border:1.5px solid var(--edge);border-radius:8px;padding:7px 10px;font-weight:700;font-size:14px;margin-bottom:10px}
+.mine{margin-top:10px;font-size:13px;font-weight:800;border-radius:8px;padding:6px 10px;background:var(--tint);border:1.5px solid var(--edge)}
+.empty{background:var(--surface);border:1.5px dashed var(--line);border-radius:14px;padding:16px;color:var(--muted);font-weight:600;text-align:center;margin:0 0 12px}
 
-    /* Matches */
-    .match { background: var(--surface); border: 1.5px solid var(--edge); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
-    .mhead { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-    .teams { display: flex; align-items: baseline; gap: 8px; margin: 6px 0 12px; font: 400 19px/1.15 var(--disp); flex-wrap: wrap; }
-    .teams .vs { font: 700 13px/1 var(--body); color: var(--muted); }
-    .odds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .odd {
-      background: var(--soft);
-      border: 2px solid var(--edge);
-      border-radius: 10px;
-      padding: 8px 6px 6px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      line-height: 1.05;
-      box-shadow: 3px 3px 0 var(--edge);
-      transition: transform .1s, box-shadow .1s;
-    }
-    @media (hover: hover) and (pointer: fine) { .odd:hover:not(:disabled) { background: var(--hover); color: var(--ink); } }
-    .odd:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--edge); }
-    .odd .ol { font-size: 12px; font-weight: 800; color: var(--muted); }
-    .odd .ov { font: 900 28px/1.1 "Archivo", system-ui, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
-    .odd .cs { font-size: 11px; font-weight: 600; color: var(--muted); min-height: 14px; margin-top: 2px; }
-    .odd.on, .odd.on:hover:not(:disabled) { background: var(--pitch); color: var(--onpitch); transform: translate(3px, 3px); box-shadow: none; }
-    .odd.on .ol, .odd.on .cs, .odd.on:hover:not(:disabled) .ol, .odd.on:hover:not(:disabled) .cs { color: var(--onpitch); opacity: .85; }
-    .odd:disabled { cursor: default; opacity: .5; box-shadow: none; }
-    .odd.res { opacity: 1; background: var(--card); color: var(--oncard); }
-    .odd.res .ol, .odd.res .cs { color: var(--oncard); }
-    .odd.flash { animation: flash .7s ease-out; }
-    @keyframes flash { 0% { background: var(--card); color: var(--oncard); } 100% {} }
+/* Kuponslip */
+.slip{position:fixed;left:0;right:0;bottom:calc(var(--navh) + env(safe-area-inset-bottom,0px));z-index:6;background:var(--surface);border-top:3px solid var(--edge);padding:12px 16px 14px;transform:translateY(110%);visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s}
+.slip.show{transform:none;visibility:visible;transition:transform .25s ease}
+.slip .in{max-width:560px;margin:0 auto}
+.slip h2{margin:0;font:400 20px/1 var(--disp);display:flex;justify-content:space-between;align-items:baseline}
+.slip h2 .num{background:var(--accent);color:var(--onaccent);padding:3px 8px;border-radius:6px;font-size:17px}
+.slip ul{list-style:none;margin:8px 0;padding:0;font-size:14px;max-height:96px;overflow:auto}
+.slip li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 0}
+.slip li button{border:0;background:none;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:0 4px}
+.clr{border:0;background:none;color:var(--muted);text-decoration:underline;font-size:13px;font-weight:700;cursor:pointer;margin-left:10px;font-family:var(--body)}
+.stakes{display:flex;gap:8px;margin:8px 0 10px}
+.stakes button{flex:1;border:2px solid var(--edge);background:var(--surface);border-radius:8px;padding:7px 0;cursor:pointer;font-weight:800;box-shadow:2px 2px 0 var(--edge);font-size:14px}
+.stakes button[aria-pressed=true]{background:var(--ink);color:var(--surface)}
+.stakes button:disabled{opacity:.35;cursor:default;box-shadow:none}
+.cmtin{width:100%;background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;font-size:15px;font-weight:600;margin-bottom:2px}
 
-    /* Slip */
-    .slip {
-      position: fixed;
-      left: 0; right: 0;
-      bottom: calc(var(--navh) + env(safe-area-inset-bottom, 0px));
-      z-index: 6;
-      background: var(--surface);
-      border-top: 3px solid var(--edge);
-      padding: 12px max(16px, env(safe-area-inset-right, 0px)) 14px max(16px, env(safe-area-inset-left, 0px));
-      transform: translateY(110%);
-      transition: transform .25s ease;
-    }
-    .slip.show { transform: none; }
-    .slip .in { max-width: 560px; margin: 0 auto; }
-    .slip h2 { margin: 0; font: 400 22px/1 var(--disp); display: flex; justify-content: space-between; align-items: baseline; }
-    .slip h2 .num { background: var(--card); color: var(--oncard); padding: 3px 8px; border-radius: 6px; font-size: 18px; font-weight: 900; }
-    .slip ul { list-style: none; margin: 8px 0; padding: 0; font-size: 14px; max-height: 84px; overflow: auto; }
-    .slip li { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
-    .comment-in {
-      width: 100%;
-      border: 2px solid var(--edge);
-      background: var(--soft);
-      border-radius: 8px;
-      padding: 7px 10px;
-      font-size: 13.5px;
-      margin-top: 4px;
-    }
-    .stakes { display: flex; gap: 8px; margin: 8px 0 12px; }
-    .stakes button {
-      flex: 1;
-      border: 2px solid var(--edge);
-      background: var(--surface);
-      border-radius: 8px;
-      padding: 6px 0;
-      cursor: pointer;
-      font-weight: 800;
-      box-shadow: 2px 2px 0 var(--edge);
-    }
-    .stakes button[aria-pressed="true"] { background: var(--ink); color: var(--surface); box-shadow: none; transform: translate(2px, 2px); }
-    .cta {
-      width: 100%;
-      border: 3px solid var(--edge);
-      border-radius: 12px;
-      padding: 12px;
-      background: var(--pitch);
-      color: var(--onpitch);
-      font: 400 18px/1.1 var(--disp);
-      cursor: pointer;
-      box-shadow: 4px 4px 0 var(--edge);
-      transition: transform .1s, box-shadow .1s;
-      text-decoration: none;
-      display: block;
-      text-align: center;
-    }
-    .cta:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--edge); }
-    .cta.ghost { background: var(--surface); color: var(--ink); margin-top: 8px; font-family: var(--body); font-weight: 800; font-size: 15px; }
-    .cta:disabled { background: var(--soft); color: var(--muted); border-color: var(--line); opacity: 1; cursor: default; box-shadow: none; }
+/* Knapper og formularer */
+.card{background:var(--surface);border:1.5px solid var(--edge);border-radius:14px;padding:16px;margin-bottom:12px}
+.card h3{margin:0 0 8px}
+label{display:block;font-size:13px;font-weight:800;margin:12px 0 6px}
+input[type=email],input[type=text],input[type=number]{width:100%;background:var(--bg);border:1.5px solid var(--edge);border-radius:10px;padding:12px;font-size:16px;font-weight:600}
+input:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;font-weight:600;margin-top:12px}
+.check input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--accent)}
+.btn,.cta{display:inline-flex;justify-content:center;align-items:center;gap:6px;width:100%;margin-top:12px;background:var(--accent);color:var(--onaccent);border:2px solid var(--edge);border-radius:10px;padding:12px 14px;font-weight:800;font-size:16px;cursor:pointer;box-shadow:3px 3px 0 var(--edge);text-align:center;line-height:1.2}
+.btn:active,.cta:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--edge)}
+.btn:disabled,.cta:disabled{opacity:.5;cursor:default;box-shadow:none}
+.btn.ghost,.cta.ghost{background:var(--surface);color:var(--ink)}
+.slip .cta{margin-top:8px}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+.link{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;font-weight:700;cursor:pointer}
 
-    h3 {
-      font: 400 22px/1.1 var(--disp);
-      margin: 26px 0 10px;
-      display: inline-block;
-      background: var(--hbg);
-      color: var(--hink);
-      border: 1.5px solid var(--edge);
-      padding: 4px 10px;
-      border-radius: 6px;
-      transform: rotate(-1deg);
-    }
-    .kup { background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
-    .kup .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-    .kup .top b { font: 400 17px/1.1 var(--disp); }
-    .chip { font-size: 12px; font-weight: 800; border-radius: 6px; padding: 3px 8px; background: var(--soft); color: var(--muted); border: 1.5px solid var(--edge); }
-    .chip.won { background: var(--pitch); color: var(--onpitch); }
-    .chip.lost { background: var(--red); color: var(--onred); }
-    .kup .meta { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; }
-    .kup .meta .num { font-size: 18px; }
+/* Live */
+.lnow{display:flex;gap:8px;overflow-x:auto;padding:2px 4px 10px 2px;margin:0 0 6px;scroll-snap-type:x mandatory}
+.lcard{flex:0 0 auto;width:156px;scroll-snap-align:start;display:flex;flex-direction:column;gap:5px;text-align:left;background:var(--surface);border:2px solid var(--edge);border-radius:12px;padding:8px 10px;cursor:pointer;box-shadow:2px 2px 0 var(--edge)}
+.lcard.sel{background:var(--tint);box-shadow:3px 3px 0 var(--edge)}
+.lt{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--muted)}
+.lr{display:flex;justify-content:space-between;gap:6px;font-weight:700;font-size:14px}
+.lr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ld{flex:none;width:7px;height:7px;border-radius:50%;background:var(--bad);animation:blink 1.2s steps(2,start) infinite}
+.cdot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--accent);border:1.5px solid var(--edge);margin-left:auto}
+.livecard{background:var(--surface);border:3px solid var(--edge);border-radius:16px;padding:14px;box-shadow:5px 5px 0 var(--edge)}
+.lvtop{display:flex;justify-content:space-between;align-items:center}
+.blive{font-size:12px;font-weight:800;border-radius:6px;padding:3px 10px;background:var(--soft);color:var(--muted);border:2px solid var(--edge)}
+.blive.on{background:var(--bad);color:var(--onbad)}
+.blive.on::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:1px;animation:blink 1.2s steps(2,start) infinite}
+.clock{font:400 24px/1 var(--disp)}
+.score{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center;font-weight:800;margin:10px 0 12px;line-height:1.2}
+.score b{font:400 40px/1 var(--disp);white-space:nowrap}
+.result{text-align:center;font:400 20px/1.2 var(--disp);margin:6px 0}
+.ocell{display:flex;flex-direction:column;gap:6px;align-items:center}
+.whoon{display:flex;min-height:22px}
+.ngbox{margin-top:16px;padding-top:12px;border-top:1.5px dashed var(--line)}
+.ngbox h4{margin:0;font:400 16px/1.2 var(--disp)}
+.ngbox p{margin:2px 0 10px;font-size:13px;color:var(--muted);font-weight:600}
+.mc{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-left-width:5px;border-radius:12px;padding:9px 12px;margin-bottom:8px}
+.mc b{display:block;font-weight:800}
+.mc small{display:block;color:var(--muted);font-size:12.5px;font-weight:600}
+.mc .st{font-size:12.5px;font-weight:800;text-align:right;flex:none;max-width:45%}
+.mc.good{border-left-color:var(--good)}.mc.good .st{color:var(--good)}
+.mc.bad{border-left-color:var(--bad)}.mc.bad .st{color:var(--bad)}
+.mc.open{border-left-color:var(--line)}
+.chart{width:100%;height:auto;background:var(--surface);border:1.5px solid var(--edge);border-radius:12px;display:block}
+.chart polyline{fill:none;stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.chart .c1{stroke:var(--t1)}
+.chart .cx{stroke:var(--muted);stroke-dasharray:4 4;stroke-width:1.8}
+.chart .c2{stroke:var(--t2)}
+.chart .half{stroke:var(--line);stroke-dasharray:3 3}
+.legend{display:flex;gap:14px;font-size:13px;margin-top:8px;flex-wrap:wrap;font-weight:800}
+.legend span::before{content:"";display:inline-block;width:12px;height:4px;margin-right:5px;vertical-align:middle;background:currentColor}
+.legend .l1{color:var(--t1)}.legend .lx{color:var(--muted)}.legend .l2{color:var(--t2)}
+.axis{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--muted);margin-top:4px;padding:0 2px}
+.feed{list-style:none;margin:0;padding:0;font-size:14px}
+.feed li{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.feed li:last-child{border-bottom:0}
+.feed .num{font-weight:800;min-width:30px;color:var(--muted)}
+.mv{font-size:12px;margin-left:4px}.mv.up{color:var(--good)}.mv.down{color:var(--bad)}
 
-    .badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
-    .badge { background: var(--surface); border: 1.5px solid var(--edge); border-radius: 14px; padding: 12px; text-align: center; }
-    .badge .ic { font-size: 34px; line-height: 1.1; display: block; margin-bottom: 4px; }
-    .badge b { display: block; font: 400 15px/1.2 var(--disp); }
-    .badge span { font-size: 13px; color: var(--muted); }
-    .badge.locked { border-style: dashed; box-shadow: none; background: transparent; }
-    .badge.locked .ic { filter: grayscale(1); opacity: .3; }
-    .badge.locked b { color: var(--muted); }
-    .badge.got { background: var(--surface); color: var(--ink); border-color: var(--card); border-width: 2.5px; box-shadow: 3px 3px 0 var(--edge); transform: rotate(-1.8deg); }
-    .badge.got:nth-child(even) { transform: rotate(1.5deg); }
-    .badge.got:nth-child(3n) { transform: rotate(-.6deg); }
-    .badge.got span { color: var(--muted); }
+/* Tabeller og ranglister */
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1.5px solid var(--edge);border-radius:12px;overflow:hidden}
+td{padding:9px 10px;border-bottom:1px solid var(--line);font-weight:700;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r{text-align:right;white-space:nowrap}
+td.pos{width:28px;color:var(--muted);font:400 16px/1 var(--disp)}
+tr.me td{background:var(--tint)}
+td small{display:block;color:var(--muted);font-weight:600;font-size:12px}
+.lbnote{font-size:13px;color:var(--muted);font-weight:600;margin:8px 2px 0}
+.seg{display:flex;background:var(--soft);border:1.5px solid var(--edge);border-radius:10px;padding:3px;gap:3px;margin:0 0 10px}
+.seg button{flex:1;border:0;background:none;border-radius:7px;padding:8px;font-weight:800;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--surface)}
+.rec{font:400 20px/1 var(--disp);white-space:nowrap}
+.rec .w{color:var(--good)}.rec .l{color:var(--bad)}.rec .z{color:var(--muted)}
 
-    /* Live Tab */
-    .livecard { background: var(--surface); border: 3px solid var(--edge); border-radius: 16px; padding: 14px; box-shadow: 5px 5px 0 var(--edge); }
-    .lvtop { display: flex; justify-content: space-between; align-items: center; }
-    .blive { font-size: 12px; font-weight: 800; border-radius: 6px; padding: 3px 10px; background: var(--soft); color: var(--muted); border: 2px solid var(--edge); }
-    .blive.on { background: var(--red); color: var(--onred); }
-    .blive.on::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: 1px; animation: blink 1.2s steps(2, start) infinite; }
-    @keyframes blink { to { visibility: hidden; } }
-    .clock { font-size: 24px; }
-    .score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; margin: 12px 0 14px; text-align: center; font-weight: 800; line-height: 1.2; }
-    .score b { font: 900 42px/1 "Archivo", system-ui, sans-serif; font-variant-numeric: tabular-nums; white-space: nowrap; background: var(--scorebg); color: var(--card); border: 2px solid var(--edge); padding: 6px 12px; border-radius: 10px; }
-    .lockbar { background: var(--fill); color: var(--fillink); border: 2px solid var(--filledge); border-radius: 8px; padding: 8px 10px; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
-    .up { color: var(--pitch); }
-    .down { color: var(--red); }
-    .odd.on .up, .odd.on .down { color: inherit; }
-    .speed { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 14px; font-weight: 700; color: var(--muted); }
-    .speed button { border: 2px solid var(--edge); background: var(--surface); border-radius: 8px; padding: 3px 10px; cursor: pointer; font-weight: 800; box-shadow: 2px 2px 0 var(--edge); }
-    .speed button[aria-pressed="true"] { background: var(--ink); color: var(--surface); box-shadow: none; transform: translate(2px, 2px); }
-    .chart { width: 100%; height: auto; background: var(--surface); border: 1.5px solid var(--edge); border-radius: 12px; display: block; }
-    .chart polyline { fill: none; stroke-width: 2.5; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
-    .chart .c1 { stroke: var(--t1); }
-    .chart .cx { stroke: var(--muted); stroke-dasharray: 4 4; stroke-width: 1.8; }
-    .chart .c2 { stroke: var(--t2); }
-    .chart .half { stroke: var(--line); stroke-dasharray: 3 3; }
-    .legend { display: flex; gap: 14px; font-size: 13px; margin-top: 8px; flex-wrap: wrap; font-weight: 800; }
-    .legend span::before { content: ""; display: inline-block; width: 12px; height: 4px; margin-right: 5px; vertical-align: middle; background: currentColor; }
-    .l1 { color: var(--t1); } .lx { color: var(--muted); } .l2 { color: var(--t2); }
-    .axis { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 4px; padding: 0 2px; }
-    .result { text-align: center; font: 400 22px/1.2 var(--disp); margin: 2px 0 14px; }
-    .clr { margin-left: 10px; vertical-align: 4px; border: 1.5px solid var(--edge); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 3px 9px; font: 800 12px/1 var(--body); cursor: pointer; }
-    .feed { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1.5px solid var(--edge); border-radius: 12px; }
-    .feed li { padding: 8px 12px; border-top: 1px solid var(--line); font-size: 14px; display: flex; gap: 10px; align-items: center; }
-    .feed li:first-child { border-top: 0; }
-    .feed .num { min-width: 30px; }
+/* Klubben */
+.clubs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.clubs button{border:1.5px solid var(--edge);background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:800;cursor:pointer}
+.clubs button[aria-pressed=true]{background:var(--ink);color:var(--surface)}
+.invite{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--edge);border-radius:12px;padding:10px 12px;margin-bottom:14px}
+.invite .btn{width:auto;margin:0;padding:8px 12px;font-size:14px}
+.code{font:400 20px/1 var(--disp);letter-spacing:.12em}
+.yellow{background:var(--tint);border:3px solid var(--edge);border-radius:14px;padding:16px;margin-bottom:18px;box-shadow:6px 6px 0 var(--edge)}
+.yellow h2{margin:0 0 12px;font:400 22px/1.05 var(--disp)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pair>div{background:var(--surface);border:2px solid var(--edge);border-radius:10px;padding:10px}
+.pair .k{font-size:12.5px;font-weight:700;line-height:1.25}
+.pair .who{font-weight:800;font-size:16px;margin:6px 0 4px}
+.pair .big{font:400 30px/1 var(--disp)}
+.pair .s{font-size:12.5px;font-weight:600}
+.award{background:var(--surface);border:1.5px solid var(--edge);border-radius:10px;padding:10px 12px;margin-top:8px;display:flex;gap:12px;align-items:center}
+.award .ic{font-size:26px}
+.award b{display:block}
+.award span{font-size:13.5px}
+.kup{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.kup .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.kup .top b{font:400 16px/1.1 var(--disp)}
+.kup ul{margin:6px 0 4px;padding:0;list-style:none;font-size:14px;color:var(--muted)}
+.kup li{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;padding:3px 0}
+.kup li b{color:var(--ink);font-weight:800}
+.kup li .o{font-weight:900;color:var(--ink)}
+.kup li small{flex-basis:100%;font-size:12px}
+.kup li.hit b{color:var(--good)}
+.kup li.hit b::after{content:" ✓"}
+.kup li.miss b,.kup li.miss .o{text-decoration:line-through;color:var(--muted)}
+.kup .meta{display:flex;justify-content:space-between;font-size:14px;font-weight:600}
+.cmt{font-size:14px;margin:6px 0 0;font-weight:600}
+.cmt::before{content:"“"}.cmt::after{content:"”"}
+.tug{display:flex;height:8px;border-radius:6px;overflow:hidden;background:var(--soft);margin-top:10px;border:1.5px solid var(--edge)}
+.tug .f{background:var(--accent)}.tug .x{background:var(--ink)}
+.tugl{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--muted);margin:4px 0 8px}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acts button{border:2px solid var(--edge);background:var(--surface);border-radius:10px;padding:8px 6px;cursor:pointer;font-weight:800;line-height:1.15;box-shadow:3px 3px 0 var(--edge)}
+.acts button:disabled{opacity:.45;cursor:default;box-shadow:none}
+.acts button small{display:block;font-weight:600;font-size:12px;color:var(--muted)}
+.chip{align-self:flex-start;font-size:12px;font-weight:800;border-radius:6px;padding:3px 8px;background:var(--soft);border:1.5px solid var(--edge);white-space:nowrap}
+.chip.won{background:var(--good);color:var(--ongood);border-color:var(--good)}
+.chip.lost{background:var(--bad);color:var(--onbad);border-color:var(--bad)}
+details.more{margin-top:18px}
+details.more summary{cursor:pointer;font-weight:800;padding:8px 0}
 
-    /* Modals */
-    .welcome {
-      position: fixed;
-      inset: 0;
-      z-index: 40;
-      background: rgba(17, 19, 24, .65);
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
-    }
-    @media (min-width: 600px) { .welcome { align-items: center; } }
-    .wcard {
-      background: var(--surface);
-      color: var(--ink);
-      border: 3px solid var(--edge);
-      border-radius: 16px;
-      box-shadow: 6px 6px 0 var(--card);
-      padding: 18px;
-      max-width: 440px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .wcard h2 { margin: 0 0 12px; font: 400 26px/1 var(--disp); display: flex; justify-content: space-between; align-items: center; }
-    .wcard .dot { display: inline-block; width: .26em; height: .26em; border-radius: 50%; background: var(--card); margin-left: .07em; }
-    .wcard ul { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 9px; font-size: 15px; }
-    .wcard li { display: flex; gap: 10px; align-items: flex-start; }
-    .wcard li span:first-child { font-size: 20px; line-height: 1.15; }
-    .wcard p { margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+/* Badges */
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.badge{background:var(--surface);border:1.5px solid var(--edge);border-radius:14px;padding:12px;text-align:center}
+.badge .ic{font-size:34px;line-height:1.1;display:block;margin-bottom:4px}
+.badge b{display:block;font:400 15px/1.2 var(--disp)}
+.badge span{font-size:13px;color:var(--muted)}
+.badge.locked{border-style:dashed;background:transparent}
+.badge.locked .ic{filter:grayscale(1);opacity:.3}
+.badge.locked b{color:var(--muted)}
+.badge.got{border-color:var(--accent);border-width:2.5px;box-shadow:3px 3px 0 var(--edge);transform:rotate(-1.8deg)}
+.badge.got:nth-child(even){transform:rotate(1.5deg)}
 
-    .invite-box {
-      background: var(--panel);
-      color: var(--panelink);
-      border: 2px dashed var(--paneledge);
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin: 12px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .invite-box code { font: 900 18px/1 var(--disp); letter-spacing: .08em; }
+/* Dig */
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.sum div{background:var(--soft);border-radius:8px;padding:8px 2px}
+.sum b{display:block;font:400 18px/1.1 var(--disp)}
+.sum small{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.sum .res{background:var(--accent);color:var(--onaccent)}
+.sum .res small{color:var(--onaccent)}
+.pick{display:flex;justify-content:space-between;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:14px}
+.pick b{font-weight:800}
 
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: calc(var(--navh) + env(safe-area-inset-bottom, 0px) + 12px);
-      transform: translate(-50%, 12px);
-      opacity: 0;
-      visibility: hidden;
-      background: var(--fill);
-      color: var(--fillink);
-      border: 3px solid var(--filledge);
-      box-shadow: 4px 4px 0 var(--edge);
-      padding: 10px 16px;
-      border-radius: 12px;
-      font-weight: 800;
-      z-index: 50;
-      transition: transform .25s ease, opacity .25s ease, visibility .25s;
-      max-width: calc(100% - 32px);
-      text-align: center;
-    }
-    .toast.show { transform: translate(-50%, 0) rotate(-1deg); opacity: 1; visibility: visible; }
-    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-  </style>
+/* Navigation */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:7;background:var(--head);padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px))}
+nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+nav.tabs button{background:var(--tab);color:var(--tabink);border:0;border-radius:10px;padding:10px 2px;font-weight:800;font-size:14px;cursor:pointer;min-height:44px;position:relative}
+nav.tabs button[aria-current=page]{background:var(--accent);color:var(--onaccent)}
+nav.tabs .badge-dot{position:absolute;top:6px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--bad)}
+
+/* Dialoger */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--surface);border-top:2px solid var(--edge);border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto;box-shadow:0 -6px 24px rgba(0,0,0,.25)}
+.sheet h3{margin:0;font:400 20px/1.15 var(--disp)}
+.sheet .sub{color:var(--muted);font-weight:600;font-size:14px;margin-top:2px}
+.bigodds{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding:10px 12px;background:var(--soft);border-radius:10px;font-weight:800}
+.bigodds b{font:400 28px/1 var(--disp)}
+.win{margin-top:4px;font-weight:700;color:var(--muted)}
+.win b{color:var(--ink)}
+.welcome{position:fixed;inset:0;z-index:40;background:rgba(17,19,24,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.welcome .box{background:var(--surface);border:3px solid var(--edge);border-radius:16px;padding:20px;max-width:440px;width:100%;box-shadow:6px 6px 0 var(--edge);max-height:90vh;overflow:auto}
+.welcome h2{margin:0 0 12px}
+.welcome ul{list-style:none;margin:0;padding:0}
+.welcome li{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:15px}
+.welcome li span{font-size:22px;line-height:1.1}
+.welcome p{font-size:14px;color:var(--muted);font-weight:600}
+.goal{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) rotate(-3deg);z-index:30;background:var(--accent);color:var(--onaccent);border:3px solid var(--edge);border-radius:16px;padding:16px 26px;text-align:center;box-shadow:6px 6px 0 var(--edge);pointer-events:none}
+.goal b{display:block;font:400 46px/1 var(--disp)}
+.goal span{font-weight:800}
+.goal.pop{animation:pop .35s ease-out}
+@keyframes pop{0%{transform:translate(-50%,-50%) scale(.6) rotate(-3deg)}100%{transform:translate(-50%,-50%) scale(1) rotate(-3deg)}}
+#confetti{position:fixed;inset:0;z-index:35;pointer-events:none}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 74px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1}
+@media (max-width:359px){.brand{font-size:28px}.odd .ov{font-size:20px}.sum b{font-size:16px}.wallet{min-width:84px}nav.tabs button{font-size:13px}}
+</style>
 </head>
-<!-- Skjult indtil Supabase Auth-Guard har verificeret sessionen -->
-<body id="appBody" hidden>
-
+<body>
 <header>
   <div class="bar">
-    <div class="brand">
-      <div>Pral<span class="dot" aria-hidden="true"></span></div>
-      <button class="club-btn" id="openClubModal" title="Skift klub eller gå til Klub Admin">
-        <span class="status-dot" id="connDot"></span>
-        <span id="clubHeaderLabel">Fredagsholdet · 1</span>
-      </button>
-    </div>
-    <div class="walletwrap">
-      <div class="streak" title="Rigtige valg i træk">🔥<span id="streak">0</span></div>
-      <div class="wallet" aria-label="Din saldo"><span class="num" id="fp">1.000</span><span>PP</span></div>
-      <button class="auth-btn" id="openAuthBtn" title="Konto & Klub">Konto</button>
+    <div class="brand">Pral<small id="roundName">Sjov betting for alle</small></div>
+    <div class="hright" id="hright" hidden>
+      <button class="wallet" id="wallet" type="button" aria-label="Dit budget og dine kald"><b class="num" id="left">1.000</b><small>PP tilbage</small></button>
+      <button class="me-btn" id="meBtn" type="button" aria-label="Dig: profil og dine kald">?</button>
     </div>
   </div>
 </header>
 
 <main>
-  <!-- Hurtig Klub-bjælke i toppen så man kan skifte mellem sine klubber eller hoppe til klub.html / klubadmin.html -->
-  <div class="club-bar" id="topClubBar"></div>
+  <section id="v-setup" hidden>
+    <div class="card"><h3>Forbind til Supabase</h3>
+      <p>Kunne ikke forbinde til Supabase. Tjek SUPABASE_URL og SUPABASE_KEY øverst i scriptet i index.html. Brug aldrig secret key i appen.</p></div>
+  </section>
 
-  <section id="tab-kampe"></section>
-  <section id="tab-live" hidden></section>
-  <section id="tab-badges" hidden></section>
-  <p class="note">Pralepoint (PP) kan ikke købes for penge og kan ikke veksles til penge. I Pral spiller man kun om retten til at prale.</p>
+  <section id="v-login" hidden>
+    <h2>Velkommen til Pral</h2>
+    <p class="intro">Afgiv kald på Superligaen med vennerne. Det koster ingenting, og der er aldrig penge på spil.</p>
+    <form class="card" id="f-email" novalidate>
+      <label for="email">Din e-mail</label>
+      <input id="email" type="email" autocomplete="email" inputmode="email" required placeholder="dig@eksempel.dk">
+      <label for="nick">Hvad skal vennerne kalde dig?</label>
+      <input id="nick" type="text" maxlength="30" autocomplete="nickname" placeholder="Fx Simon">
+      <div class="check"><input id="adult" type="checkbox"><label for="adult" style="margin:0;font-weight:600">Jeg er fyldt 18 år og accepterer Prals vilkår og privatlivspolitik.</label></div>
+      <button class="btn" id="b-send" type="submit">Send mig en kode</button>
+    </form>
+    <form class="card" id="f-code" hidden novalidate>
+      <h3>Tjek din mail</h3>
+      <p class="muted" style="margin:0">Vi har sendt en kode til <b id="sentTo"></b>. Skriv den her, eller tryk på linket i mailen.</p>
+      <label for="code">Kode</label>
+      <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456">
+      <button class="btn" type="submit">Log ind</button>
+      <p style="margin:12px 0 0"><button class="link" type="button" id="b-back">Brug en anden e-mail</button></p>
+    </form>
+  </section>
+
+  <section id="v-kampe" hidden></section>
+  <section id="v-live" hidden></section>
+  <section id="v-klub" hidden>
+    <div id="klubDyn"></div>
+    <details class="more" id="klubMore"><summary id="klubMoreSum">Flere klubber</summary>
+      <form class="card" id="f-join" novalidate><h3>Kom med i en klub</h3><label for="joinCode">Klubkode</label><input id="joinCode" type="text" maxlength="6" autocapitalize="characters" placeholder="ABC123"><button class="btn ghost" type="submit">Kom med</button></form>
+      <form class="card" id="f-create" novalidate><h3>Lav en ny klub</h3><label for="clubName">Klubbens navn</label><input id="clubName" type="text" maxlength="40" placeholder="Fx Kælderen"><button class="btn ghost" type="submit">Lav klub</button></form>
+    </details>
+  </section>
+  <section id="v-badges" hidden></section>
+
+  <section id="v-dig" hidden>
+    <h2>Denne runde</h2>
+    <div class="card" id="roundCard"></div>
+    <div id="picks"></div>
+    <form class="card" id="f-profile" novalidate><h3>Dig</h3>
+      <label for="myName">Dit navn i Pral</label><input id="myName" type="text" maxlength="30">
+      <div class="row"><button class="btn ghost" type="submit">Gem navn</button><button class="btn ghost" type="button" id="b-logout">Log ud</button></div>
+      <p style="margin:12px 0 0"><button class="link" type="button" id="b-welcome">Vis velkomsten igen</button></p></form>
+  </section>
 </main>
 
-<div class="slip" id="slip" aria-live="polite"><div class="in" id="slipIn"></div></div>
+<div class="slip" id="slip"><div class="in"><div id="slipTop" aria-live="polite"></div><input class="cmtin" id="slipCmt" type="text" maxlength="80" placeholder="Kommentar til klubben (valgfri)"><div id="slipCta"></div></div></div>
 
-<!-- Bundmenu: Kampe, Live og Badges åbner straks, og Klubben linker direkte til din nye klub.html -->
-<nav aria-label="Faner">
-  <div class="in" role="tablist">
-    <button role="tab" data-tab="kampe" aria-selected="true">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l4.3 3.1-1.6 5h-5.4l-1.6-5z"/><path d="M12 3v4.5M20.6 9.4l-4.3 1.2M17.3 19.3l-2.6-3.7M6.7 19.3l2.6-3.7M3.4 9.4l4.3 1.2"/></svg>
-      Kampe
-    </button>
-    <button role="tab" data-tab="live" aria-selected="false">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/></svg>
-      Live
-    </button>
-    <a href="klub.html">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.1 4.4 1.7 5 4.4"/></svg>
-      Klubben
-    </a>
-    <button role="tab" data-tab="badges" aria-selected="false">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 13.8L7 22l5-2.8 5 2.8-1.5-8.2"/></svg>
-      Badges
-    </button>
+<nav class="tabs" id="tabs" hidden aria-label="Faner">
+  <div class="in">
+    <button data-v="kampe" aria-current="page">Kampe</button>
+    <button data-v="live">Live<span class="badge-dot" id="liveDot" hidden></span></button>
+    <button data-v="klub">Klubben</button>
+    <button data-v="badges">Badges</button>
   </div>
 </nav>
 
-<!-- Intro-modal første gang man lander på index.html -->
-<div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="wt" hidden>
-  <div class="wcard">
-    <h2 id="wt"><span>Klar på banen<span class="dot" aria-hidden="true"></span></span></h2>
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <h3 id="sheetTitle"></h3>
+  <div class="sub" id="sheetSub"></div>
+  <div class="bigodds"><span>Odds lige nu</span><b class="num" id="sheetOdds"></b></div>
+  <div class="lock" id="sheetLock" hidden style="margin:10px 0 0"></div>
+  <label>Indsats i PP</label>
+  <div class="stakes" id="sheetStakes"></div>
+  <div class="win" id="sheetWin"></div>
+  <div class="row"><button class="btn ghost" type="button" id="b-cancel">Fortryd</button><button class="btn" type="button" id="b-confirm">Bekræft</button></div>
+</div>
+
+<div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wt">
+  <div class="box">
+    <h2 id="wt">Velkommen til Pral</h2>
     <ul>
-      <li><span aria-hidden="true">⚽</span><span><b>Kampe:</b> vælg udfald og afgiv et kald i din aktive klub.</span></li>
-      <li><span aria-hidden="true">📡</span><span><b>Live:</b> afgiv kald under kampen, mens oddsene følger stillingen.</span></li>
-      <li><span aria-hidden="true">👥</span><span><b>Klubben:</b> åbn <b>Klubben</b> for at skifte klub, modspille vennerne eller åbne <b>Klub Admin</b>.</span></li>
-      <li><span aria-hidden="true">🏅</span><span><b>Badges:</b> saml klistermærker for dine bedste kald.</span></li>
+      <li><span aria-hidden="true">⚽</span><div><b>Kampe:</b> vælg udfald og afgiv et kald. Flere kampe i ét kald ganger oddsene sammen.</div></li>
+      <li><span aria-hidden="true">📡</span><div><b>Live:</b> afgiv kald under kampen, mens oddsene følger stillingen.</div></li>
+      <li><span aria-hidden="true">👥</span><div><b>Klubben:</b> følg eller modspil vennernes kald, og se stillingen.</div></li>
+      <li><span aria-hidden="true">🏅</span><div><b>Badges:</b> saml klistermærker for dine bedste kald.</div></li>
     </ul>
-    <button class="cta" data-intro="welcome">Kom i gang</button>
+    <p>Du får 1.000 pralepoint hver runde. Pralepoint kan aldrig købes eller veksles til penge. I Pral spiller man kun om retten til at prale.</p>
+    <button class="btn" id="b-welcome-ok" type="button">Kom i gang</button>
   </div>
 </div>
 
-<!-- Klub & Konto Genvejs-modal -->
-<div class="welcome" id="authModal" role="dialog" aria-modal="true" aria-labelledby="at" hidden>
-  <div class="wcard">
-    <h2 id="at">
-      <span>Klub & Konto<span class="dot" aria-hidden="true"></span></span>
-      <button class="clr" id="closeAuthModal">Luk</button>
-    </h2>
-    <div id="authContent"></div>
-  </div>
-</div>
+<div class="goal" id="goal" role="status" aria-live="assertive" hidden></div>
+<canvas id="confetti" hidden></canvas>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<div class="toast" id="toast" role="status"></div>
-<canvas id="confetti" aria-hidden="true" hidden></canvas>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
-// ==========================================
-// 1. SUPABASE KONFIGURATION
-// ==========================================
-const SUPABASE_URL = 'https://jvnbhbnpxdyufmctmarg.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bmJoYm5weGR5dWZtY3RtYXJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3NzEzOTgsImV4cCI6MjExMDM0NzM5OH0.XYHYQCt6RHl8fQjYEJniU1z3hzfSBVVz39UlnxZqlsc';
-
-const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-
-let currentUser = null;
-let myClubs = []; // [{ role, club }]
-let currentClub = { id: null, name: 'Fredagsholdet', invite_code: 'FREDAG', current_round: 1, duel_stake: 100, round_bonus: 100, allow_live: true };
-let myRoleInClub = 'member';
-let realtimeChannel = null;
-
-// ==========================================
-// 2. GRUNDLÆGGENDE STATE & DATA
-// ==========================================
-const $ = s => document.querySelector(s);
-const f2 = x => Number(x).toFixed(2).replace('.', ',');
-const fmt = n => Math.round(n).toLocaleString('da-DK');
+// =====================================================================
+// Pral – appen. Al data kommer fra Supabase. Regler håndhæves i databasen;
+// appen viser dem bare, så brugeren kan se, hvad der er muligt.
+// =====================================================================
+const RULES = { budget: 1000, min: 10, max: 300, liveClose: 85, staleMs: 90000, bonus: 50 };
+const STAKES = [50, 100, 200, 300];
 const LBL = ['1', 'X', '2'];
-
-const M0 = [
-  { id: 'm1', h: 'FC København', a: 'Brøndby IF', lg: 'Superliga', t: 'Søn 14.00', o: [1.85, 3.70, 4.10], result: null },
-  { id: 'm2', h: 'OB', a: 'Randers FC', lg: 'Superliga', t: 'Søn 16.00', o: [2.45, 3.30, 2.80], result: null },
-  { id: 'm3', h: 'FC Midtjylland', a: 'AGF', lg: 'Superliga', t: 'Lør 18.00', o: [1.62, 4.00, 5.20], result: null },
-  { id: 'm4', h: 'Liverpool', a: 'Arsenal', lg: 'Premier League', t: 'Søn 17.30', o: [2.30, 3.50, 2.95], result: null },
-  { id: 'm5', h: 'Real Madrid', a: 'Barcelona', lg: 'La Liga', t: 'Lør 21.00', o: [2.10, 3.80, 3.20], result: null },
-  { id: 'm6', h: 'Silkeborg IF', a: 'Viborg FF', lg: 'Superliga', t: 'Fre 19.00', o: [2.05, 3.45, 3.40], result: null }
-];
-
-let matches = JSON.parse(JSON.stringify(M0));
-let people = [{ id: 'me', name: 'Dig', fp: 1000 }];
-
-const P = id => people.find(p => p.id === id) || { id, name: 'Spiller', fp: 1000 };
-
-const PALETTE = [
-  ['#111318', '#FFFFFF'],
-  ['#5B8DEF', '#111318'],
-  ['#F2B84B', '#111318'],
-  ['#4CB98A', '#111318'],
-  ['#B78BEA', '#111318'],
-  ['#FF5A4E', '#111318']
-];
-function getAvatarColor(id) {
-  if (id === 'me') return PALETTE[0];
-  let hash = 0;
-  for (let i = 0; i < String(id).length; i++) hash = String(id).charCodeAt(i) + ((hash << 5) - hash);
-  return PALETTE[Math.abs(hash) % PALETTE.length];
-}
-const av = id => {
-  const c = getAvatarColor(id);
-  const person = P(id);
-  return `<span class="av" style="--c:${c[0]};--ct:${c[1]}" aria-hidden="true">${(person.name || '?')[0].toUpperCase()}</span>`;
-};
-
-let seen = new Set();
-try { seen = new Set(JSON.parse(localStorage.getItem('pral-intros') || '[]')); } catch (e) {}
-
-function confetti() {
-  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const cv = $('#confetti'), cs = getComputedStyle(document.documentElement);
-  cv.hidden = false;
-  const W = cv.width = innerWidth, H = cv.height = innerHeight, x = cv.getContext('2d');
-  const cols = [cs.getPropertyValue('--card').trim(), cs.getPropertyValue('--ink').trim(), '#5B8DEF', '#F2B84B', '#4CB98A'];
-  const ps = Array.from({ length: 140 }, () => ({
-    x: W / 2 + (Math.random() - .5) * W * .3,
-    y: H * .35,
-    vx: (Math.random() - .5) * 14,
-    vy: -Math.random() * 14 - 4,
-    s: 5 + Math.random() * 6,
-    r: Math.random() * 6,
-    vr: (Math.random() - .5) * .4,
-    c: cols[Math.floor(Math.random() * cols.length)]
-  }));
-  const t0 = performance.now();
-  (function f(t) {
-    x.clearRect(0, 0, W, H);
-    const k = (t - t0) / 1800;
-    ps.forEach(p => {
-      p.vy += .45; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
-      x.save(); x.globalAlpha = Math.max(0, 1 - k); x.translate(p.x, p.y); x.rotate(p.r);
-      x.fillStyle = p.c; x.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .66); x.restore();
-    });
-    if (k < 1) requestAnimationFrame(f);
-    else { x.clearRect(0, 0, W, H); cv.hidden = true; }
-  })(t0);
-}
-
-const mById = id => matches.find(m => m.id === id) || M0[0];
-const pickText = (m, i) => i === 0 ? m.h + ' vinder' : i === 2 ? m.a + ' vinder' : 'Uafgjort';
-
 const BADGES = [
   { id: 'welcome', ic: '👋', n: 'Ny i klubben', d: 'Meld dig ind i en klub' },
   { id: 'first', ic: '🎟️', n: 'Første kald', d: 'Afgiv dit første kald' },
-  { id: 'combo', ic: '🧩', n: 'Kombimager', d: 'Tre eller flere kampe i ét kald' },
   { id: 'home', ic: '✅', n: 'Ramte plet', d: 'Ram plet med et kald' },
-  { id: 'long', ic: '🚀', n: 'Langskud', d: 'Få odds på 5,00 eller mere hjem' },
-  { id: 'surprise', ic: '🦄', n: 'Mod strømmen', d: 'Vind ugens overraskelse' },
-  { id: 'top', ic: '👑', n: 'Ugens konge', d: 'Top tabellen efter en runde' },
-  { id: 'fader', ic: '🃏', n: 'Modspilleren', d: 'Vind en duel mod en ven' },
-  { id: 'streak', ic: '🔥', n: 'På stribe', d: 'Tre rigtige valg i træk' },
+  { id: 'combo', ic: '🧩', n: 'Kombimager', d: 'Ram plet med et kombikald på mindst 3 kampe' },
+  { id: 'long', ic: '🚀', n: 'Langskud', d: 'Ram plet på odds 5,00 eller mere' },
   { id: 'live', ic: '📡', n: 'Live-kalder', d: 'Afgiv et kald under en kamp' },
-  { id: 'late', ic: '⏱️', n: 'Sidste øjeblik', d: 'Ram plet med et kald lagt efter 80. minut' }
+  { id: 'late', ic: '⏱️', n: 'Sidste øjeblik', d: 'Ram plet med et live-kald efter 75. minut' },
+  { id: 'fader', ic: '🃏', n: 'Modspilleren', d: 'Vind en duel mod en ven' },
+  { id: 'streak', ic: '🔥', n: 'På stribe', d: 'Afgiv kald i 5 runder i træk' },
+  { id: 'profet', ic: '🔮', n: 'Profeten', d: 'Bliv kåret som ugens profet' },
+  { id: 'broler', ic: '🙈', n: 'Brølerkongen', d: 'Bliv kåret som ugens største brøler' },
 ];
+const AVC = ['#5B8DEF', '#F2B84B', '#4CB98A', '#B78BEA', '#FF8A65', '#4DD0E1', '#F06292', '#AED581'];
 
-let streak = 0, best = 0;
-let slip = {}, stake = 100, slipComment = '', kuponer = [], kid = 0, round = 1, tab = 'kampe';
-const badges = new Set(['welcome']);
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const f2 = (x) => Number(x).toFixed(2).replace('.', ',');
+const pp = (x) => Math.round(x).toLocaleString('da-DK');
+const signed = (x) => (x > 0 ? '+' : x < 0 ? '−' : '') + pp(Math.abs(x));
+const capOdds = (o) => +Math.min(50, Math.max(1.01, o)).toFixed(2);
+const fadeOdds = (o) => capOdds(1 / (1 - 1 / o));
+const kday = (iso) => new Intl.DateTimeFormat('da-DK', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'Europe/Copenhagen' }).format(new Date(iso));
+const ktime = (iso) => new Intl.DateTimeFormat('da-DK', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Copenhagen' }).format(new Date(iso)).replace('.', ':');
+const kickoff = (iso) => new Intl.DateTimeFormat('da-DK', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Copenhagen' }).format(new Date(iso));
+// Forbindelsen til Supabase. Begge værdier er offentlige. Brug ALDRIG secret key her.
+const SUPABASE_URL = 'https://jvnbhbnpxdyufmctmarg.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bmJoYm5weGR5dWZtY3RtYXJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ3NzEzOTgsImV4cCI6MjExMDM0NzM5OH0.XYHYQCt6RHl8fQjYEJniU1z3hzfSBVVz39UlnxZqlsc';
+const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch { /* privat vindue */ } } };
 
-// Læs ?tab=live eller ?tab=badges fra URL hvis man klikker derind fra klub.html
-const urlParams = new URLSearchParams(window.location.search);
-if (['kampe', 'live', 'badges'].includes(urlParams.get('tab'))) {
-  tab = urlParams.get('tab');
+const S = {
+  user: null, profile: null, matches: new Map(), round: null, myPicks: [], clubs: [], club: null,
+  clubPicks: [], board: [], rivals: [], awards: null, badges: new Set(), scope: 'week', view: 'kampe',
+  liveSel: null, liveChoice: null, ngChoice: null, slip: new Map(), slipStake: 100, slipComment: '',
+  liveStake: 100, sheet: null, rt: 'connecting', ranks: {}, moves: {},
+};
+
+// ---------- Små hjælpere ----------
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 3000); }
+const errText = (e) => (e && (e.message || e.error_description)) || 'Noget gik galt. Prøv igen.';
+const one = (d) => (Array.isArray(d) ? d[0] : d);
+function show(id) { for (const s of document.querySelectorAll('main > section')) s.hidden = s.id !== id; }
+const M = (id) => S.matches.get(Number(id));
+const label = (m, i) => (!m ? LBL[i] : i === 0 ? m.home : i === 2 ? m.away : 'Uafgjort');
+const ngLabel = (m, i) => (i === 0 ? m.home : i === 2 ? m.away : 'Intet mål');
+const outcomeOf = (m) => (m.gh > m.ga ? 0 : m.gh === m.ga ? 1 : 2);
+const left = () => (S.round ? S.round.left_pp : RULES.budget);
+const color = (uid) => { if (S.user && uid === S.user.id) return ['var(--ink)', 'var(--surface)']; let h = 0; for (const c of uid) h = (h * 31 + c.charCodeAt(0)) >>> 0; return [AVC[h % AVC.length], '#111318']; };
+const av = (uid, name, small) => { const [c, ct] = color(uid); return `<span class="av${small ? ' s' : ''}" style="--c:${c};--ct:${ct}" ${small ? `title="${esc(name)}"` : 'aria-hidden="true"'}>${esc((name || '?')[0].toUpperCase())}</span>`; };
+const nm = (uid, name) => `<span class="nm">${av(uid, name)}<span>${uid === S.user?.id ? 'Dig' : esc(name)}</span></span>`;
+function stakeOptions(max) { const o = STAKES.filter((s) => s <= max); if (max >= RULES.min && max < STAKES[0]) o.push(max); return o.length ? o : [STAKES[0]]; }
+const fitStake = (cur, max) => (cur <= max && cur >= RULES.min ? cur : (stakeOptions(max).slice(-1)[0] || STAKES[0]));
+const stakeRow = (attr, cur, max) => `<div class="stakes" role="group" aria-label="Indsats">${[...new Set([...STAKES, ...stakeOptions(max)])].sort((a, b) => a - b).map((s) => `<button type="button" data-${attr}="${s}" aria-pressed="${s === cur}" ${s > max ? 'disabled' : ''}>${s}</button>`).join('')}</div>`;
+
+// ISO-uge i dansk tid, fx '2026-W46' (samme som databasens current_round)
+function isoRound(d) {
+  const [y, m, dd] = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Copenhagen', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d).split('-').map(Number);
+  const t = new Date(Date.UTC(y, m - 1, dd)); const day = (t.getUTCDay() + 6) % 7; t.setUTCDate(t.getUTCDate() - day + 3);
+  const wy = t.getUTCFullYear(); const jan4 = new Date(Date.UTC(wy, 0, 4));
+  const w = 1 + Math.round(((t - jan4) / 864e5 - 3 + ((jan4.getUTCDay() + 6) % 7)) / 7);
+  return `${wy}-W${String(w).padStart(2, '0')}`;
 }
 
-function share(mid, i) {
-  const on = kuponer.filter(k => Array.isArray(k.picks) && k.picks.some(p => p.m === mid));
-  if (!on.length) return null;
-  return on.filter(k => k.picks.some(p => p.m === mid && p.i === i)).length / on.length;
+// ---------- Låsen (samme regler som databasen) ----------
+function lockReason(m) {
+  const now = Date.now();
+  if (m.status === 'void') return 'Kampen er udsat eller aflyst';
+  if (m.status === 'finished') return 'Kampen er slut';
+  if (m.status === 'live' && m.minute >= RULES.liveClose) return 'Live-kald er lukket';
+  if (m.status === 'live' && now - Date.parse(m.updated_at) > RULES.staleMs) return 'Afventer data';
+  if (m.lock_until && Date.parse(m.lock_until) > now) return 'Odds opdateres';
+  if (m.status === 'scheduled' && m.starts_at && Date.parse(m.starts_at) <= now) return 'Kampen er gået i gang';
+  return null;
 }
+const prematchOpen = (m) => m && m.status === 'scheduled' && !lockReason(m);
 
-function toast(t) {
-  const el = $('#toast');
-  el.textContent = t;
-  el.classList.add('show');
-  clearTimeout(toast.t);
-  toast.t = setTimeout(() => el.classList.remove('show'), 2800);
+// ---------- Et kalds ben og status ----------
+// Ben = [{match, outcome, odds}] for enkeltkald og kombikald
+function legsOf(p) {
+  if (p.kind === 'single') return [{ match: p.match_id, outcome: p.outcome, odds: p.odds }];
+  if (p.kind === 'combo') return (p.legs || p.pick_legs || []).map((l) => ({ match: l.match ?? l.match_id, outcome: l.outcome, odds: l.odds, status: l.status }));
+  return [];
 }
-
-function unlock(id) {
-  if (badges.has(id)) return;
-  badges.add(id);
-  const b = BADGES.find(x => x.id === id);
-  if (b) setTimeout(() => toast(b.ic + ' Nyt badge: ' + b.n), 400);
-  syncProfileToSupabase();
+// 'right' / 'wrong' / 'open' for et ben ud fra stillingen lige nu
+function legState(l) {
+  if (l.status === 'void') return 'void';
+  const m = M(l.match); if (!m) return l.status === 'won' ? 'right' : l.status === 'lost' ? 'wrong' : 'open';
+  if (m.status === 'scheduled') return 'open';
+  return outcomeOf(m) === l.outcome ? 'right' : 'wrong';
 }
-
-// ==========================================
-// 3. SUPABASE AUTH-GUARD & SYNKRONISERING MED KLUB.HTML
-// ==========================================
-async function initSupabase() {
-  if (!sb) {
-    window.location.replace('login.html');
-    return;
+function pickState(p) {
+  if (p.status !== 'pending') return p.status;
+  if (p.kind === 'next_goal') { const m = M(p.match_id); return m && m.status !== 'scheduled' ? (p.outcome === 1 ? 'won' : 'lost') : 'open'; }
+  if (p.kind === 'follow' || p.kind === 'fade') {
+    const t = S.clubPicks.find((x) => x.id === p.target_pick); if (!t) return 'open';
+    const s = pickState(t); if (s === 'open') return 'open';
+    return (p.kind === 'follow') === (s === 'won') ? 'won' : 'lost';
   }
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session?.user) {
-      window.location.replace('login.html');
-      return;
-    }
-
-    $('#appBody').hidden = false;
-    await handleUserLoggedIn(session.user);
-
-    sb.auth.onAuthStateChange((_event, newSession) => {
-      if (!newSession?.user) {
-        window.location.replace('login.html');
-      }
-    });
-  } catch (err) {
-    window.location.replace('login.html');
-  }
+  const s = legsOf(p).map(legState).filter((x) => x !== 'void');
+  if (!s.length) return 'void';
+  if (s.includes('wrong')) return 'lost';
+  if (s.every((x) => x === 'right')) return 'won';
+  return 'open';
 }
+const touches = (p, mid) => p.match_id === Number(mid) || legsOf(p).some((l) => Number(l.match) === Number(mid));
 
-async function handleUserLoggedIn(user) {
-  currentUser = user;
-  $('#openAuthBtn').textContent = user.user_metadata?.display_name || user.email.split('@')[0];
+// =====================================================================
+// Log ind
+// =====================================================================
+async function boot() {
+  if (!sb) { show('v-setup'); return; }
+  sb.auth.onAuthStateChange((_e, session) => {
+    if (session?.user && S.user?.id !== session.user.id) start(session.user);
+    if (!session) { S.user = null; stopApp(); showLogin(); }
+  });
+  const { data } = await sb.auth.getSession();
+  if (data.session?.user) start(data.session.user); else showLogin();
+}
+function showLogin() {
+  $('#tabs').hidden = true; $('#hright').hidden = true; $('#roundName').textContent = 'Sjov betting for alle';
+  $('#f-email').hidden = false; $('#f-code').hidden = true; renderSlip(); show('v-login');
+}
+$('#f-email').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = $('#email').value.trim(), name = $('#nick').value.trim();
+  if (!/^\S+@\S+\.\S+$/.test(email)) return toast('Skriv en gyldig e-mail');
+  if (!$('#adult').checked) return toast('Du skal være fyldt 18 år for at bruge Pral');
+  const b = $('#b-send'); b.disabled = true; b.textContent = 'Sender …';
+  const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: location.href.split('#')[0], data: { name: name || undefined, adult_confirmed_at: new Date().toISOString() } } });
+  b.disabled = false; b.textContent = 'Send mig en kode';
+  if (error) return toast(errText(error));
+  $('#sentTo').textContent = email; $('#f-email').hidden = true; $('#f-code').hidden = false; $('#code').focus();
+});
+$('#f-code').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const token = $('#code').value.replace(/\s/g, ''); if (!token) return toast('Skriv koden fra mailen');
+  const { error } = await sb.auth.verifyOtp({ email: $('#sentTo').textContent, token, type: 'email' });
+  if (error) toast('Koden passer ikke. Prøv igen, eller send en ny.');
+});
+$('#b-back').addEventListener('click', () => { $('#f-code').hidden = true; $('#f-email').hidden = false; });
 
-  try {
-    // 1. Hent eller opret profil
-    let { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
-    if (!prof) {
-      const displayName = user.user_metadata?.display_name || user.email.split('@')[0];
-      const { data: inserted } = await sb.from('profiles').insert({
-        id: user.id,
-        email: user.email,
-        display_name: displayName,
-        pp: 1000,
-        streak: 0,
-        badges: ['welcome'],
-        email_verified: true
-      }).select().single();
-      prof = inserted;
-    }
-    if (prof) {
-      const me = P('me');
-      me.name = prof.display_name || 'Dig';
-      me.fp = prof.pp ?? 1000;
-      streak = prof.streak ?? 0;
-      if (Array.isArray(prof.badges)) prof.badges.forEach(b => badges.add(b));
-      $('#openAuthBtn').textContent = me.name;
-    }
-
-    // 2. Hent kampprogram fra Supabase (inkl. resultater sat i klubadmin.html)
-    const { data: dbMatches } = await sb.from('matches').select('*').order('id');
-    if (dbMatches && dbMatches.length > 0) {
-      matches = dbMatches.map(m => ({
-        id: m.id,
-        h: m.home_team,
-        a: m.away_team,
-        lg: m.league,
-        t: m.kickoff_label,
-        o: Array.isArray(m.odds) ? m.odds : [2.0, 3.4, 3.2],
-        result: m.result,
-        status: m.status
-      }));
-    }
-
-    // 3. Hent alle klubber brugeren er medlem af
-    let { data: memberships } = await sb
-      .from('club_members')
-      .select('role, club_id, clubs(*)')
-      .eq('user_id', user.id);
-
-    if (!memberships || memberships.length === 0) {
-      const { data: defClub } = await sb.from('clubs').select('*').eq('invite_code', 'FREDAG').maybeSingle();
-      if (defClub) {
-        await sb.from('club_members').upsert({ club_id: defClub.id, user_id: user.id, role: 'member' });
-        memberships = [{ role: 'member', club_id: defClub.id, clubs: defClub }];
-      }
-    }
-
-    myClubs = (memberships || []).filter(m => m.clubs).map(m => ({
-      role: m.role || 'member',
-      club: m.clubs
-    }));
-
-    // Vælg aktiv klub fra localStorage (delt med klub.html og klubadmin.html)
-    const savedClubId = localStorage.getItem('pral_active_club_id');
-    const chosen = myClubs.find(x => x.club.id === savedClubId) || myClubs[0];
-
-    if (chosen) {
-      await loadClubFromSupabase(chosen.club.id);
-    }
-  } catch (e) {
-    console.warn('Fejl ved indlæsning af klubdata:', e.message);
-  }
-  activateInitialTab();
+// =====================================================================
+// Start og data
+// =====================================================================
+let channel = null, ticker = null, poller = null;
+async function start(user) {
+  S.user = user; $('#toast').classList.remove('show');
+  $('#tabs').hidden = false; $('#hright').hidden = false;
+  go(S.view);
+  await Promise.all([loadProfile(), loadMatches(), loadRound(), loadMyPicks(), loadClubs(), loadBadges()]);
+  await joinFromLink();
+  await loadClubData();
+  subscribe();
+  if (store.get('pral-velkommen') !== '1') $('#welcome').hidden = false;
+  clearInterval(ticker); ticker = setInterval(tick, 1000);
+  clearInterval(poller); poller = setInterval(() => { loadMatches(); loadClubData(); }, 20000);
   render();
 }
+function stopApp() { clearInterval(ticker); clearInterval(poller); if (channel) { sb.removeChannel(channel); channel = null; } closeSheet(); }
 
-async function loadClubFromSupabase(clubId) {
-  if (!sb || !currentUser || !clubId) return;
-  const found = myClubs.find(x => x.club.id === clubId);
-  if (found) {
-    currentClub = found.club;
-    myRoleInClub = (found.role === 'admin' || currentClub.created_by === currentUser.id || currentClub.invite_code === 'FREDAG') ? 'admin' : 'member';
-    round = currentClub.current_round || 1;
-    localStorage.setItem('pral_active_club_id', currentClub.id);
+function subscribe() {
+  if (channel) sb.removeChannel(channel);
+  channel = sb.channel('pral-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, (p) => {
+      if (p.eventType === 'DELETE') { S.matches.delete(p.old.id); render(); return; }
+      const before = S.matches.get(p.new.id); S.matches.set(p.new.id, p.new);
+      if (before && p.new.gh + p.new.ga > before.gh + before.ga) onGoal(p.new, before);
+      render();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'picks', filter: `user_id=eq.${S.user.id}` }, (p) => {
+      if (p.eventType === 'UPDATE' && p.old?.status === 'pending' && p.new.status === 'won') { toast(`Ramte plet: +${pp(p.new.payout)} PP`); confetti(); }
+      refreshMine();
+    })
+    .subscribe((status) => { S.rt = status; renderStatus(); });
+}
+let refreshT = null;
+function refreshMine() { clearTimeout(refreshT); refreshT = setTimeout(async () => { await Promise.all([loadMyPicks(), loadRound(), loadClubData(), loadBadges()]); render(); }, 300); }
+
+async function loadProfile() {
+  const { data } = await sb.from('profiles').select('*').eq('id', S.user.id).single();
+  S.profile = data; $('#myName').value = data?.name || ''; $('#meBtn').textContent = (data?.name || '?')[0].toUpperCase();
+}
+async function loadMatches() {
+  const since = new Date(Date.now() - 8 * 864e5).toISOString();
+  const { data, error } = await sb.from('matches').select('*')
+    .or(`status.eq.live,starts_at.gte."${since}",updated_at.gte."${since}"`)
+    .order('starts_at', { ascending: true }).limit(200);
+  if (error) return;
+  S.matches = new Map(data.map((m) => [m.id, m])); render();
+}
+async function loadRound() { const { data, error } = await sb.rpc('my_round'); if (!error) S.round = one(data); }
+async function loadMyPicks() {
+  const { data, error } = await sb.from('picks').select('*, pick_legs(*)').order('created_at', { ascending: false }).limit(100);
+  if (!error) S.myPicks = data;
+}
+async function loadClubs() {
+  const { data } = await sb.from('clubs').select('*').order('created_at');
+  S.clubs = data || [];
+  const saved = store.get('pral-klub');
+  if (!S.clubs.find((c) => c.id === S.club)) S.club = (S.clubs.find((c) => c.id === saved) || S.clubs[0])?.id || null;
+}
+async function loadBadges() {
+  const { data, error } = await sb.rpc('my_badges'); if (error) return;
+  const had = S.badges; S.badges = new Set((data || []).filter((b) => b.got).map((b) => b.id));
+  if (had.size) for (const id of S.badges) if (!had.has(id)) { const b = BADGES.find((x) => x.id === id); if (b) setTimeout(() => toast(`${b.ic} Nyt badge: ${b.n}`), 600); }
+}
+async function loadClubData() {
+  if (!S.club) { S.clubPicks = []; S.board = []; S.rivals = []; S.awards = null; render(); return; }
+  const club = S.club;
+  const ri = one((await sb.rpc('rounds_info')).data) || {};
+  const prev = ri.previous_round;
+  const [cp, lb, rv, aw] = await Promise.all([
+    sb.rpc('club_picks', { p_club: club }),
+    sb.rpc('club_leaderboard', { p_club: club, p_scope: S.scope }),
+    sb.rpc('my_rivals', { p_club: club }),
+    prev ? sb.rpc('club_awards', { p_club: club, p_round: prev }) : Promise.resolve({ data: [] }),
+  ]);
+  if (club !== S.club) return;
+  S.clubPicks = cp.data || []; S.board = lb.data || []; S.rivals = rv.data || [];
+  S.awards = aw.data && aw.data.length ? { round: prev, name: ri.previous_name, rows: aw.data, final: true } : null;
+  if (!S.awards && ri.current_round) {
+    const cur = await sb.rpc('club_awards', { p_club: club, p_round: ri.current_round });
+    if (cur.data && cur.data.length) S.awards = { round: ri.current_round, name: ri.current_name, rows: cur.data, final: false };
   }
-
-  try {
-    // 1. Hent klubbens medlemmer
-    const { data: members } = await sb
-      .from('club_members')
-      .select('user_id, profiles(id, display_name, pp, streak)')
-      .eq('club_id', clubId);
-
-    if (members && members.length > 0) {
-      people = members.map(m => ({
-        id: m.user_id === currentUser.id ? 'me' : m.user_id,
-        real_id: m.user_id,
-        name: m.user_id === currentUser.id ? (m.profiles?.display_name || 'Dig') : (m.profiles?.display_name || 'Spiller'),
-        fp: m.profiles?.pp ?? 1000
-      }));
-    }
-
-    // 2. Hent klubbens kald for den aktuelle runde (så % valgte på kampene passer med klubben)
-    const { data: dbCalls } = await sb
-      .from('calls')
-      .select('*')
-      .eq('club_id', clubId)
-      .eq('round', round);
-
-    kuponer = (dbCalls || []).map(c => ({
-      id: c.id,
-      owner: c.user_id === currentUser.id ? 'me' : c.user_id,
-      picks: Array.isArray(c.picks) ? c.picks : [],
-      stake: c.stake,
-      odds: Number(c.odds),
-      status: c.status || 'pending',
-      comment: c.comment || ''
-    }));
-
-    // 3. Abonner på Realtime opdateringer i klubben
-    if (realtimeChannel) sb.removeChannel(realtimeChannel);
-    realtimeChannel = sb.channel('index-club-' + clubId)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'calls', filter: `club_id=eq.${clubId}` }, () => {
-        loadClubFromSupabase(clubId);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, async () => {
-        const { data: dbMatches } = await sb.from('matches').select('*').order('id');
-        if (dbMatches) {
-          matches = dbMatches.map(m => ({
-            id: m.id, h: m.home_team, a: m.away_team, lg: m.league, t: m.kickoff_label, o: m.odds, result: m.result, status: m.status
-          }));
-          render();
-        }
-      })
-      .subscribe();
-
-    renderHeaderClub();
-    render();
-  } catch (e) {
-    console.warn('Kunne ikke hente klubdata:', e.message);
-  }
-}
-
-async function syncProfileToSupabase() {
-  if (!sb || !currentUser) return;
-  try {
-    await sb.from('profiles').update({
-      pp: P('me').fp,
-      streak: streak,
-      badges: [...badges]
-    }).eq('id', currentUser.id);
-  } catch (e) {}
-}
-
-function renderHeaderClub() {
-  $('#clubHeaderLabel').textContent = `${currentClub.name} · ${people.length}`;
-  $('#topClubBar').innerHTML =
-    myClubs.map(x => {
-      const on = currentClub && x.club.id === currentClub.id;
-      const isAdm = x.role === 'admin' || x.club.created_by === currentUser.id;
-      return `<button type="button" class="club-pill" data-switchclub="${x.club.id}" aria-pressed="${on}">
-        <span>${isAdm ? '👑' : '⚽'}</span><span>${x.club.name}</span>
-      </button>`;
-    }).join('') +
-    `<a href="klub.html" class="club-pill accent">👥 Åbn Klubhuset &rarr;</a>` +
-    (myRoleInClub === 'admin' ? `<a href="klubadmin.html?club=${currentClub.id}" class="club-pill">⚙️ Klub Admin</a>` : '');
-}
-
-function renderAuthModal() {
-  const box = $('#authContent');
-  if (!currentUser) return;
-  box.innerHTML = `
-    <p>Logget ind som <b>${P('me').name}</b> (${currentUser.email})</p>
-    <div class="invite-box">
-      <div>
-        <small style="display:block;font-weight:700">Aktiv klub: ${currentClub.name}</small>
-        <span>Invitationskode: <code>${currentClub.invite_code}</code></span>
-      </div>
-      <button type="button" class="clr" id="copyInviteBtn">Kopiér</button>
-    </div>
-    <a href="klub.html" class="cta" style="margin-bottom:8px">Gå til Klubben (${currentClub.name}) &rarr;</a>
-    ${myRoleInClub === 'admin' ? `<a href="klubadmin.html?club=${currentClub.id}" class="cta ghost">⚙️ Rediger klub & medlemmer (Klub Admin)</a>` : ''}
-    <hr style="border:0;border-top:1.5px solid var(--line);margin:14px 0">
-    <button type="button" class="cta ghost" id="logoutBtn" style="border-color:var(--red);color:var(--red)">Log ud</button>
-  `;
-}
-
-// ==========================================
-// 4. UI RENDERING (KAMPE, KUPON, BADGES)
-// ==========================================
-function renderMatches() {
-  const allFinished = matches.length > 0 && matches.every(m => m.result !== null && m.result !== undefined);
-  $('#tab-kampe').innerHTML = (allFinished
-    ? `<p class="intro">Runde ${round} er afgjort! <a href="klub.html" style="font-weight:800;color:var(--ink)">Gå til Klubben</a> for at se ugens kåringer, eller start næste runde i <a href="klubadmin.html?club=${currentClub.id}" style="font-weight:800;color:var(--ink)">Klub Admin</a>.</p>`
-    : `<div class="rnd"><span>Runde ${round} · Kampprogram</span><span>${currentClub.name}</span></div>`) +
-    matches.map(m => {
-      const locked = m.result !== null && m.result !== undefined;
-      return `<article class="match">
-        <div class="mhead"><span>${m.lg}</span><span>${m.t}</span></div>
-        <div class="teams"><span>${m.h}</span><span class="vs">mod</span><span>${m.a}</span></div>
-        <div class="odds">
-          ${m.o.map((o, i) => {
-            const s = share(m.id, i);
-            const on = slip[m.id] === i;
-            const res = locked && m.result === i;
-            return `<button class="odd${on ? ' on' : ''}${res ? ' res' : ''}" data-m="${m.id}" data-i="${i}" aria-pressed="${on}" ${locked ? 'disabled' : ''} aria-label="${pickText(m, i)}, odds ${f2(o)}">
-              <span class="ol">${LBL[i]}${res ? ' · resultat' : ''}</span>
-              <span class="ov">${f2(o)}</span>
-              <span class="cs">${s === null ? '' : Math.round(s * 100) + ' % i klubben'}</span>
-            </button>`;
-          }).join('')}
-        </div>
-      </article>`;
-    }).join('');
-}
-
-function renderSlip() {
-  const ids = Object.keys(slip);
-  const show = ids.length && tab === 'kampe';
-  $('#slip').classList.toggle('show', !!show);
-  if (!ids.length) return;
-  const odds = ids.reduce((a, id) => a * mById(id).o[slip[id]], 1);
-  $('#slipIn').innerHTML = `
-    <h2><span>Dit kald i ${currentClub.name}<button class="clr" id="clear">Ryd</button></span><span class="num">Odds ${f2(odds)}</span></h2>
-    <ul>
-      ${ids.map(id => {
-        const m = mById(id);
-        return `<li><span>${pickText(m, slip[id])}</span><span class="num">${f2(m.o[slip[id]])}</span></li>`;
-      }).join('')}
-    </ul>
-    <input type="text" class="comment-in" id="slipCommentInput" placeholder="Tilføj en kæk bemærkning til ${currentClub.name} (valgfrit)..." value="${slipComment.replace(/"/g, '&quot;')}">
-    <div class="stakes" role="group" aria-label="Indsats">
-      ${[50, 100, 250, 500].map(s => `<button data-stake="${s}" aria-pressed="${s === stake}">${s} PP</button>`).join('')}
-    </div>
-    <button class="cta" id="place">Afgiv kald, mulig gevinst ${fmt(stake * odds)} PP</button>
-  `;
-  const cIn = $('#slipCommentInput');
-  if (cIn) cIn.addEventListener('input', e => { slipComment = e.target.value; });
-}
-
-function renderBadges() {
-  $('#tab-badges').innerHTML = `<p class="rnd"><span>Du har ${badges.size} af ${BADGES.length} klistermærker</span></p><div class="badges">${BADGES.map(b => `<div class="badge ${badges.has(b.id) ? 'got' : 'locked'}"><span class="ic" aria-hidden="true">${b.ic}</span><b>${b.n}</b><span>${b.d}</span></div>`).join('')}</div>`;
-}
-
-// ==========================================
-// 5. LIVE-KAMP SIMULERING
-// ==========================================
-const LIVE = [
-  { h: 'OB', a: 'Randers FC', lh: 1.45, la: 1.15 },
-  { h: 'Liverpool', a: 'Arsenal', lh: 1.55, la: 1.35 },
-  { h: 'FC København', a: 'Brøndby IF', lh: 1.7, la: 1.0 }
-];
-let li = 0, lv = null, lvTimer = null, lvSpeed = 1, lvStake = 100, lvChoice = null;
-
-function pois(k, l) { let p = Math.exp(-l); for (let i = 1; i <= k; i++) p *= l / i; return p; }
-function lvProbs() {
-  const r = Math.max(0, (90 - lv.t) / 90), a = lv.lh * r, b = lv.la * r;
-  let H = 0, D = 0, A = 0;
-  for (let x = 0; x <= 10; x++) {
-    const px = pois(x, a);
-    for (let y = 0; y <= 10; y++) {
-      const p = px * pois(y, b), d = (lv.gh + x) - (lv.ga + y);
-      if (d > 0) H += p; else if (d === 0) D += p; else A += p;
-    }
-  }
-  const s = H + D + A;
-  return [H / s, D / s, A / s];
-}
-const lvOdds = p => +Math.min(50, Math.max(1.01, 1 / Math.max(p, 0.0001))).toFixed(2);
-const lvLabel = i => i === 0 ? lv.h : i === 2 ? lv.a : 'Uafgjort';
-const lvResult = () => lv.gh > lv.ga ? lv.h + ' vandt' : lv.ga > lv.gh ? lv.a + ' vandt' : 'Uafgjort';
-
-function newLive() {
-  const m = LIVE[li % LIVE.length];
-  lv = { h: m.h, a: m.a, lh: m.lh, la: m.la, t: 0, gh: 0, ga: 0, running: false, done: false, lock: 0, hist: [], events: [], picks: [], prev: null };
-  lv.hist.push(lvProbs());
-}
-
-function lvTick() {
-  lv.prev = lvProbs().map(lvOdds);
-  lv.t++;
-  const ev = (txt, big) => { lv.events.unshift({ t: lv.t, txt }); if (big) lv.lock = lv.t + 4; };
-  if (Math.random() < lv.lh / 90) { lv.gh++; ev('⚽ Mål til ' + lv.h + '. Stillingen er ' + lv.gh + '–' + lv.ga, true); }
-  else if (Math.random() < lv.la / 90) { lv.ga++; ev('⚽ Mål til ' + lv.a + '. Stillingen er ' + lv.gh + '–' + lv.ga, true); }
-  else if (Math.random() < 0.004) {
-    const home = Math.random() < .5;
-    if (home) { lv.lh *= 0.7; lv.la *= 1.15; } else { lv.la *= 0.7; lv.lh *= 1.15; }
-    ev('🟥 Rødt kort til ' + (home ? lv.h : lv.a), true);
-  }
-  if (lv.t === 45) ev('Pause');
-  if (Math.random() < 0.07 && lv.t < 88 && lv.t >= lv.lock && people.length > 1) {
-    const f = people[1 + Math.floor(Math.random() * (people.length - 1))];
-    const pr = lvProbs();
-    const i = Math.random() < .5 ? pr.indexOf(Math.max(...pr)) : Math.floor(Math.random() * 3);
-    lv.events.unshift({ t: lv.t, who: f.id, txt: f.name + ' lagde et kald på ' + lvLabel(i) + ' til ' + f2(lvOdds(pr[i])) });
-  }
-  lv.hist.push(lvProbs());
-  if (lv.t >= 90) { lvFinish(); return; }
-  lv.ticked = true;
-  renderLive();
-}
-
-function lvStart() {
-  if (lv.running || lv.done) return;
-  lv.running = true;
-  lv.events.unshift({ t: 0, txt: 'Kampen er i gang' });
-  lvTimer = setInterval(lvTick, 1000 / lvSpeed);
-  renderLive();
-}
-
-function lvSetSpeed(sp) {
-  lvSpeed = sp;
-  if (lvTimer) { clearInterval(lvTimer); lvTimer = setInterval(lvTick, 1000 / lvSpeed); }
-  renderLive();
-}
-
-function lvPlace() {
-  if (!lv.running || lv.t < lv.lock || lvChoice === null) return;
-  const me = P('me');
-  if (me.fp < lvStake) { toast('Du har ikke nok PP.'); return; }
-  const odds = lvProbs().map(lvOdds)[lvChoice];
-  me.fp -= lvStake;
-  lv.picks.push({ i: lvChoice, odds, stake: lvStake, t: lv.t });
-  unlock('live');
-  syncProfileToSupabase();
-  toast('Live-kald afgivet: ' + lvLabel(lvChoice) + ' til ' + f2(odds));
-  lvChoice = null;
   render();
 }
-
-function lvFinish() {
-  clearInterval(lvTimer); lvTimer = null; lv.running = false; lv.done = true; lv.prev = null;
-  const res = lv.gh > lv.ga ? 0 : lv.gh === lv.ga ? 1 : 2;
-  let win = 0;
-  lv.picks.forEach(p => {
-    p.won = p.i === res;
-    if (p.won) { p.win = Math.round(p.stake * p.odds); win += p.win; streak++; best = Math.max(best, streak); }
-    else streak = 0;
-  });
-  P('me').fp += win;
-  lv.events.unshift({ t: 90, txt: 'Slutfløjt. Kampen endte ' + lv.gh + '–' + lv.ga });
-  if (lv.picks.some(p => p.won && p.t >= 80)) unlock('late');
-  if (best >= 3) unlock('streak');
-  syncProfileToSupabase();
-  if (lv.picks.length) toast(win ? 'Dine live-kald gav +' + fmt(win) + ' PP' : 'Ingen af dine live-kald ramte plet');
-  if (win) confetti();
-  render();
+async function joinFromLink() {
+  const code = new URLSearchParams(location.search).get('klub'); if (!code) return;
+  const { data, error } = await sb.rpc('join_club', { p_code: code });
+  history.replaceState(null, '', location.pathname);
+  if (error) return toast(errText(error));
+  const c = one(data); toast(`Du er med i ${c.name}`); S.club = c.id; store.set('pral-klub', c.id); await loadClubs(); S.view = 'klub';
 }
 
-function lvChart() {
-  const W = 300, H = 90;
-  const line = k => lv.hist.map((p, j) => (j / 90 * W).toFixed(1) + ',' + (4 + (1 - p[k]) * (H - 8)).toFixed(1)).join(' ');
-  return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Chancen for hvert udfald gennem kampen"><line x1="${W / 2}" y1="0" x2="${W / 2}" y2="${H}" class="half"/><polyline points="${line(1)}" class="cx"/><polyline points="${line(2)}" class="c2"/><polyline points="${line(0)}" class="c1"/></svg>
-    <div class="axis" aria-hidden="true"><span>0'</span><span>45'</span><span>90'</span></div>
-    <div class="legend"><span class="l1">${lv.h}</span><span class="lx">Uafgjort</span><span class="l2">${lv.a}</span></div>`;
-}
-
-function renderLive() {
-  if (currentClub.allow_live === false) {
-    $('#tab-live').innerHTML = `<div class="livecard"><p style="margin:0;font-weight:700">Live-betting er slået fra af administratoren i <b>${currentClub.name}</b>.</p></div>`;
-    return;
-  }
-  const pr = lvProbs(), od = pr.map(lvOdds), locked = lv.running && lv.t < lv.lock;
-  const arrow = i => {
-    if (!lv.prev) return '';
-    const d = od[i] - lv.prev[i];
-    return Math.abs(d) < 0.005 ? '' : d > 0 ? ' <span class="up">▲</span>' : ' <span class="down">▼</span>';
-  };
-  const ticked = lv.ticked; lv.ticked = false;
-  const flash = i => ticked && lv.prev && Math.abs(od[i] - lv.prev[i]) / lv.prev[i] >= 0.03 ? ' flash' : '';
-  const clock = lv.done ? '90\'' : lv.t === 45 && lv.running ? 'Pause' : lv.t + "'";
-  let ctl;
-  if (lv.running) {
-    ctl = `<div class="stakes" role="group" aria-label="Indsats">${[50, 100, 250].map(x => `<button data-lvstake="${x}" aria-pressed="${x === lvStake}">${x} PP</button>`).join('')}</div>
-      <button class="cta" id="lvplace" ${lvChoice === null || locked ? 'disabled' : ''}>${lvChoice === null ? 'Vælg 1, X eller 2' : 'Kald ' + lvLabel(lvChoice) + ' til ' + f2(od[lvChoice]) + ', mulig gevinst ' + fmt(lvStake * od[lvChoice]) + ' PP'}</button>`;
-  } else {
-    ctl = lv.done ? `<button class="cta" id="lvnext">Næste live-kamp</button>` : `<button class="cta" id="lvstart">Start kampen</button>`;
-  }
-  $('#tab-live').innerHTML = `
-    <div class="livecard">
-      <div class="lvtop"><span class="blive${lv.running ? ' on' : ''}">${lv.running ? 'LIVE' : lv.done ? 'SLUT' : 'FØR KAMPEN'}</span><span class="num clock">${clock}</span></div>
-      <div class="score"><span>${lv.h}</span><b>${lv.gh} – ${lv.ga}</b><span>${lv.a}</span></div>
-      ${locked ? '<div class="lockbar" role="status">🔒 Kald er låst, mens oddsene opdateres</div>' : ''}
-      ${lv.done ? '<div class="result">' + lvResult() + '</div>' : ''}
-      <div class="odds"${lv.done ? ' hidden' : ''}>
-        ${[0, 1, 2].map(i => `<button class="odd${lvChoice === i ? ' on' : ''}${flash(i)}" data-lvpick="${i}" aria-pressed="${lvChoice === i}" ${(!lv.running || locked) ? 'disabled' : ''} aria-label="${lvLabel(i)}, odds ${f2(od[i])}"><span class="ol">${LBL[i]}${arrow(i)}</span><span class="ov">${f2(od[i])}</span><span class="cs">${Math.round(pr[i] * 100)} % chance</span></button>`).join('')}
-      </div>
-      ${ctl}
-      <div class="speed">Hastighed ${[1, 3, 6].map(x => `<button data-lvspeed="${x}" aria-pressed="${x === lvSpeed}">${x}×</button>`).join('')}</div>
-    </div>
-    <h3>Chancen gennem kampen</h3>${lvChart()}
-    ${lv.picks.length ? '<h3>Dine live-kald</h3>' + lv.picks.map(p => `<div class="kup"><div class="top"><b>${lvLabel(p.i)}, ${p.t}. min.</b><span class="chip ${lv.done ? (p.won ? 'won' : 'lost') : ''}">${lv.done ? (p.won ? 'Ramte plet +' + fmt(p.win) + ' PP' : 'Forbi') : 'Afventer'}</span></div><div class="meta"><span>Indsats ${fmt(p.stake)} PP</span><span>Odds <span class="num">${f2(p.odds)}</span></span></div></div>`).join('') : ''}
-    <h3>Kampforløb</h3><ul class="feed">${lv.events.map(e => `<li><span class="num">${e.t}'</span>${e.who ? av(e.who) : ''}<span>${e.txt}</span></li>`).join('') || '<li>Kampen er ikke startet endnu.</li>'}</ul>`;
-}
-
-function activateInitialTab() {
-  document.querySelectorAll('nav button[data-tab]').forEach(b => {
-    b.setAttribute('aria-selected', b.dataset.tab === tab);
-  });
-  ['kampe', 'live', 'badges'].forEach(x => {
-    const sec = $('#tab-' + x);
-    if (sec) sec.hidden = x !== tab;
-  });
-}
-
+// =====================================================================
+// Visning
+// =====================================================================
+function tick() { renderStatus(); if (S.view === 'live' || S.view === 'kampe') render(); }
+let last = {};
+function put(id, html) { if (last[id] !== html) { const el = document.getElementById(id); if (el) el.innerHTML = html; last[id] = html; } }
 function render() {
-  $('#welcome').hidden = seen.has('welcome');
-  $('#fp').textContent = fmt(P('me').fp);
-  $('#streak').textContent = streak;
-  renderHeaderClub();
-  renderLive();
-  renderMatches();
-  renderBadges();
-  renderSlip();
+  if (!S.user) return;
+  renderHeader();
+  if (S.view === 'kampe') renderKampe();
+  if (S.view === 'live') renderLive();
+  if (S.view === 'klub') renderKlub();
+  if (S.view === 'badges') renderBadges();
+  if (S.view === 'dig') { renderRound(); renderPicks(); }
+  renderSlip(); renderSheet();
+  $('#liveDot').hidden = !liveMatches().some((m) => m.status === 'live');
+}
+function renderHeader() {
+  $('#left').textContent = pp(left());
+  if (S.round) $('#roundName').textContent = S.round.round_name || S.round.round;
+}
+function renderStatus() {
+  const sec = document.getElementById('v-' + S.view); if (!sec) return;
+  const el = sec.querySelector('.statusText'), dot = sec.querySelector('.dot'); if (!el) return;
+  const live = [...S.matches.values()].filter((m) => m.status === 'live');
+  if (S.rt !== 'SUBSCRIBED' && S.rt !== 'connecting') { dot.classList.remove('ok'); el.textContent = 'Forbindelsen er tabt, prøver igen …'; return; }
+  if (!live.length) { dot.classList.remove('ok'); el.textContent = 'Ingen kampe i gang lige nu'; return; }
+  const sec2 = Math.max(0, Math.round((Date.now() - Math.max(...live.map((m) => Date.parse(m.updated_at)))) / 1000));
+  dot.classList.toggle('ok', sec2 * 1000 < RULES.staleMs); el.textContent = `Live-odds · opdateret for ${sec2} s siden`;
+}
+// ---------- Kampe ----------
+// Andel af klubbens kald før kampen, der har valgt hvert udfald
+function shareOf(mid) {
+  const n = [0, 0, 0];
+  for (const p of S.clubPicks) for (const l of legsOf(p)) if (Number(l.match) === mid && !p.live) n[l.outcome]++;
+  const t = n[0] + n[1] + n[2]; return t ? n.map((x) => Math.round((x / t) * 100)) : null;
+}
+function renderKampe() {
+  const all = [...S.matches.values()];
+  const live = all.filter((m) => m.status === 'live');
+  const next = all.filter((m) => m.status === 'scheduled').sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+  const done = all.filter((m) => m.status === 'finished' || m.status === 'void').sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at)).slice(0, 5);
+  const r = S.round;
+  let h = `<div class="status"><span class="dot"></span><span class="statusText">Henter kampe …</span></div>
+    <div class="budget"><b class="num">${pp(left())} PP</b> tilbage af dit budget på 1.000 PP. Højst 300 PP pr. kald. ${r && r.picks ? 'Du har fået' : 'Du får'} ${RULES.bonus} PP i deltagerbonus${r && r.picks ? '' : ', når du afgiver dit første kald'}.</div>`;
+  if (live.length) h += `<button class="banner" type="button" data-go="live"><span>📡 ${live.length} ${live.length === 1 ? 'kamp er' : 'kampe er'} i gang lige nu</span><span>Gå til Live →</span></button>`;
+  h += `<h2>Kommende kampe</h2>`;
+  h += next.length ? next.map((m) => {
+    const sh = shareOf(m.id), why = lockReason(m), sel = S.slip.get(m.id);
+    const mine = S.myPicks.filter((p) => p.round === r?.round && touches(p, m.id) && (p.kind === 'single' || p.kind === 'combo'));
+    return `<article class="match"><div class="mhead"><span>${m.starts_at ? esc(kday(m.starts_at)) : 'Kommende'}</span><span></span></div>
+      <div class="teams"><span>${esc(m.home)}</span><b class="num kt">${m.starts_at ? esc(ktime(m.starts_at)) : '–'}</b><span>${esc(m.away)}</span></div>
+      ${why ? `<div class="lock">${esc(why)}</div>` : ''}
+      <div class="odds">${[0, 1, 2].map((i) => `<button class="odd${sel === i ? ' on' : ''}" type="button" data-slip="${m.id}" data-i="${i}" aria-pressed="${sel === i}" ${why ? 'disabled' : ''} aria-label="${esc(label(m, i))}, odds ${f2(m.odds[i])}">
+        <span class="ol">${LBL[i]}</span><span class="ov num">${f2(m.odds[i])}</span><span class="cs">${sh ? sh[i] + ' % valgte' : m.chance ? Math.round(m.chance[i] * 100) + ' % chance' : ''}</span></button>`).join('')}</div>
+      ${mine.length ? `<div class="mine">Dit kald: ${mine.map((p) => p.kind === 'combo' ? `kombi med ${esc(label(m, legsOf(p).find((l) => Number(l.match) === m.id).outcome))}` : `${esc(label(m, p.outcome))} · ${pp(p.stake)} PP til ${f2(p.odds)}`).join(' | ')}</div>` : ''}
+    </article>`;
+  }).join('') : `<div class="empty">Ingen kommende kampe de næste dage.</div>`;
+  if (done.length) h += `<h2>Seneste resultater</h2>` + done.map((m) => `<article class="match"><div class="mhead"><span class="end">${m.status === 'void' ? 'Udsat eller aflyst' : 'Slut'}</span><span></span></div><div class="teams"><span>${esc(m.home)}</span><b class="num">${m.status === 'void' ? '–' : `${m.gh}–${m.ga}`}</b><span>${esc(m.away)}</span></div>${m.status === 'void' ? '<div class="mine">Alle kald på kampen er annulleret, og indsatsen er givet tilbage.</div>' : ''}</article>`).join('');
+  put('v-kampe', h); renderStatus();
 }
 
-// ==========================================
-// 6. HANDLINGS-EVENTS
-// ==========================================
-document.addEventListener('click', async e => {
-  const t = e.target.closest('button');
-  if (!t) return;
+// ---------- Kuponslip ----------
+function slipOdds() { let o = 1; for (const [mid, i] of S.slip) o *= Number(M(mid).odds[i]); return o; }
+function renderSlip() {
+  for (const mid of [...S.slip.keys()]) if (!prematchOpen(M(mid))) S.slip.delete(mid);
+  const on = S.user && S.view === 'kampe' && S.slip.size > 0;
+  $('#slip').classList.toggle('show', !!on); document.body.classList.toggle('slipopen', !!on);
+  if (!on) return;
+  const raw = slipOdds(), odds = capOdds(raw), max = Math.min(RULES.max, left());
+  S.slipStake = fitStake(S.slipStake, max); const can = max >= RULES.min, n = S.slip.size;
+  put('slipTop', `<h2><span>${n === 1 ? 'Dit kald' : `Kombikald · ${n} kampe`}<button class="clr" type="button" id="clear">Ryd</button></span><span class="num">Odds ${f2(odds)}</span></h2>
+    <ul>${[...S.slip].map(([mid, i]) => { const m = M(mid); return `<li><span>${esc(label(m, i))} <span class="muted">· ${esc(m.home)}–${esc(m.away)}</span></span><span><span class="num">${f2(m.odds[i])}</span><button type="button" data-unslip="${mid}" aria-label="Fjern ${esc(m.home)}–${esc(m.away)}">×</button></span></li>`; }).join('')}</ul>
+    ${raw > 50 ? '<p class="muted" style="margin:0 0 6px;font-size:13px;font-weight:600">Samlede odds er sat til loftet på 50.</p>' : ''}
+    ${stakeRow('stake', S.slipStake, max)}`);
+  put('slipCta', `<button class="cta" type="button" id="place" ${can && n <= 5 ? '' : 'disabled'}>${!can ? 'Dit budget for runden er brugt' : n > 5 ? 'Højst 5 kampe i et kombikald' : `Afgiv kald, mulig gevinst ${pp(S.slipStake * odds)} PP`}</button>`);
+}
+$('#slipCmt').addEventListener('input', (e) => { S.slipComment = e.target.value; });
 
-  // Skift mellem dine klubber i top-bjælken
-  if (t.dataset.switchclub) {
-    await loadClubFromSupabase(t.dataset.switchclub);
-    toast('Aktiv klub: ' + currentClub.name);
-    return;
-  }
+async function placeSlip() {
+  const b = $('#place'); b.disabled = true;
+  const legs = [...S.slip].map(([match, outcome]) => ({ match, outcome }));
+  const res = legs.length === 1
+    ? await sb.rpc('place_pick', { p_match: legs[0].match, p_outcome: legs[0].outcome, p_stake: S.slipStake, p_comment: S.slipComment || null })
+    : await sb.rpc('place_combo', { p_legs: legs, p_stake: S.slipStake, p_comment: S.slipComment || null });
+  if (res.error) { toast(errText(res.error)); b.disabled = false; return; }
+  const p = one(res.data);
+  toast(legs.length === 1 ? `Kald afgivet: ${label(M(legs[0].match), legs[0].outcome)} til ${f2(p.odds)}` : `Kombikald afgivet til odds ${f2(p.odds)}`);
+  S.slip.clear(); S.slipComment = ''; $('#slipCmt').value = '';
+  await Promise.all([loadRound(), loadMyPicks(), loadClubData(), loadBadges()]); render();
+}
 
-  // Faneblade (Kampe, Live, Badges)
-  if (t.dataset.tab) {
-    tab = t.dataset.tab;
-    activateInitialTab();
-    renderSlip();
-    window.scrollTo({ top: 0 });
-    return;
-  }
-
-  // Velkomst & Konto Modals
-  if (t.dataset.intro) {
-    seen.add(t.dataset.intro);
-    try { localStorage.setItem('pral-intros', JSON.stringify([...seen])); } catch (e) {}
-    render();
-    return;
-  }
-  if (t.id === 'openAuthBtn' || t.id === 'openClubModal') {
-    renderAuthModal();
-    $('#authModal').hidden = false;
-    return;
-  }
-  if (t.id === 'closeAuthModal') {
-    $('#authModal').hidden = true;
-    return;
-  }
-  if (t.id === 'copyInviteBtn') {
-    navigator.clipboard?.writeText(currentClub.invite_code);
-    toast('Invitationskode ' + currentClub.invite_code + ' kopieret!');
-    return;
-  }
-  if (t.id === 'logoutBtn') {
-    if (sb) await sb.auth.signOut();
-    window.location.replace('login.html');
-    return;
-  }
-
-  // Live-kamp knapper
-  if (t.dataset.lvpick) { lvChoice = +t.dataset.lvpick; renderLive(); return; }
-  if (t.dataset.lvstake) { lvStake = +t.dataset.lvstake; renderLive(); return; }
-  if (t.dataset.lvspeed) { lvSetSpeed(+t.dataset.lvspeed); return; }
-  if (t.id === 'lvstart') { lvStart(); return; }
-  if (t.id === 'lvplace') { lvPlace(); return; }
-  if (t.id === 'lvnext') { li++; newLive(); lvChoice = null; renderLive(); return; }
-
-  // Kampvalg og Kupon
-  if (t.dataset.m) {
-    const m = t.dataset.m, i = +t.dataset.i;
-    if (slip[m] === i) delete slip[m]; else slip[m] = i;
-    renderMatches(); renderSlip();
-    return;
-  }
-  if (t.dataset.stake) { stake = +t.dataset.stake; renderSlip(); return; }
-  if (t.id === 'clear') { slip = {}; slipComment = ''; renderMatches(); renderSlip(); return; }
-
-  // Afgiv Kald (Gemmer direkte i den aktive klub i Supabase, så det straks ses på klub.html)
-  if (t.id === 'place') {
-    if (P('me').fp < stake) { toast('Du har ikke nok PP. Vælg en mindre indsats.'); return; }
-    const picks = Object.keys(slip).map(m => ({ m, i: slip[m] }));
-    const odds = +picks.reduce((a, p) => a * mById(p.m).o[p.i], 1).toFixed(2);
-    const commentText = slipComment.trim();
-
-    P('me').fp -= stake;
-    unlock('first');
-    if (picks.length >= 3) unlock('combo');
-
-    slip = {};
-    slipComment = '';
-    render();
-
-    if (sb && currentUser && currentClub.id) {
-      try {
-        await sb.from('calls').insert({
-          club_id: currentClub.id,
-          user_id: currentUser.id,
-          round: round,
-          picks: picks,
-          stake: stake,
-          odds: odds,
-          comment: commentText,
-          status: 'pending'
-        });
-        await sb.from('pp_transactions').insert({
-          user_id: currentUser.id,
-          amount: -stake,
-          reason: 'call_placed'
-        });
-        await syncProfileToSupabase();
-        await loadClubFromSupabase(currentClub.id);
-        toast(`Kald afgivet i ${currentClub.name}! Se det under Klubben ⚽`);
-      } catch (err) {
-        toast('Fejl ved gem til Supabase: ' + err.message);
-      }
+// ---------- Live ----------
+function liveMatches() {
+  const now = Date.now();
+  return [...S.matches.values()].filter((m) => m.status === 'live' || (m.status === 'finished' && now - Date.parse(m.updated_at) < 3 * 3600e3))
+    .sort((a, b) => (a.status === 'live' ? 0 : 1) - (b.status === 'live' ? 0 : 1) || b.minute - a.minute);
+}
+const hasCall = (mid) => S.myPicks.some((p) => p.round === S.round?.round && touches(p, mid));
+function whoOn(mid, i) {
+  const seen = new Map();
+  for (const p of S.clubPicks) for (const l of legsOf(p)) if (Number(l.match) === mid && l.outcome === i) seen.set(p.user_id, p.name);
+  return [...seen];
+}
+function myCalls(m) {
+  const rows = [];
+  const st = (s) => s === 'void' ? ['open', 'Annulleret'] : s === 'won' || s === 'right' ? ['good', m.status === 'finished' ? 'Ramte plet' : 'Står til at ramme plet'] : s === 'lost' || s === 'wrong' ? ['bad', m.status === 'finished' ? 'Ramte forbi' : 'Står til at ramme forbi'] : ['open', 'Afventer'];
+  for (const p of S.myPicks.filter((x) => x.round === S.round?.round)) {
+    if (p.kind === 'next_goal' && p.match_id === m.id) {
+      const [cls, txt] = p.status === 'void' ? ['open', 'Annulleret · indsats retur'] : p.status === 'won' ? ['good', `Ramte plet +${pp(p.payout)} PP`] : p.status === 'lost' ? ['bad', 'Ramte forbi'] : ['open', 'Afventer næste mål'];
+      rows.push(`<div class="mc ${cls}"><div><b>Næste mål: ${esc(ngLabel(m, p.outcome))}</b><small>Kaldt i ${p.minute}. min. · ${pp(p.stake)} PP · odds ${f2(p.odds)}</small></div><span class="st">${txt}</span></div>`);
+      continue;
     }
-    return;
+    let target = p, tag = p.live ? `Live-kald i ${p.minute}. min.` : 'Dit kald';
+    if (p.kind === 'follow' || p.kind === 'fade') {
+      target = S.clubPicks.find((x) => x.id === p.target_pick); if (!target) continue;
+      tag = `Du ${p.kind === 'follow' ? 'følger' : 'modspiller'} ${esc(target.name)}`;
+    }
+    if (!touches(target, m.id)) continue;
+    const legs = legsOf(target), leg = legs.find((l) => Number(l.match) === m.id);
+    let [cls, txt] = st(pickState(p));
+    if (p.status === 'won') txt = `Ramte plet +${pp(p.payout)} PP`;
+    if (p.status === 'void') { cls = 'open'; txt = 'Annulleret · indsats retur'; }
+    if (target.kind === 'combo' && p.status === 'pending' && p.kind !== 'fade') {
+      const s = legs.map(legState), r = s.filter((x) => x === 'right').length, open = s.filter((x) => x === 'open').length;
+      txt = `${r} af ${legs.length} står rigtigt${open ? ` · ${open} ikke spillet` : ''}`;
+    }
+    rows.push(`<div class="mc ${cls}"><div><b>${esc(label(m, leg.outcome))}${target.kind === 'combo' ? ' · kombi' : ''}</b><small>${tag} · ${pp(p.stake)} PP · odds ${f2(p.odds)}</small></div><span class="st">${txt}</span></div>`);
+  }
+  return rows.length ? rows.join('') : '<div class="empty">Du har ingen kald i denne kamp.</div>';
+}
+// Rundens resultat for hver i klubben, hvis kampene slutter nu
+function provisional() {
+  const per = new Map();
+  for (const p of S.clubPicks) {
+    const r = per.get(p.user_id) || { name: p.name, res: 0, n: 0, hits: 0 }; r.n++;
+    const s = p.status !== 'pending' ? p.status : pickState(p);
+    if (s === 'void') continue;
+    if (s === 'won') { r.res += (p.status === 'won' ? p.payout : Math.round(p.stake * p.odds)) - p.stake; r.hits++; }
+    else if (s === 'lost') r.res -= p.stake;
+    per.set(p.user_id, r);
+  }
+  for (const b of S.board) if (!per.has(b.user_id)) per.set(b.user_id, { name: b.name, res: 0, n: 0, hits: 0 });
+  const list = [...per].map(([uid, r]) => ({ uid, ...r, res: r.res + (r.n ? RULES.bonus : 0) })).sort((a, b) => b.res - a.res || b.hits - a.hits);
+  list.forEach((x, i) => { const old = S.ranks[x.uid]; if (old !== undefined && old !== i) S.moves[x.uid] = { dir: i < old ? 'up' : 'down', t: Date.now() }; S.ranks[x.uid] = i; });
+  return list;
+}
+function chart(m) {
+  const hst = m.history || []; if (hst.length < 2) return '<div class="empty">Grafen tegnes, når kampen er i gang.</div>';
+  const W = 300, H = 120, line = (k) => hst.map((p) => `${((p[0] / 90) * W).toFixed(1)},${(5 + (1 - p[k + 1]) * (H - 10)).toFixed(1)}`).join(' ');
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="chart" role="img" aria-label="Chancen for hvert udfald gennem kampen"><line x1="${W / 2}" y1="0" x2="${W / 2}" y2="${H}" class="half"/><polyline points="${line(1)}" class="cx"/><polyline points="${line(2)}" class="c2"/><polyline points="${line(0)}" class="c1"/></svg>
+    <div class="axis" aria-hidden="true"><span>0'</span><span>45'</span><span>90'</span></div>
+    <div class="legend"><span class="l1">${esc(m.home)}</span><span class="lx">Uafgjort</span><span class="l2">${esc(m.away)}</span></div>`;
+}
+function renderLive() {
+  const list = liveMatches();
+  if (!list.length) {
+    const nx = [...S.matches.values()].filter((m) => m.status === 'scheduled').sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at))[0];
+    put('v-live', `<div class="status"><span class="dot"></span><span class="statusText"></span></div><h2>Live</h2><div class="empty">Ingen kampe i gang lige nu.${nx ? `<br>Næste kamp: ${esc(nx.home)} – ${esc(nx.away)}, ${esc(kickoff(nx.starts_at))}.` : ''}</div>`);
+    renderStatus(); return;
+  }
+  if (!list.find((m) => m.id === S.liveSel)) { S.liveSel = list[0].id; S.liveChoice = null; S.ngChoice = null; }
+  const m = M(S.liveSel), why = lockReason(m), isLive = m.status === 'live';
+  const prev = m.prev_odds || m.odds, ch = m.chance || [0, 0, 0];
+  const arrow = (i) => (!isLive ? '' : Number(m.odds[i]) > Number(prev[i]) + 0.004 ? ' <span class="up" aria-label="steget">▲</span>' : Number(m.odds[i]) < Number(prev[i]) - 0.004 ? ' <span class="down" aria-label="faldet">▼</span>' : '');
+  const max = Math.min(RULES.max, left()); S.liveStake = fitStake(S.liveStake, max); const can = max >= RULES.min;
+  const cards = list.map((x) => `<button class="lcard${x.id === m.id ? ' sel' : ''}" type="button" role="tab" aria-selected="${x.id === m.id}" data-lvsel="${x.id}">
+      <span class="lt">${x.status === 'live' ? `<i class="ld" aria-hidden="true"></i>${x.minute}'` : 'Slut'}${hasCall(x.id) ? '<i class="cdot" title="Du har et kald i kampen"></i><span class="vh">, du har et kald</span>' : ''}</span>
+      <span class="lr"><span>${esc(x.home)}</span><b class="num">${x.gh}</b></span><span class="lr"><span>${esc(x.away)}</span><b class="num">${x.ga}</b></span></button>`).join('');
+  let ctl = '';
+  if (isLive) {
+    const ng = m.ng_odds;
+    ctl = `${stakeRow('lvstake', S.liveStake, max)}
+      <button class="cta" type="button" id="lvplace" ${S.liveChoice === null || why || !can ? 'disabled' : ''}>${!can ? 'Dit budget for runden er brugt' : S.liveChoice === null ? 'Vælg 1, X eller 2' : `Kald ${esc(label(m, S.liveChoice))} til ${f2(m.odds[S.liveChoice])}, mulig gevinst ${pp(S.liveStake * m.odds[S.liveChoice])} PP`}</button>
+      ${ng ? `<div class="ngbox"><h4>Næste mål</h4><p>Afgøres, når målet har stået i 2 minutter, eller ved slutfløjt. Samme indsats som ovenfor.</p>
+        <div class="odds">${[0, 1, 2].map((i) => `<button class="odd${S.ngChoice === i ? ' on' : ''}" type="button" data-ngpick="${i}" aria-pressed="${S.ngChoice === i}" ${why ? 'disabled' : ''} aria-label="Næste mål: ${esc(ngLabel(m, i))}, odds ${f2(ng[i])}"><span class="ol">${esc(ngLabel(m, i))}</span><span class="ov num">${f2(ng[i])}</span></button>`).join('')}</div>
+        <button class="cta ghost" type="button" id="ngplace" ${S.ngChoice === null || why || !can ? 'disabled' : ''}>${S.ngChoice === null ? 'Vælg, hvem der scorer næste mål' : `Kald næste mål: ${esc(ngLabel(m, S.ngChoice))} til ${f2(ng[S.ngChoice])}, mulig gevinst ${pp(S.liveStake * ng[S.ngChoice])} PP`}</button></div>` : ''}`;
+  }
+  const friends = S.clubPicks.filter((p) => p.live && p.match_id === m.id && p.user_id !== S.user.id && p.kind === 'single')
+    .map((p) => ({ minute: p.minute, who: p, text: `${p.name} lagde et kald på ${label(m, p.outcome)} til ${f2(p.odds)}` }));
+  const feed = [...(m.feed || []), ...friends].sort((a, b) => b.minute - a.minute)
+    .map((e) => `<li><span class="num">${e.minute}'</span>${e.who ? av(e.who.user_id, e.who.name) : ''}<span>${esc(e.text)}</span></li>`).join('');
+  const prov = S.club ? provisional() : [];
+  put('v-live', `<div class="status"><span class="dot"></span><span class="statusText"></span></div>
+    <h3 style="margin-top:4px">Live nu</h3><div class="lnow" role="tablist" aria-label="Kampe live">${cards}</div>
+    <div class="livecard">
+      <div class="lvtop"><span class="blive${isLive ? ' on' : ''}">${isLive ? 'LIVE' : 'SLUT'}</span><span class="num clock">${isLive ? m.minute + "'" : "90'"}</span></div>
+      <div class="score"><span>${esc(m.home)}</span><b class="num">${m.gh} – ${m.ga}</b><span>${esc(m.away)}</span></div>
+      ${isLive && why ? `<div class="lockbar" role="status">🔒 ${esc(why)}</div>` : ''}
+      ${isLive ? '<p class="muted" style="margin:0 0 10px;font-size:12.5px;font-weight:600">Et live-kald lagt mindre end 40 sekunder før et mål eller rødt kort annulleres, og du får indsatsen tilbage.</p>' : ''}
+      ${!isLive ? `<div class="result">${m.gh > m.ga ? esc(m.home) + ' vandt' : m.ga > m.gh ? esc(m.away) + ' vandt' : 'Uafgjort'}</div>` : ''}
+      <div class="odds"${isLive ? '' : ' hidden'}>${[0, 1, 2].map((i) => { const ids = whoOn(m.id, i); return `<div class="ocell"><button class="odd${S.liveChoice === i ? ' on' : ''}" type="button" data-lvpick="${i}" aria-pressed="${S.liveChoice === i}" ${why ? 'disabled' : ''} aria-label="${esc(label(m, i))}, odds ${f2(m.odds[i])}"><span class="ol">${LBL[i]}${arrow(i)}</span><span class="ov num">${f2(m.odds[i])}</span><span class="cs">${Math.round(ch[i] * 100)} % chance</span></button><div class="whoon"${ids.length ? ` aria-label="Kaldt af ${esc(ids.map((x) => x[1]).join(', '))}"` : ''}>${ids.map(([uid, n]) => av(uid, n, true)).join('')}</div></div>`; }).join('')}</div>
+      ${ctl}
+    </div>
+    <h3>Dine kald i kampen</h3>${myCalls(m)}
+    ${prov.length ? `<h3>Hvis kampene slutter nu</h3><table>${prov.map((x, i) => { const mv = S.moves[x.uid], showMv = mv && Date.now() - mv.t < 8000; return `<tr class="${x.uid === S.user.id ? 'me' : ''}"><td class="pos">${i + 1}</td><td>${nm(x.uid, x.name)}</td><td class="r"><span class="num">${signed(x.res)}</span> PP${showMv ? ` <span class="mv ${mv.dir}">${mv.dir === 'up' ? '▲' : '▼'}</span>` : ''}</td></tr>`; }).join('')}</table>
+      <p class="lbnote">Rundens resultat for hver i klubben ud fra stillingerne lige nu. Kald på kampe, der ikke er spillet endnu, tæller ikke med.</p>` : ''}
+    <h3>Chancen gennem kampen</h3>${chart(m)}
+    <h3>Kampforløb</h3><ul class="feed">${feed || '<li>Ingen hændelser endnu.</li>'}</ul>`);
+  renderStatus();
+}
+async function placeLive(kind) {
+  const m = M(S.liveSel), choice = kind === 'ng' ? S.ngChoice : S.liveChoice; if (choice === null) return;
+  const res = kind === 'ng'
+    ? await sb.rpc('place_next_goal', { p_match: m.id, p_side: choice, p_stake: S.liveStake })
+    : await sb.rpc('place_pick', { p_match: m.id, p_outcome: choice, p_stake: S.liveStake, p_comment: null });
+  if (res.error) return toast(errText(res.error));
+  const p = one(res.data);
+  toast(kind === 'ng' ? `Kald på næste mål: ${ngLabel(m, choice)} til ${f2(p.odds)}` : `Live-kald afgivet: ${label(m, choice)} til ${f2(p.odds)}`);
+  S.liveChoice = null; S.ngChoice = null;
+  await Promise.all([loadRound(), loadMyPicks(), loadClubData(), loadBadges()]); render();
+}
+function onGoal(m, before) {
+  if (!(S.view === 'live' || hasCall(m.id))) return;
+  const el = $('#goal'); el.innerHTML = `<b>MÅL!</b><span>${esc(m.home)} ${m.gh}–${m.ga} ${esc(m.away)}</span>`;
+  el.hidden = false; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  clearTimeout(onGoal.t); onGoal.t = setTimeout(() => { el.hidden = true; }, 1800);
+}
+
+// ---------- Klubben ----------
+const awardText = (a) => a.award === 'profet' ? { ic: '🔮', t: 'Ugens profet', x: `${a.name} ramte plet på odds ${f2(a.odds)} og vandt ${pp(a.payout)} PP` }
+  : a.award === 'broler' ? { ic: '🙈', t: 'Ugens største brøler', x: `${a.name} ramte forbi på odds ${f2(a.odds)}` }
+  : { ic: '👑', t: 'Ugens konge', x: `${a.name} fik rundens bedste resultat: ${signed(a.result)} PP` };
+function kupHTML(p) {
+  const mineP = p.user_id === S.user.id, legs = legsOf(p);
+  const chip = p.status === 'void' ? '<span class="chip">Annulleret · indsats retur</span>' : p.status === 'won' ? `<span class="chip won">Ramte plet +${pp(p.payout)} PP</span>` : p.status === 'lost' ? '<span class="chip lost">Forbi</span>' : '<span class="chip">Afventer</span>';
+  const items = legs.map((l) => { const m = M(l.match);
+    const ls = l.status && l.status !== 'pending' ? l.status : p.kind === 'single' && p.status !== 'pending' ? p.status : m && m.status === 'finished' ? (outcomeOf(m) === l.outcome ? 'won' : 'lost') : null;
+    const s = ls === 'won' ? 'hit' : ls === 'lost' || ls === 'void' ? 'miss' : '';
+    return `<li class="${s}"><b>${esc(label(m, l.outcome))}</b><span class="o num">${f2(l.odds)}</span>${ls === 'void' ? '<span>udgår</span>' : ''}<small>${m ? esc(m.home) + ' – ' + esc(m.away) : 'Kamp ' + l.match}</small></li>`; }).join('');
+  const open = p.status === 'pending' && legs.every((l) => prematchOpen(M(l.match)));
+  const tot = p.followers + p.faders || 1;
+  let social = '';
+  if (!mineP) {
+    if (p.my_reaction) social = `<div class="mine">Du ${p.my_reaction === 'follow' ? 'følger' : 'modspiller'} ${esc(p.name)}</div>`;
+    else if (open && currentOdds(p)) {
+      const o = currentOdds(p);
+      social = `<div class="acts"><button type="button" data-react="follow" data-p="${p.id}" ${open && o ? '' : 'disabled'}>Følg<small>${o ? 'odds ' + f2(o) : 'Lukket'}</small></button>
+        <button type="button" data-react="fade" data-p="${p.id}" ${open && o ? '' : 'disabled'}>Modspil ${esc(p.name)}<small>${o ? 'odds ' + f2(fadeOdds(o)) : 'Lukket'}</small></button></div>`;
+    }
+  }
+  return `<div class="kup"><div class="top"><b>${nm(p.user_id, p.name)}</b>${chip}</div><ul>${items}</ul>
+    <div class="meta"><span>Indsats ${pp(p.stake)} PP</span><span>Odds <span class="num">${f2(p.odds)}</span></span></div>
+    ${p.comment ? `<p class="cmt">${esc(p.comment)}</p>` : ''}
+    <div class="tug" aria-hidden="true"><div class="f" style="width:${(p.followers / tot) * 100}%"></div><div class="x" style="width:${(p.faders / tot) * 100}%"></div></div>
+    <div class="tugl"><span>${p.followers} følger</span><span>${p.faders} modspiller</span></div>${social}</div>`;
+}
+function currentOdds(p) {
+  let o = 1; for (const l of legsOf(p)) { const m = M(l.match); if (!prematchOpen(m)) return null; o *= Number(m.odds[l.outcome]); }
+  return capOdds(o);
+}
+function renderKlub() {
+  if (!S.clubs.length) {
+    put('klubDyn', `<h2>Klubben</h2><div class="empty">Du er ikke med i en klub endnu. Lav en, eller få en kode af en ven.</div>`);
+    $('#klubMore').open = true; $('#klubMoreSum').textContent = 'Kom i gang'; return;
+  }
+  const c = S.clubs.find((x) => x.id === S.club) || S.clubs[0];
+  const slips = S.clubPicks.filter((p) => p.kind === 'single' || p.kind === 'combo');
+  const pending = slips.filter((p) => p.status === 'pending' && !p.live).sort((a, b) => a.odds - b.odds);
+  let top = '';
+  if (S.awards) {
+    top += `<div class="yellow"><h2>Kåringer · ${esc(S.awards.name || '')}${S.awards.final ? '' : ' indtil nu'}</h2>${S.awards.rows.map((a) => { const r = awardText(a); return `<div class="award"><span class="ic" aria-hidden="true">${r.ic}</span><div><b>${r.t}</b><span>${esc(r.x)}</span></div></div>`; }).join('')}
+      <button class="cta ghost" type="button" id="share">Del kåringerne som billede</button></div>`;
+  }
+  if (pending.length >= 2) {
+    const lo = pending[0], hi = pending[pending.length - 1];
+    top += `<div class="yellow"><h2>Ugens odds før fløjtet</h2><div class="pair">
+      <div><div class="k">Mest sandsynlig</div><div class="who">${nm(lo.user_id, lo.name)}</div><div class="big num">${f2(lo.odds)}</div><div class="s">ca. ${Math.round(100 / lo.odds)} % chance</div></div>
+      <div><div class="k">Mindst sandsynlig</div><div class="who">${nm(hi.user_id, hi.name)}</div><div class="big num">${f2(hi.odds)}</div><div class="s">ca. ${Math.max(1, Math.round(100 / hi.odds))} % chance</div></div></div></div>`;
+  }
+  const board = S.board.map((r, i) => `<tr class="${r.user_id === S.user.id ? 'me' : ''}"><td class="pos">${i + 1}</td><td>${nm(r.user_id, r.name)}<small>${r.picks} kald · ${r.hits} ramte plet</small></td><td class="r"><span class="num">${signed(r.result)}</span> PP</td></tr>`).join('');
+  const rivals = S.rivals.map((r) => `<tr><td>${nm(r.user_id, r.name)}</td><td class="muted" style="font-size:14px">${r.wins + r.losses ? (r.wins > r.losses ? 'Du fører' : r.wins < r.losses ? esc(r.name) + ' fører' : 'Lige') : 'Ingen dueller endnu'}</td><td class="r rec"><span class="${r.wins ? 'w' : 'z'}">${r.wins}</span>–<span class="${r.losses ? 'l' : 'z'}">${r.losses}</span></td></tr>`).join('');
+  $('#klubMoreSum').textContent = 'Flere klubber';
+  put('klubDyn', `${S.clubs.length > 1 ? `<div class="clubs">${S.clubs.map((x) => `<button type="button" data-c="${x.id}" aria-pressed="${x.id === c.id}">${esc(x.name)}</button>`).join('')}</div>` : `<h2 style="margin-top:4px">${esc(c.name)}</h2>`}
+    <div class="invite"><div><small class="muted" style="font-weight:700">Klubkode</small><div class="code">${esc(c.code)}</div></div><button class="btn ghost" type="button" id="b-invite">Inviter venner</button></div>
+    ${top}
+    <h3>Ranglister</h3><div class="seg" role="group" aria-label="Rangliste"><button type="button" data-scope="week" aria-pressed="${S.scope === 'week'}">Ugen</button><button type="button" data-scope="season" aria-pressed="${S.scope === 'season'}">Sæsonen</button></div>
+    <table>${board || '<tr><td class="muted">Henter …</td></tr>'}</table>
+    <p class="lbnote">${S.scope === 'week' ? 'Rundens resultat = gevinster − indsatser + 50 PP i deltagerbonus. Kald, der ikke er afgjort, tæller først med, når de er afgjort.' : 'Summen af alle rundens resultater.'}</p>
+    <h3>Rundens kald</h3>${slips.length ? [...slips].sort((a, b) => (a.status === 'pending' ? 0 : 1) - (b.status === 'pending' ? 0 : 1) || a.odds - b.odds).map(kupHTML).join('') : '<div class="empty">Ingen i klubben har afgivet kald i denne runde endnu.</div>'}
+    ${S.rivals.length ? `<h3>Rivaler</h3><table>${rivals}</table><p class="lbnote">Vundne mod tabte dueller, når I modspiller hinanden.</p>` : ''}`);
+}
+
+// Del kåringerne som billede
+async function shareAwards() {
+  const c = S.clubs.find((x) => x.id === S.club); if (!S.awards || !c) return;
+  const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1350; const x = cv.getContext('2d');
+  x.fillStyle = '#F4F4F1'; x.fillRect(0, 0, 1080, 1350);
+  x.fillStyle = '#111318'; x.fillRect(0, 0, 1080, 220);
+  x.fillStyle = '#FFFFFF'; x.font = '900 110px Archivo, system-ui, sans-serif'; x.fillText('Pral', 70, 150);
+  x.fillStyle = '#FF5A4E'; x.font = '800 40px Archivo, system-ui, sans-serif'; x.fillText(c.name, 380, 145);
+  x.fillStyle = '#111318'; x.font = '900 62px Archivo, system-ui, sans-serif'; x.fillText('Ugens kåringer', 70, 330);
+  x.font = '700 34px Archivo, system-ui, sans-serif'; x.fillStyle = '#5B5F6B'; x.fillText(S.awards.name || S.awards.round, 70, 385);
+  let y = 460;
+  for (const a of S.awards.rows) {
+    const r = awardText(a);
+    x.fillStyle = '#FFFFFF'; x.strokeStyle = '#111318'; x.lineWidth = 5; x.beginPath(); if (x.roundRect) x.roundRect(70, y, 940, 230, 24); else x.rect(70, y, 940, 230); x.fill(); x.stroke();
+    x.font = '90px system-ui, sans-serif'; x.fillText(r.ic, 100, y + 135);
+    x.fillStyle = '#111318'; x.font = '900 46px Archivo, system-ui, sans-serif'; x.fillText(r.t, 230, y + 85);
+    x.font = '600 34px Archivo, system-ui, sans-serif'; wrap(x, r.x, 230, y + 140, 740, 44);
+    y += 270;
+  }
+  x.fillStyle = '#5B5F6B'; x.font = '600 28px Archivo, system-ui, sans-serif'; x.fillText('Pralepoint kan ikke købes eller veksles til penge.', 70, 1300);
+  const blob = await new Promise((r) => cv.toBlob(r, 'image/png'));
+  const file = new File([blob], 'pral-kaaringer.png', { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Ugens kåringer' }); return; } } catch { return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+function wrap(x, text, X, Y, w, lh) { let line = ''; for (const word of text.split(' ')) { const t = line ? line + ' ' + word : word; if (x.measureText(t).width > w && line) { x.fillText(line, X, Y); Y += lh; line = word; } else line = t; } x.fillText(line, X, Y); }
+
+// ---------- Badges ----------
+function renderBadges() {
+  put('v-badges', `<h2>Badges</h2><p class="intro">Du har ${S.badges.size} af ${BADGES.length}. Badges kommer af sig selv, når du gør det, der står på dem.</p>
+    <div class="badges">${BADGES.map((b) => `<div class="badge ${S.badges.has(b.id) ? 'got' : 'locked'}"><span class="ic" aria-hidden="true">${b.ic}</span><b>${b.n}</b><span>${b.d}</span>${S.badges.has(b.id) ? '' : '<span class="vh">, ikke opnået</span>'}</div>`).join('')}</div>`);
+}
+
+// ---------- Dig: runde og egne kald ----------
+function renderRound() {
+  const r = S.round; if (!r) return;
+  put('roundCard', `<div class="sum"><div><b class="num">${pp(r.spent)}</b><small>Indsat</small></div><div><b class="num">${pp(r.won)}</b><small>Gevinst</small></div><div><b class="num">${pp(r.bonus)}</b><small>Bonus</small></div><div class="res"><b class="num">${signed(r.result)}</b><small>Resultat</small></div></div>
+    <p class="muted" style="margin:10px 0 0;font-size:13px">Resultat = gevinster − indsatser + 50 PP i deltagerbonus. Ubrugte PP forsvinder, når runden slutter.</p>`);
+}
+function pickTitle(p) {
+  const m = M(p.match_id);
+  if (p.kind === 'single') return `<b>${esc(label(m, p.outcome))}</b> i ${m ? esc(m.home) + ' – ' + esc(m.away) : 'kamp'}${p.live ? `, live ${p.minute}'` : ''}`;
+  if (p.kind === 'next_goal') return `<b>Næste mål: ${esc(m ? ngLabel(m, p.outcome) : LBL[p.outcome])}</b>${m ? ' i ' + esc(m.home) + ' – ' + esc(m.away) : ''}`;
+  if (p.kind === 'combo') return `<b>Kombikald</b> · ${legsOf(p).map((l) => esc(label(M(l.match), l.outcome))).join(', ')}`;
+  const t = S.clubPicks.find((x) => x.id === p.target_pick);
+  return `<b>${p.kind === 'follow' ? 'Følger' : 'Modspiller'}</b> ${t ? esc(t.name) + 's kald' : 'en vens kald'}`;
+}
+function renderPicks() {
+  const cur = S.round?.round;
+  const row = (p) => { const chip = p.status === 'void' ? '<span class="chip">Annulleret · indsats retur</span>' : p.status === 'won' ? `<span class="chip won">+${pp(p.payout)} PP</span>` : p.status === 'lost' ? '<span class="chip lost">Forbi</span>' : '<span class="chip">Afventer</span>';
+    return `<div class="pick"><span>${pickTitle(p)}<br><span class="muted">${pp(p.stake)} PP til odds ${f2(p.odds)}</span></span>${chip}</div>`; };
+  const now = S.myPicks.filter((p) => p.round === cur), old = S.myPicks.filter((p) => p.round !== cur);
+  put('picks', (now.length ? now.map(row).join('') : '<div class="empty">Ingen kald i denne runde endnu.</div>') + (old.length ? '<h2>Tidligere runder</h2>' + old.map(row).join('') : ''));
+}
+
+// =====================================================================
+// Ark: følg og modspil
+// =====================================================================
+function openReact(pid, kind) {
+  const p = S.clubPicks.find((x) => x.id === pid); if (!p) return;
+  S.sheet = { pid, kind }; S.sheetStake = fitStake(100, Math.min(RULES.max, left()));
+  $('#scrim').hidden = false; $('#sheet').hidden = false; renderSheet(); $('#b-confirm').focus();
+}
+function closeSheet() { S.sheet = null; $('#scrim').hidden = true; $('#sheet').hidden = true; }
+function renderSheet() {
+  if (!S.sheet) return;
+  const p = S.clubPicks.find((x) => x.id === S.sheet.pid); if (!p) return closeSheet();
+  const base = currentOdds(p), odds = base ? (S.sheet.kind === 'fade' ? fadeOdds(base) : base) : null;
+  const max = Math.min(RULES.max, left()); S.sheetStake = fitStake(S.sheetStake, max);
+  $('#sheetTitle').textContent = S.sheet.kind === 'follow' ? `Følg ${p.name}` : `Modspil ${p.name}`;
+  $('#sheetSub').textContent = (S.sheet.kind === 'follow' ? 'Du vinder, hvis kaldet rammer plet: ' : 'Du vinder, hvis kaldet rammer forbi: ') + legsOf(p).map((l) => label(M(l.match), l.outcome)).join(', ');
+  $('#sheetOdds').textContent = odds ? f2(odds) : '–';
+  $('#sheetLock').hidden = !!odds; $('#sheetLock').textContent = odds ? '' : 'Kampen er gået i gang';
+  $('#sheetStakes').innerHTML = stakeRow('sst', S.sheetStake, max).replace(/^<div class="stakes"[^>]*>|<\/div>$/g, '');
+  $('#sheetWin').innerHTML = odds ? `Vinder du, får du <b class="num">${pp(S.sheetStake * odds)} PP</b>. Du har ${pp(left())} PP tilbage.` : '';
+  $('#b-confirm').disabled = !odds || max < RULES.min; $('#b-confirm').textContent = S.sheet.kind === 'follow' ? 'Følg kaldet' : 'Modspil kaldet';
+}
+$('#scrim').addEventListener('click', closeSheet);
+$('#b-cancel').addEventListener('click', closeSheet);
+$('#sheetStakes').addEventListener('click', (e) => { const b = e.target.closest('button[data-sst]'); if (b && !b.disabled) { S.sheetStake = Number(b.dataset.sst); renderSheet(); } });
+$('#b-confirm').addEventListener('click', async () => {
+  const s = S.sheet; if (!s) return; $('#b-confirm').disabled = true;
+  const { data, error } = await sb.rpc('react_pick', { p_target: s.pid, p_kind: s.kind, p_stake: S.sheetStake });
+  if (error) { toast(errText(error)); renderSheet(); return; }
+  closeSheet(); toast(`${s.kind === 'follow' ? 'Du følger kaldet' : 'Du modspiller kaldet'} til odds ${f2(one(data).odds)}`);
+  await Promise.all([loadRound(), loadMyPicks(), loadClubData()]); render();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (S.sheet) closeSheet(); if (!$('#welcome').hidden) closeWelcome(); } });
+
+// =====================================================================
+// Klik
+// =====================================================================
+document.addEventListener('click', async (e) => {
+  const t = e.target.closest('button'); if (!t || t.disabled) return;
+  const d = t.dataset;
+  if (d.go) return go(d.go);
+  if (d.slip !== undefined) {
+    const mid = Number(d.slip), i = Number(d.i);
+    if (S.slip.get(mid) === i) S.slip.delete(mid);
+    else { if (!S.slip.has(mid) && S.slip.size >= 5) return toast('Højst 5 kampe i et kombikald'); S.slip.set(mid, i); }
+    return render();
+  }
+  if (d.unslip) { S.slip.delete(Number(d.unslip)); return render(); }
+  if (t.id === 'clear') { S.slip.clear(); return render(); }
+  if (d.stake) { S.slipStake = Number(d.stake); return render(); }
+  if (t.id === 'place') return placeSlip();
+  if (d.lvsel) { S.liveSel = Number(d.lvsel); S.liveChoice = null; S.ngChoice = null; return render(); }
+  if (d.lvpick !== undefined) { const i = Number(d.lvpick); S.liveChoice = S.liveChoice === i ? null : i; return render(); }
+  if (d.ngpick !== undefined) { const i = Number(d.ngpick); S.ngChoice = S.ngChoice === i ? null : i; return render(); }
+  if (d.lvstake) { S.liveStake = Number(d.lvstake); return render(); }
+  if (t.id === 'lvplace') return placeLive('1x2');
+  if (t.id === 'ngplace') return placeLive('ng');
+  if (d.react) return openReact(Number(d.p), d.react);
+  if (d.c) { S.club = d.c; store.set('pral-klub', d.c); S.clubPicks = []; render(); return loadClubData(); }
+  if (d.scope) { S.scope = d.scope; render(); return loadClubData(); }
+  if (t.id === 'share') return shareAwards();
+  if (t.id === 'b-invite') {
+    const c = S.clubs.find((x) => x.id === S.club); const url = `${location.origin}${location.pathname}?klub=${c.code}`;
+    const text = `Kom med i ${c.name} på Pral og vis, hvem der kan læse fodbold:`;
+    try { if (navigator.share) await navigator.share({ title: 'Pral', text, url }); else { await navigator.clipboard.writeText(`${text} ${url}`); toast('Invitationslinket er kopieret'); } } catch { /* lukket */ }
   }
 });
+document.addEventListener('submit', async (e) => {
+  if (e.target.id === 'f-join') {
+    e.preventDefault(); const code = $('#joinCode').value.trim(); if (!code) return toast('Skriv klubkoden');
+    const { data, error } = await sb.rpc('join_club', { p_code: code }); if (error) return toast(errText(error));
+    const c = one(data); S.club = c.id; store.set('pral-klub', c.id); toast(`Du er med i ${c.name}`); await loadClubs(); await Promise.all([loadClubData(), loadBadges()]); render();
+  }
+  if (e.target.id === 'f-create') {
+    e.preventDefault(); const name = $('#clubName').value.trim(); if (name.length < 2) return toast('Giv klubben et navn på mindst 2 tegn');
+    const { data, error } = await sb.rpc('create_club', { p_name: name }); if (error) return toast(errText(error));
+    const c = one(data); S.club = c.id; store.set('pral-klub', c.id); toast(`${c.name} er klar. Inviter vennerne med koden ${c.code}`); await loadClubs(); await Promise.all([loadClubData(), loadBadges()]); render();
+  }
+});
+$('#f-profile').addEventListener('submit', async (e) => {
+  e.preventDefault(); const name = $('#myName').value.trim(); if (!name) return toast('Skriv et navn');
+  const { error } = await sb.from('profiles').update({ name }).eq('id', S.user.id); if (error) return toast(errText(error));
+  $('#meBtn').textContent = name[0].toUpperCase(); toast('Navnet er gemt'); loadClubData();
+});
+$('#b-logout').addEventListener('click', () => sb.auth.signOut());
+$('#wallet').addEventListener('click', () => go('dig'));
+$('#meBtn').addEventListener('click', () => go('dig'));
+function closeWelcome() { $('#welcome').hidden = true; store.set('pral-velkommen', '1'); }
+$('#b-welcome-ok').addEventListener('click', closeWelcome);
+$('#b-welcome').addEventListener('click', () => { $('#welcome').hidden = false; });
 
-newLive();
-initSupabase();
+// ---------- Faner ----------
+function go(view) {
+  S.view = view;
+  for (const b of document.querySelectorAll('#tabs button')) { if (b.dataset.v === view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }
+  show('v-' + view); last = {}; render(); window.scrollTo(0, 0);
+}
+$('#tabs').addEventListener('click', (e) => { const b = e.target.closest('button[data-v]'); if (b) go(b.dataset.v); });
+
+// ---------- Konfetti ----------
+function confetti() {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = $('#confetti'), cs = getComputedStyle(document.documentElement); cv.hidden = false;
+  const W = cv.width = innerWidth, H = cv.height = innerHeight, x = cv.getContext('2d');
+  const cols = [cs.getPropertyValue('--accent').trim(), cs.getPropertyValue('--ink').trim(), '#5B8DEF', '#F2B84B', '#4CB98A'];
+  const ps = Array.from({ length: 140 }, () => ({ x: W / 2 + (Math.random() - 0.5) * W * 0.3, y: H * 0.35, vx: (Math.random() - 0.5) * 14, vy: -Math.random() * 14 - 4, s: 5 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, c: cols[Math.floor(Math.random() * cols.length)] }));
+  const t0 = performance.now();
+  (function f(t) { x.clearRect(0, 0, W, H); const k = (t - t0) / 1800;
+    ps.forEach((p) => { p.vy += 0.45; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.r += p.vr; x.save(); x.globalAlpha = Math.max(0, 1 - k); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * 0.66); x.restore(); });
+    if (k < 1) requestAnimationFrame(f); else { x.clearRect(0, 0, W, H); cv.hidden = true; } })(t0);
+}
+
+boot();
 </script>
 </body>
 </html>
