@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Pral — Klub Admin</title>
+  <title>Pral — Klub Admin & Dommerbord</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,17 +12,20 @@
       color-scheme: light;
       --bg: #F4F4F1; --surface: #FFFFFF; --ink: #111318; --muted: #5B5F6B; --line: #D9DAD5; --edge: #111318;
       --pitch: #111318; --onpitch: #FFFFFF; --card: #FF5A4E; --oncard: #111318; --red: #E0312B; --onred: #FFFFFF; --soft: #EFEFEA;
-      --head: #111318; --headink: #FFFFFF; --panel: #FFE6E2; --panelink: #111318; --paneledge: #111318;
-      --fill: #FF5A4E; --fillink: #111318; --filledge: #111318; --hbg: #111318; --hink: #FFFFFF;
+      --head: #111318; --headink: #FFFFFF; --tab: #24272F; --tabink: #FFFFFF; --tabedge: #3A3E48; --tabon: #FF5A4E; --tabonink: #111318;
+      --panel: #FFE6E2; --panelink: #111318; --paneledge: #111318;
+      --wallet: #FF5A4E; --walletink: #111318; --fill: #FF5A4E; --fillink: #111318; --filledge: #111318; --hbg: #111318; --hink: #FFFFFF;
       --disp: "Archivo Black", "Archivo", system-ui, sans-serif;
       --body: "Archivo", system-ui, -apple-system, Segoe UI, sans-serif;
+      --navh: 66px;
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
         --bg: #0F1014; --surface: #191B21; --ink: #F3F3EF; --muted: #A3A6B0; --line: #2B2E37; --edge: #8E929C;
         --pitch: #FF6A5E; --onpitch: #111318; --card: #FF6A5E; --oncard: #111318; --red: #FF5A54; --onred: #111318; --soft: #22252D;
-        --head: #15171C; --headink: #FFFFFF; --panel: #2A1B1A; --panelink: #F3F3EF; --paneledge: #FF6A5E;
-        --fill: #FF6A5E; --fillink: #111318; --filledge: #FF6A5E; --hbg: #22252D; --hink: #F3F3EF;
+        --head: #15171C; --headink: #FFFFFF; --tab: #22252D; --tabink: #F3F3EF; --tabedge: #3A3E48; --tabon: #FF6A5E; --tabonink: #111318;
+        --panel: #2A1B1A; --panelink: #F3F3EF; --paneledge: #FF6A5E;
+        --wallet: #FF6A5E; --walletink: #111318; --fill: #FF6A5E; --fillink: #111318; --filledge: #FF6A5E; --hbg: #22252D; --hink: #F3F3EF;
         color-scheme: dark;
       }
     }
@@ -38,16 +41,34 @@
     .num { font-family: "Archivo", system-ui, sans-serif; font-weight: 900; font-variant-numeric: tabular-nums; }
 
     header { position: sticky; top: 0; z-index: 5; background: var(--head); color: var(--headink); border-bottom: 3px solid var(--edge); }
-    .bar { max-width: 560px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .bar { max-width: 560px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .brand { font: 400 28px/1 var(--disp); color: inherit; text-decoration: none; }
     .brand .dot { display: inline-block; width: .26em; height: .26em; border-radius: 50%; background: var(--card); margin-left: .07em; }
-    .back-btn {
-      background: var(--card); color: var(--oncard); border: 2px solid var(--edge);
-      border-radius: 8px; padding: 6px 12px; font: 800 13px/1 var(--body);
+    .brand small { display: block; font: 700 12px/1.3 var(--body); opacity: .75; margin-top: 3px; }
+    .walletwrap { display: flex; gap: 8px; align-items: center; }
+    .wallet {
+      display: flex; align-items: baseline; gap: 4px;
+      background: var(--wallet); color: var(--walletink);
+      border-radius: 8px; padding: 6px 11px; transform: rotate(-2deg);
+      box-shadow: 3px 3px 0 var(--edge); text-decoration: none;
+    }
+    .wallet .num { font-size: 20px; line-height: 1; }
+    .minside-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--tab); color: var(--tabink);
+      border: 2px solid var(--tabedge); border-radius: 8px;
+      padding: 6px 10px; font: 800 12.5px/1 var(--body);
       text-decoration: none; box-shadow: 2px 2px 0 var(--edge);
     }
 
-    main { max-width: 560px; margin: 0 auto; padding: 18px 16px 80px; }
+    main { max-width: 560px; margin: 0 auto; padding: 16px 16px calc(var(--navh) + 40px); }
+
+    .top-nav-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
+    .back-btn {
+      background: var(--surface); color: var(--ink); border: 2px solid var(--edge);
+      border-radius: 8px; padding: 6px 12px; font: 800 13px/1 var(--body);
+      text-decoration: none; box-shadow: 2px 2px 0 var(--edge);
+    }
 
     h3 {
       font: 400 20px/1.1 var(--disp); margin: 24px 0 10px;
@@ -60,6 +81,9 @@
       border-radius: 14px; padding: 16px; margin-bottom: 16px;
       box-shadow: 4px 4px 0 var(--edge);
     }
+    .panel.demo-box {
+      background: var(--panel); color: var(--panelink); border-color: var(--paneledge);
+    }
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; color: var(--muted); }
     .field input, .field select {
@@ -67,6 +91,7 @@
       border-radius: 10px; background: var(--soft); font-weight: 700;
     }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 
     /* Feature Toggles */
     .toggle-row {
@@ -123,9 +148,21 @@
       cursor: pointer; box-shadow: 4px 4px 0 var(--edge); margin-top: 8px;
     }
     .cta.ghost { background: var(--surface); color: var(--ink); font-family: var(--body); font-weight: 800; font-size: 15px; }
+    .cta.accent { background: var(--card); color: var(--oncard); }
+
+    nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 7; background: var(--head); color: var(--headink); border-top: 3px solid var(--edge); padding: 6px 8px; }
+    nav .in { max-width: 560px; margin: 0 auto; display: flex; gap: 6px; }
+    nav a {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      color: inherit; text-decoration: none; border: 2px solid transparent;
+      border-radius: 12px; padding: 5px 4px 4px; font-weight: 800; font-size: 12px;
+      line-height: 1; opacity: .72;
+    }
+    nav a svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    nav a[aria-current="page"] { background: var(--tabon); color: var(--tabonink); border-color: var(--edge); opacity: 1; }
 
     .toast {
-      position: fixed; left: 50%; bottom: 20px;
+      position: fixed; left: 50%; bottom: calc(var(--navh) + 12px);
       transform: translate(-50%, 12px); opacity: 0; visibility: hidden;
       background: var(--fill); color: var(--fillink); border: 3px solid var(--filledge);
       box-shadow: 4px 4px 0 var(--edge); padding: 10px 16px; border-radius: 12px;
@@ -138,16 +175,36 @@
 
 <header>
   <div class="bar">
-    <a href="klub.html" class="brand">Klub Admin<span class="dot"></span></a>
-    <a href="klub.html" class="back-btn">&larr; Tilbage til Klubben</a>
+    <a href="index.html" class="brand">
+      Pral<span class="dot" aria-hidden="true"></span>
+      <small>Klub Admin & Dommerbord</small>
+    </a>
+    <div class="walletwrap">
+      <a href="min-side.html" class="wallet"><span class="num" id="fp">1.000</span><span>PP</span></a>
+      <a href="min-side.html" class="minside-btn">👤 Min side</a>
+    </div>
   </div>
 </header>
 
 <main>
-  <!-- Vælg hvilken af dine klubber du redigerer -->
+  <div class="top-nav-row">
+    <a href="klub.html" class="back-btn">&larr; Tilbage til Klubben</a>
+    <span style="font-size:12.5px;font-weight:800;color:var(--muted)" id="memberCapLabel">0 / 30 medlemmer</span>
+  </div>
+
+  <!-- Vælg hvilken klub der administreres -->
   <div class="field">
-    <label for="adminClubSelect">Aktiv klub der redigeres</label>
+    <label for="adminClubSelect">Aktiv klub der administreres</label>
     <select id="adminClubSelect"></select>
+  </div>
+
+  <!-- 0. HURTIG DEMO-DATA GENERATOR TIL TEST AF HELE SIDEN -->
+  <div class="panel demo-box">
+    <b style="font:400 18px/1.1 var(--disp);display:block;margin-bottom:4px">🧪 Test & Mock-Data Værktøj</b>
+    <p style="margin:0 0 8px;font-size:13.5px;font-weight:700">
+      Vil du fylde klubben og hele Pral op med realistiske test-venner, kuponer, kommentarer, emojis, modspils-dueller og mandags-kåringer?
+    </p>
+    <button type="button" class="cta accent" id="seedDemoDataBtn">⚡ Indlæs / Nulstil Komplet Mock Demo-Data</button>
   </div>
 
   <!-- 1. KLUB-IDENTITET & REGLER -->
@@ -167,18 +224,16 @@
         <input id="cfgCode" type="text" style="text-transform:uppercase" required>
       </div>
       <div class="field">
-        <label for="cfgRound">Aktuel Runde</label>
+        <label for="cfgRound">Aktuel Spillerunde</label>
         <input id="cfgRound" type="number" min="1" required>
       </div>
     </div>
     <div class="grid-2">
       <div class="field">
-        <label for="cfgBonus">Ugentlig Rundebonus (PP)</label>
+        <label for="cfgBonus">Deltagerbonus pr. runde</label>
         <select id="cfgBonus">
-          <option value="50">50 PP</option>
-          <option value="100">100 PP (Standard)</option>
-          <option value="250">250 PP</option>
-          <option value="500">500 PP (Highroller)</option>
+          <option value="50">50 PP (Pral Standard)</option>
+          <option value="100">100 PP</option>
         </select>
       </div>
       <div class="field">
@@ -186,15 +241,15 @@
         <select id="cfgDuelStake">
           <option value="50">50 PP</option>
           <option value="100">100 PP (Standard)</option>
-          <option value="250">250 PP</option>
+          <option value="200">200 PP</option>
         </select>
       </div>
     </div>
 
     <div class="toggle-row">
       <div>
-        <b>Modspil (Fade) & Følg-dueller</b>
-        <small>Tillad medlemmer at spille 1v1 mod hinandens åbne kald</small>
+        <b>Modspil & Følg-dueller på Opslagstavlen</b>
+        <small>Fair odds uden hus-margin: 1 &divide; (1 &minus; 1 &divide; vennens odds)</small>
       </div>
       <button type="button" class="switch" id="toggleFades" role="switch" aria-checked="true"></button>
     </div>
@@ -202,7 +257,7 @@
     <div class="toggle-row">
       <div>
         <b>Live-kald under kampene</b>
-        <small>Tillad at klubbens medlemmer henter PP på live-kampe</small>
+        <small>Tillad live-kald (1X2 og Næste mål) frem til 84. minut</small>
       </div>
       <button type="button" class="switch" id="toggleLive" role="switch" aria-checked="true"></button>
     </div>
@@ -210,28 +265,90 @@
     <button type="submit" class="cta">Gem klub-indstillinger</button>
   </form>
 
-  <!-- 2. MEDLEMMER & BØDEKASSE -->
+  <!-- 2. MEDLEMMER (MAKS 30), PRALEPENGESKAB & BØDEKASSE -->
   <h3>2. Medlemmer & Bødekasse</h3>
   <div class="panel">
     <p style="margin:0 0 12px;font-size:13.5px;color:var(--muted)">
-      Her kan du give bonus-PP, uddele en dummebøde til klubbens bødekasse eller udnævne med-admins.
+      Alle starter hver runde med 1.000 PP. Her kan du give bonus-PP, uddele en dummebøde til bødekassen eller styre medlemmer (maks. 30 pr. klub).
       <b id="bodekasseStatus" style="display:block;margin-top:4px;color:var(--ink)"></b>
     </p>
     <div id="membersAdminList"></div>
   </div>
 
-  <!-- 3. DOMMERBORDET (AFREGN RUNDE & KAMP-RESULTATER) -->
-  <h3>3. Dommerbordet (Afregn Runde)</h3>
+  <!-- 3. TILFØJ KAMP TIL SPILLERUNDEN (SUPERLIGA + EKSTRA / LOKAL KAMP) -->
+  <h3>3. Tilføj Kamp til Runden</h3>
+  <form class="panel" id="addMatchForm">
+    <div class="grid-2">
+      <div class="field">
+        <label for="mLeague">Liga / Turnering</label>
+        <input id="mLeague" type="text" placeholder="F.eks. Superliga eller Serie 3" value="Superliga" required>
+      </div>
+      <div class="field">
+        <label for="mKickoff">Kampstart</label>
+        <input id="mKickoff" type="text" placeholder="F.eks. Søn 16.00" required>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="mHome">Hjemmehold (1)</label>
+        <input id="mHome" type="text" placeholder="F.eks. Brøndby IF" required>
+      </div>
+      <div class="field">
+        <label for="mAway">Udehold (2)</label>
+        <input id="mAway" type="text" placeholder="F.eks. AGF" required>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field">
+        <label for="mO1">Odds 1</label>
+        <input id="mO1" type="number" step="0.05" min="1.05" value="2.10" required>
+      </div>
+      <div class="field">
+        <label for="mOX">Odds X</label>
+        <input id="mOX" type="number" step="0.05" min="1.05" value="3.40" required>
+      </div>
+      <div class="field">
+        <label for="mO2">Odds 2</label>
+        <input id="mO2" type="number" step="0.05" min="1.05" value="3.20" required>
+      </div>
+    </div>
+    <button type="submit" class="cta ghost">+ Tilføj kamp til spillerunden</button>
+  </form>
+
+  <!-- 4. DOMMERBORDET (MANDAGS-AFREGNING & NY RUNDE) -->
+  <h3>4. Dommerbordet (Mandags-kåringer & Ny Runde)</h3>
   <div class="panel">
     <p style="margin:0 0 10px;font-size:13.5px;color:var(--muted)">
-      Vælg kampenes udfald (1, X eller 2) for at rette alle klubbens kuponer og dueller på én gang:
+      1) Sæt rundens resultater (1, X, 2) og tryk <b>Afregn Runde</b> for at kåre <i>Ugens Konge, Profeten, Brølerkongen & Modspilleren</i>.<br>
+      2) Tryk derefter <b>Start Næste Runde</b>: Rundens overskud + 50 PP deltagerbonus lægges i spillernes <b>Pralepengeskab</b>, ubrugte runde-point slettes, og alle får nye <b>1.000 PP</b>!
     </p>
     <div id="settleMatchesList"></div>
     <button type="button" class="cta ghost" id="simResultsBtn">🎲 Udtræk tilfældige resultater (Simulér)</button>
-    <button type="button" class="cta" id="settleRoundBtn">🏆 Afregn Runde & Udbetal Gevinster</button>
-    <button type="button" class="cta ghost" id="startNextRoundBtn">⏭️ Start Næste Runde (+Rundebonus til alle)</button>
+    <button type="button" class="cta" id="settleRoundBtn">🏆 Afregn Runde & Uddel Mandags-Badges</button>
+    <button type="button" class="cta accent" id="startNextRoundBtn">🏦 Overfør til Pralepengeskab & Start Ny Runde (1.000 PP)</button>
   </div>
 </main>
+
+<nav aria-label="Faner">
+  <div class="in">
+    <a href="index.html">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l4.3 3.1-1.6 5h-5.4l-1.6-5z"/></svg>
+      Kampe
+    </a>
+    <a href="live.html">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/></svg>
+      Live
+    </a>
+    <a href="klub.html" aria-current="page">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.1 4.4 1.7 5 4.4"/></svg>
+      Klubben
+    </a>
+    <a href="badges.html">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M8.5 13.8L7 22l5-2.8 5 2.8-1.5-8.2"/></svg>
+      Badges
+    </a>
+  </div>
+</nav>
 
 <div class="toast" id="toast" role="status"></div>
 
@@ -242,7 +359,8 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const $ = s => document.querySelector(s);
 const fmt = n => Math.round(n).toLocaleString('da-DK');
-const fadeOdds = o => +Math.max(1.05, (1 / (1 - 1 / o)) * 0.93).toFixed(2);
+// Fair modspils-odds uden husmargin: 1 / (1 - 1 / vennens odds)
+const fairFadeOdds = o => +Math.max(1.05, 1 / (1 - 1 / Number(o))).toFixed(2);
 const LBL = ['1', 'X', '2'];
 
 let currentUser = null;
@@ -250,14 +368,14 @@ let myClubs = [];
 let activeClub = null;
 let clubMembers = [];
 let matches = [];
-let pickedResults = {}; // { m1: 0, m2: 1 ... }
+let pickedResults = {};
 
 function toast(t) {
   const el = $('#toast');
   el.textContent = t;
   el.classList.add('show');
   clearTimeout(toast.t);
-  toast.t = setTimeout(() => el.classList.remove('show'), 2800);
+  toast.t = setTimeout(() => el.classList.remove('show'), 3000);
 }
 
 async function boot() {
@@ -269,12 +387,20 @@ async function boot() {
   currentUser = session.user;
   $('#adminBody').hidden = false;
 
+  const { data: myProf } = await sb.from('profiles').select('pp').eq('id', currentUser.id).maybeSingle();
+  if (myProf) $('#fp').textContent = fmt(myProf.pp);
+
   const { data: memberships } = await sb
     .from('club_members')
     .select('role, club_id, clubs(*)')
     .eq('user_id', currentUser.id);
 
   myClubs = (memberships || []).filter(m => m.clubs).map(m => m.clubs);
+
+  if (myClubs.length === 0) {
+    const { data: allC } = await sb.from('clubs').select('*').limit(5);
+    myClubs = allC || [];
+  }
 
   const urlParams = new URLSearchParams(window.location.search);
   const targetId = urlParams.get('club') || localStorage.getItem('pral_active_club_id') || myClubs[0]?.id;
@@ -296,21 +422,19 @@ async function loadClubAdminData(clubId) {
   if (!club) return;
   activeClub = club;
 
-  // Udfyld formular
   $('#cfgName').value = club.name || '';
   $('#cfgMotto').value = club.motto || 'Spil om håneretten!';
   $('#cfgCode').value = club.invite_code || '';
-  $('#cfgRound').value = club.current_round || 1;
-  $('#cfgBonus').value = String(club.round_bonus || 100);
+  $('#cfgRound').value = club.current_round || 17;
+  $('#cfgBonus').value = String(club.round_bonus || 50);
   $('#cfgDuelStake').value = String(club.duel_stake || 100);
   $('#toggleFades').setAttribute('aria-checked', String(club.allow_fades !== false));
   $('#toggleLive').setAttribute('aria-checked', String(club.allow_live !== false));
   $('#bodekasseStatus').textContent = `🍺 Indhold i Bødekassen: ${fmt(club.bodekasse || 0)} PP`;
 
-  // Hent medlemmer
   const { data: mems } = await sb
     .from('club_members')
-    .select('role, user_id, profiles(id, display_name, email, pp, streak)')
+    .select('role, user_id, profiles(id, display_name, email, pp, pralepengeskab, streak, won_calls, badges)')
     .eq('club_id', clubId);
 
   clubMembers = (mems || []).map(m => ({
@@ -319,12 +443,15 @@ async function loadClubAdminData(clubId) {
     name: m.profiles?.display_name || 'Spiller',
     email: m.profiles?.email || '',
     pp: m.profiles?.pp ?? 1000,
-    streak: m.profiles?.streak ?? 0
+    vault: m.profiles?.pralepengeskab ?? 0,
+    streak: m.profiles?.streak ?? 0,
+    won_calls: m.profiles?.won_calls ?? 0,
+    badges: Array.isArray(m.profiles?.badges) ? m.profiles.badges : ['first_step']
   }));
 
+  $('#memberCapLabel').textContent = `${clubMembers.length} / 30 medlemmer`;
   renderMembersAdmin();
 
-  // Hent kampe
   const { data: dbMatches } = await sb.from('matches').select('*').order('id');
   matches = dbMatches || [];
   matches.forEach(m => {
@@ -339,14 +466,16 @@ function renderMembersAdmin() {
       <div class="member-top">
         <div>
           <b>${m.name} ${m.role === 'admin' ? '👑' : ''}</b>
-          <small style="display:block;color:var(--muted)">Saldo: <span class="num">${fmt(m.pp)}</span> PP · Streak: 🔥 ${m.streak}</small>
+          <small style="display:block;color:var(--muted)">
+            Runde: <span class="num">${fmt(m.pp)}</span> PP · Pengeskab: <span class="num">${fmt(m.vault)}</span> PP
+          </small>
         </div>
         <span style="font-size:12px;font-weight:800;text-transform:uppercase">${m.role}</span>
       </div>
       <div class="member-actions">
         <button type="button" class="m-btn bonus" data-mact="bonus" data-uid="${m.id}">+100 PP Bonus</button>
         <button type="button" class="m-btn" data-mact="fine" data-uid="${m.id}">🍺 -100 PP Bøde</button>
-        <button type="button" class="m-btn" data-mact="reset" data-uid="${m.id}">Sæt til 1.000 PP</button>
+        <button type="button" class="m-btn" data-mact="reset" data-uid="${m.id}">Nulstil til 1.000 PP</button>
         <button type="button" class="m-btn" data-mact="role" data-uid="${m.id}">${m.role === 'admin' ? 'Gør til Medlem' : 'Gør til Admin 👑'}</button>
         ${m.id !== currentUser.id ? `<button type="button" class="m-btn danger" data-mact="kick" data-uid="${m.id}">Smid ud</button>` : ''}
       </div>
@@ -376,42 +505,69 @@ $('#clubSettingsForm').addEventListener('submit', async e => {
     name: $('#cfgName').value.trim(),
     motto: $('#cfgMotto').value.trim(),
     invite_code: $('#cfgCode').value.trim().toUpperCase(),
-    current_round: Number($('#cfgRound').value) || 1,
-    round_bonus: Number($('#cfgBonus').value) || 100,
+    current_round: Number($('#cfgRound').value) || 17,
+    round_bonus: Number($('#cfgBonus').value) || 50,
     duel_stake: Number($('#cfgDuelStake').value) || 100,
     allow_fades: $('#toggleFades').getAttribute('aria-checked') === 'true',
     allow_live: $('#toggleLive').getAttribute('aria-checked') === 'true'
   };
 
   const { error } = await sb.from('clubs').update(updates).eq('id', activeClub.id);
-  if (error) {
-    toast('Fejl: ' + error.message);
-  } else {
-    toast('Klub-indstillinger er gemt! ✅');
+  if (error) toast('Fejl: ' + error.message);
+  else {
+    toast('Klub-indstillinger gemt! ✅');
     await loadClubAdminData(activeClub.id);
   }
 });
 
-// Klik-håndtering (Switches, Medlems-knapper, Dommerbord)
+// Tilføj ny kamp til spillerunden
+$('#addMatchForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = 'm' + (matches.length + 1) + '_' + Math.floor(10 + Math.random() * 89);
+  const round = activeClub?.current_round || 17;
+  const odds = [
+    Number($('#mO1').value) || 2.1,
+    Number($('#mOX').value) || 3.4,
+    Number($('#mO2').value) || 3.2
+  ];
+
+  const { error } = await sb.from('matches').insert({
+    id,
+    round,
+    league: $('#mLeague').value.trim(),
+    home_team: $('#mHome').value.trim(),
+    away_team: $('#mAway').value.trim(),
+    kickoff_label: $('#mKickoff').value.trim(),
+    odds,
+    status: 'upcoming'
+  });
+
+  if (error) toast('Fejl: ' + error.message);
+  else {
+    $('#mHome').value = '';
+    $('#mAway').value = '';
+    toast('Ny kamp tilføjet til runden! ⚽');
+    await loadClubAdminData(activeClub.id);
+  }
+});
+
 document.addEventListener('click', async e => {
   const btn = e.target.closest('button');
   if (!btn) return;
 
-  // Toggle switches
   if (btn.classList.contains('switch')) {
     const cur = btn.getAttribute('aria-checked') === 'true';
     btn.setAttribute('aria-checked', String(!cur));
     return;
   }
 
-  // Valg af kampresultat (1, X, 2)
   if (btn.dataset.mid !== undefined) {
     pickedResults[btn.dataset.mid] = Number(btn.dataset.res);
     renderSettleMatches();
     return;
   }
 
-  // Medlemsstyring & Bødekasse
+  // Medlemsstyring
   if (btn.dataset.mact) {
     const uid = btn.dataset.uid;
     const act = btn.dataset.mact;
@@ -420,16 +576,16 @@ document.addEventListener('click', async e => {
 
     if (act === 'bonus') {
       await sb.from('profiles').update({ pp: mem.pp + 100 }).eq('id', uid);
-      toast(`${mem.name} fik +100 PP i bonus!`);
+      toast(`${mem.name} fik +100 PP!`);
     } else if (act === 'fine') {
       const newPp = Math.max(0, mem.pp - 100);
       const newBode = (activeClub.bodekasse || 0) + 100;
       await sb.from('profiles').update({ pp: newPp }).eq('id', uid);
       await sb.from('clubs').update({ bodekasse: newBode }).eq('id', activeClub.id);
-      toast(`🍺 100 PP bøde til ${mem.name} lagt i bødekassen!`);
+      toast(`🍺 100 PP bøde fra ${mem.name} lagt i bødekassen!`);
     } else if (act === 'reset') {
       await sb.from('profiles').update({ pp: 1000 }).eq('id', uid);
-      toast(`${mem.name}s saldo sat til 1.000 PP`);
+      toast(`${mem.name} nulstillet til 1.000 PP`);
     } else if (act === 'role') {
       const newRole = mem.role === 'admin' ? 'member' : 'admin';
       await sb.from('club_members').update({ role: newRole }).eq('club_id', activeClub.id).eq('user_id', uid);
@@ -442,7 +598,7 @@ document.addEventListener('click', async e => {
     return;
   }
 
-  // Simulér tilfældige resultater vægtet efter odds
+  // Simulér kampresultater
   if (btn.id === 'simResultsBtn') {
     matches.forEach(m => {
       const odds = Array.isArray(m.odds) ? m.odds : [2.0, 3.4, 3.2];
@@ -453,33 +609,39 @@ document.addEventListener('click', async e => {
       pickedResults[m.id] = res;
     });
     renderSettleMatches();
-    toast('Resultater trukket ud fra odds! Tryk "Afregn Runde" for at udbetale.');
+    toast('Resultater udtrukket! Tryk nu på "Afregn Runde".');
     return;
   }
 
-  // Afregn Runde & Udbetal Gevinster til alle klubbens medlemmer
+  // AFREGN RUNDE & UDDEL MANDAGS-KÅRINGER + ALL-TIME BADGES
   if (btn.id === 'settleRoundBtn') {
     if (Object.keys(pickedResults).length < matches.length) {
       toast('Vælg resultat (1, X eller 2) for alle kampe først!');
       return;
     }
 
-    // 1. Gem kampresultater i matches-tabellen
     for (const m of matches) {
       await sb.from('matches').update({ result: pickedResults[m.id], status: 'finished' }).eq('id', m.id);
     }
 
-    // 2. Hent alle klubbens pending calls i denne runde
-    const round = activeClub.current_round || 1;
-    const { data: clubCalls } = await sb
+    const round = activeClub.current_round || 17;
+    const memberIds = clubMembers.map(m => m.id);
+
+    // Hent alle kald fra klubbens medlemmer i denne runde
+    const { data: roundCalls } = await sb
       .from('calls')
       .select('*, call_reactions(*)')
-      .eq('club_id', activeClub.id)
+      .in('user_id', memberIds)
       .eq('round', round);
 
-    let bestCall = null, burntCall = null;
+    let bestCall = null;  // Profeten (højeste ramte odds)
+    let burntCall = null; // Brølerkongen (laveste brændte odds)
+    const faderCount = {}; // Modspilleren (flest vundne fades)
+    const roundNet = {};   // Til Ugens Konge
 
-    for (const c of (clubCalls || [])) {
+    clubMembers.forEach(m => { faderCount[m.id] = 0; roundNet[m.id] = { profit: 0, hits: 0 }; });
+
+    for (const c of (roundCalls || [])) {
       const picks = Array.isArray(c.picks) ? c.picks : [];
       const won = picks.length > 0 && picks.every(p => pickedResults[p.m] === p.i);
       const payout = won ? Math.round(c.stake * Number(c.odds)) : 0;
@@ -487,78 +649,231 @@ document.addEventListener('click', async e => {
 
       await sb.from('calls').update({ status: newStatus, payout }).eq('id', c.id);
 
-      // Opdater kupon-ejerens PP og streak
       const owner = clubMembers.find(m => m.id === c.user_id);
       if (owner) {
+        const bSet = new Set(owner.badges);
         if (won) {
           owner.pp += payout;
-          owner.streak += 1;
+          owner.won_calls += 1;
+          roundNet[owner.id].profit += (payout - c.stake);
+          roundNet[owner.id].hits += 1;
+
+          // All-time badges (kræver indsats >= 100 PP)
+          if (c.stake >= 100) {
+            bSet.add('home');
+            if (picks.length >= 3) bSet.add('combo');
+            if (Number(c.odds) >= 5) bSet.add('long');
+            if (Number(c.odds) >= 50) bSet.add('max_50');
+          }
+          if (owner.won_calls >= 10) bSet.add('sniper');
+
           if (!bestCall || Number(c.odds) > Number(bestCall.odds)) bestCall = { ...c, payout };
         } else {
-          owner.streak = 0;
-          if (!burntCall || Number(c.odds) > Number(burntCall.odds)) burntCall = c;
+          roundNet[owner.id].profit -= c.stake;
+          if (!burntCall || Number(c.odds) < Number(burntCall.odds)) burntCall = c;
         }
-        await sb.from('profiles').update({ pp: owner.pp, streak: owner.streak }).eq('id', owner.id);
+        owner.badges = [...bSet];
+        await sb.from('profiles').update({
+          pp: owner.pp,
+          won_calls: owner.won_calls,
+          badges: owner.badges
+        }).eq('id', owner.id);
       }
 
-      // Afregn alle Følg / Modspil reaktioner på dette kald
+      // Afregn Følg / Modspil reaktioner med Fair Odds
       for (const r of (c.call_reactions || [])) {
         const reactWon = (r.action === 'follow' && won) || (r.action === 'fade' && !won);
         const rStake = r.stake || activeClub.duel_stake || 100;
-        const rWin = reactWon ? Math.round(rStake * (r.action === 'follow' ? Number(c.odds) : fadeOdds(Number(c.odds)))) : 0;
+        const rOdds = r.action === 'follow' ? Number(c.odds) : fairFadeOdds(c.odds);
+        const rWin = reactWon ? Math.round(rStake * rOdds) : 0;
 
         await sb.from('call_reactions')
           .update({ status: reactWon ? 'won' : 'lost', payout: rWin })
           .eq('call_id', c.id)
           .eq('user_id', r.user_id);
 
-        if (reactWon) {
-          const reactor = clubMembers.find(m => m.id === r.user_id);
-          if (reactor) {
-            reactor.pp += rWin;
-            await sb.from('profiles').update({ pp: reactor.pp }).eq('id', reactor.id);
+        const reactor = clubMembers.find(m => m.id === r.user_id);
+        if (reactor && reactWon) {
+          reactor.pp += rWin;
+          roundNet[reactor.id].profit += (rWin - rStake);
+          if (r.action === 'fade') {
+            faderCount[reactor.id] = (faderCount[reactor.id] || 0) + 1;
           }
+          await sb.from('profiles').update({ pp: reactor.pp }).eq('id', reactor.id);
         }
       }
     }
 
-    // 3. Gem Ugens Kåringer i round_awards
+    // Find Ugens Konge (Højeste runderesultat; ved pointlighed flest ramte kald)
+    const kingSorted = [...clubMembers].sort((a, b) => {
+      const diff = (roundNet[b.id]?.profit || 0) - (roundNet[a.id]?.profit || 0);
+      if (diff !== 0) return diff;
+      return (roundNet[b.id]?.hits || 0) - (roundNet[a.id]?.hits || 0);
+    });
+    const king = kingSorted[0];
+
+    // Find Modspilleren
+    const faderSorted = Object.entries(faderCount).sort((a, b) => b[1] - a[1]);
+    const topFaderId = faderSorted[0] && faderSorted[0][1] > 0 ? faderSorted[0][0] : null;
+
     await sb.from('round_awards').upsert({
       club_id: activeClub.id,
       round,
+      king_user_id: king ? king.id : null,
+      king_profit: king ? (roundNet[king.id]?.profit || 0) : 0,
       best_user_id: bestCall ? bestCall.user_id : null,
       best_odds: bestCall ? bestCall.odds : null,
       best_win: bestCall ? bestCall.payout : null,
       burnt_user_id: burntCall ? burntCall.user_id : null,
-      burnt_odds: burntCall ? burntCall.odds : null
+      burnt_odds: burntCall ? burntCall.odds : null,
+      fader_user_id: topFaderId,
+      fader_wins: topFaderId ? faderSorted[0][1] : 0
     }, { onConflict: 'club_id,round' });
 
     await loadClubAdminData(activeClub.id);
-    toast(`Runde ${round} er afregnet og PP er udbetalt! 🏆`);
+    toast(`Runde ${round} afregnet! Mandags-kåringer er nu live i Klubben 🏆`);
     return;
   }
 
-  // Start Næste Runde (+Rundebonus til alle medlemmer)
+  // START NÆSTE RUNDE: Overfør til Pralepengeskab, giv +50 PP deltagerbonus & nulstil alle til 1.000 PP
   if (btn.id === 'startNextRoundBtn') {
-    const nextR = (activeClub.current_round || 1) + 1;
-    const bonus = activeClub.round_bonus || 100;
+    const curRound = activeClub.current_round || 17;
+    const nextR = curRound + 1;
+    const partBonus = activeClub.round_bonus || 50;
+
+    const { data: curCalls } = await sb.from('calls').select('user_id, stake, payout, status').eq('round', curRound);
+
+    for (const m of clubMembers) {
+      const userCalls = (curCalls || []).filter(c => c.user_id === m.id);
+      const participated = userCalls.length > 0;
+      const bonus = participated ? partBonus : 0;
+      const winnings = userCalls.filter(c => c.status === 'won').reduce((s, c) => s + (c.payout || 0), 0);
+
+      // Gevinster + deltagerbonus lægges i Pralepengeskabet; ubrugte runde-point forsvinder, og ny runde starter på 1.000 PP
+      const newVault = (m.vault || 0) + winnings + bonus;
+
+      await sb.from('profiles').update({
+        pralepengeskab: newVault,
+        pp: 1000,
+        rounds_played: participated ? (m.streak + 1) : 0,
+        streak: participated ? (m.streak + 1) : 0
+      }).eq('id', m.id);
+    }
 
     await sb.from('clubs').update({ current_round: nextR }).eq('id', activeClub.id);
 
-    for (const m of clubMembers) {
-      await sb.from('profiles').update({ pp: m.pp + bonus }).eq('id', m.id);
-    }
-
-    // Nulstil kampresultater til den nye runde
     for (const m of matches) {
       await sb.from('matches').update({ result: null, status: 'upcoming', round: nextR }).eq('id', m.id);
     }
     pickedResults = {};
 
     await loadClubAdminData(activeClub.id);
-    toast(`Runde ${nextR} er startet! Alle i klubben har fået +${bonus} PP 🎁`);
+    toast(`Runde ${nextR} startet! Gevinster er lagt i Pralepengeskabet, og alle har 1.000 nye PP 🏦`);
+    return;
+  }
+
+  // 1-KLIK DEMO DATA GENERATOR
+  if (btn.id === 'seedDemoDataBtn') {
+    btn.disabled = true;
+    btn.textContent = 'Indlæser mock-data...';
+    await seedBrowserDemoData();
+    btn.disabled = false;
+    btn.textContent = '⚡ Indlæs / Nulstil Komplet Mock Demo-Data';
   }
 });
+
+// Indsætter komplet Mock/Demo-data direkte fra browseren
+async function seedBrowserDemoData() {
+  try {
+    const mockUsers = [
+      { id: '11111111-1111-4111-8111-111111111111', email: 'simon@pral.dk', display_name: 'Simon Carlson', pp: 1380, pralepengeskab: 4850, streak: 4, won_calls: 8, badges: ['first_step', 'welcome', 'first', 'home', 'combo'] },
+      { id: '22222222-2222-4222-8222-222222222222', email: 'jonas@pral.dk', display_name: 'Jonas H.', pp: 1190, pralepengeskab: 3620, streak: 3, won_calls: 6, badges: ['first_step', 'welcome', 'first', 'long'] },
+      { id: '33333333-3333-4333-8333-333333333333', email: 'amalie@pral.dk', display_name: 'Amalie K.', pp: 940, pralepengeskab: 5120, streak: 5, won_calls: 11, badges: ['first_step', 'welcome', 'first', 'home', 'streak', 'sniper'] },
+      { id: '44444444-4444-4444-8444-444444444444', email: 'frederik@pral.dk', display_name: 'Frederik M.', pp: 700, pralepengeskab: 2190, streak: 2, won_calls: 4, badges: ['first_step', 'welcome', 'first'] },
+      { id: '55555555-5555-4555-8555-555555555555', email: 'ida@pral.dk', display_name: 'Ida S.', pp: 1520, pralepengeskab: 6300, streak: 5, won_calls: 12, badges: ['first_step', 'welcome', 'first', 'home', 'long', 'sniper'] }
+    ];
+
+    for (const u of mockUsers) {
+      await sb.from('profiles').upsert({ ...u, email_verified: true });
+    }
+
+    // Opdater også den indloggede bruger med pæne start-tal
+    await sb.from('profiles').update({
+      pp: 1150,
+      pralepengeskab: 4200,
+      streak: 3,
+      badges: ['first_step', 'welcome', 'first', 'home', 'live']
+    }).eq('id', currentUser.id);
+
+    const clubId = activeClub.id;
+    const round = activeClub.current_round || 17;
+
+    for (const u of mockUsers) {
+      await sb.from('club_members').upsert({ club_id: clubId, user_id: u.id, role: 'member' });
+    }
+
+    // Opret 4 realistiske kuponer på opslagstavlen
+    const demoCalls = [
+      {
+        id: 'aaaa1111-1111-4111-8111-111111111111',
+        club_id: clubId, user_id: mockUsers[0].id, round,
+        picks: [{ m: 'm1', i: 0 }, { m: 'm3', i: 0 }],
+        stake: 200, odds: 3.00, payout: 0, status: 'pending',
+        comment: 'FCK og FCM hjemme — det er gratis point til skabet!'
+      },
+      {
+        id: 'bbbb2222-2222-4222-8222-222222222222',
+        club_id: clubId, user_id: mockUsers[1].id, round,
+        picks: [{ m: 'm1', i: 2 }, { m: 'm5', i: 2 }],
+        stake: 100, odds: 12.10, payout: 0, status: 'pending',
+        comment: 'Brøndby og Arsenal tager den på udebane. Modspil mig hvis I tør 🃏'
+      },
+      {
+        id: 'cccc3333-3333-4333-8333-333333333333',
+        club_id: clubId, user_id: mockUsers[2].id, round,
+        picks: [{ m: 'm4', i: 0 }, { m: 'm5', i: 0 }, { m: 'm6', i: 0 }],
+        stake: 200, odds: 9.90, payout: 1980, status: 'won',
+        comment: 'Tre sikre hjemmesejre i træk 🔥'
+      },
+      {
+        id: 'dddd4444-4444-4444-8444-444444444444',
+        club_id: clubId, user_id: mockUsers[3].id, round,
+        picks: [{ m: 'm3', i: 0 }],
+        stake: 300, odds: 1.62, payout: 0, status: 'lost',
+        comment: 'All-in på dagens største favorit, hvad kan gå galt?'
+      }
+    ];
+
+    for (const c of demoCalls) {
+      await sb.from('calls').upsert(c);
+    }
+
+    // Tilføj emojis, kommentarer og 1v1 modspil
+    await sb.from('call_emojis').upsert([
+      { call_id: demoCalls[0].id, user_id: mockUsers[2].id, emoji: '🔥' },
+      { call_id: demoCalls[1].id, user_id: mockUsers[0].id, emoji: '😂' },
+      { call_id: demoCalls[1].id, user_id: mockUsers[4].id, emoji: '💀' },
+      { call_id: demoCalls[2].id, user_id: mockUsers[1].id, emoji: '🫡' }
+    ]);
+
+    await sb.from('call_comments').insert([
+      { call_id: demoCalls[1].id, user_id: mockUsers[0].id, body: 'Odds 12,10?! Jeg har modspillet dig direkte 😂' },
+      { call_id: demoCalls[1].id, user_id: mockUsers[2].id, body: 'Klassisk Jonas-langskud!' },
+      { call_id: demoCalls[3].id, user_id: mockUsers[4].id, body: 'Av Frederik, Brølerkongen venter på mandag 🙈' }
+    ]);
+
+    await sb.from('call_reactions').upsert([
+      { call_id: demoCalls[1].id, user_id: currentUser.id, action: 'fade', stake: 100, status: 'pending' },
+      { call_id: demoCalls[0].id, user_id: mockUsers[2].id, action: 'follow', stake: 100, status: 'pending' },
+      { call_id: demoCalls[3].id, user_id: currentUser.id, action: 'fade', stake: 100, status: 'won', payout: 262 }
+    ]);
+
+    await loadClubAdminData(clubId);
+    toast('Mock Demo-Data er indlæst! Gå til Klubben eller Kampe for at se det 🎉');
+  } catch (err) {
+    toast('Husk at køre den nye Master SQL i Supabase først: ' + err.message);
+  }
+}
 
 boot();
 </script>
